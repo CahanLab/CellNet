@@ -278,9 +278,6 @@ mp_hmVars<-function# basic heatmap
  ccol=''
 ){
   
-  
-  
-  require(gplots);
   genes<-intersect(rownames(expDat), genes);
   
   if(length(ccol)==4){

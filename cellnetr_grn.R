@@ -165,7 +165,7 @@ ig_tabToIgraph<-function# return a iGraph object
  weights=TRUE
 ){
   # Note: this adds an nEnts vertex attribute to count the number of entities in the sub-net
-  require(igraph);
+  
   if(FALSE){
     tmpAns<-as.matrix(grnTab[,c("TF", "TG")]);
     regs<-as.vector(unique(grnTab[,"TF"]));

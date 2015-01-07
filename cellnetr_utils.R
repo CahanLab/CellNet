@@ -1,3 +1,17 @@
+# CellNet
+# (C) Patrick Cahan 2012-2014
+#
+
+utils_function<-function# source all .R files in given directory
+(dirname ### directory containing R files for sourcing
+  ){
+  cmd<-paste("ls *.R", dirname, sep='');
+  rfiles<-system(cmd, intern=TRUE);
+  for(rfile in rfiles){
+    source(rfile);
+  }
+}
+
 cn_geoFetch<-function# Fetch GEO RAW data from GEO and decompress
 (sampTab,
  ### data.frame of sample_id, sample_name, description[1-x], exp_id, file_name
