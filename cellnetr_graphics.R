@@ -77,8 +77,7 @@ cn_stdout<-function
   ### return the file name of the plot pdf file.
 }
 
-cn_barplot_grnSing<-function
-### barplot this specific GRN
+cn_barplot_grnSing<-function ### wrapper to barplot secific GRN
 (cnObj,
  ### result of analyzing query data with CN
  cnProc,
@@ -87,28 +86,29 @@ cn_barplot_grnSing<-function
  ### name of subnet to plot establishment level 
  ctrSamps,
  ### names of samples in training data
- bOrder,  
+ bOrder
  ### order of bars
- norm=FALSE 
- ### normalize?
 ){
   
-  qScores<-cnObj[['queryScores']];
-  if(norm){  
-    nVals<-cnProc[['normVals']];  
-    qScores<-cnObj[['normScoresQuery']];
-    #ctrlScores<-cnProc[['ctrlScores']];
-    ctrlScores<-cnProc[['trainingScores']]
-  }
-  else{
-    ctrlScores<-cnProc[['raw_scores']];
-    xx<-cn_extract_SN_DF(ctrlScores, cnProc[['stTrain']], cnProc[['dLevelTrain']],rnames=snName);
-    xx3<-cn_reduceMatLarge(xx, "score", "description", "subNet");
-    ctrlScores<-xx3;
-  }
+  qScores<-cnObj[['normScoresQuery']];
+  ctrlScores<-cnProc[['trainingScores']]
   
+  .cn_barplot_grnSing(qScores, ctrlScores, cnObj[['stQuery']], cnObj[['dLevelQuery']], snName, ctrlSamps, bOrder);
+}
+
+
+.cn_barplot_grnSing<-function### barplot this specific GRN
+(qScores, ### queryScores
+ ctrlScores, #### control scores
+ stQuery,
+ dLevelQ,
+ snName,### name of subnet to plot establishment level 
+ ctrSamps,### names of samples in training data
+ bOrder  ### order of bars
+ ){
+    
   # convert into a data.frame
-  aa<-cn_extract_SN_DF(qScores, cnObj[['stQuery']], cnObj[['dLevelQuery']], rnames=snName);
+  aa<-cn_extract_SN_DF(qScores, stQuery,dLevelQ, rnames=snName);
   aa3<-cn_reduceMatLarge(aa, "score", "description", "subNet");
   aa3<-cbind(aa3, src=rep('query', nrow(aa3)));
   tmpAns<-data.frame();
@@ -121,14 +121,11 @@ cn_barplot_grnSing<-function
   
   if(is.null(bOrder)){
     bOrder<-c(as.vector(tmpAns$grp_name), as.vector(aa3$grp_name));
-    ##bOrder<-aa3$grp_name[order(aa3$mean, decreasing=TRUE)];
-    
+    ##bOrder<-aa3$grp_name[order(aa3$mean, decreasing=TRUE)];    
   }
   
   aa3<-rbind(aa3, tmpAns);
   aa3$grp_name<-factor(aa3$grp_name, bOrder);
-  
-  #### 
   
   ##
   # convert is.na(stdev) -> 0
@@ -142,11 +139,12 @@ cn_barplot_grnSing<-function
     geom_errorbar(aes(ymin=mean-stdev, ymax=mean+stdev),width=.2,position=position_dodge()) +
     scale_fill_brewer(palette = "Paired")  +
     theme_bw() +
-    theme(text = element_text(size=8), axis.text.x = element_text(angle=90, vjust=1)) +
+    theme(text = element_text(size=8), axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
     ggtitle(snName) + theme(axis.title.x = element_blank())+ ylab("GRN status")
   ans;
   ### single GRN barplot
 }
+
 
 
 cn_hmClass<-function

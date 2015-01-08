@@ -1,18 +1,39 @@
 # CellNet
 # (C) Patrick Cahan 2012-2014
-# functions to set up for sample classification
 
-# To train a CellNet processor:
-# cnProc<-CN3_make_processor(expTrain, stTrain, igGRNs, TCT_order, dLevel) 
+# making and applying classifiers
+
 # 
-# To analyze a query data set:
-# cnRes<-CN3_analyze(cnProc, expQuery, stQuery, dLevel)
-# 
-# To produce standard output (classification HM, donor, target, aberant GRN establishments):
-# CN3_stdOut(cnProc, cnRes, prefix)
+# APPLYING
+#
+cn_classify<-function
+### run binary classifiers on expression data
+(classList, 
+ ### result of running CN3_makeClassifier
+ expDat, 
+ ### expression data 
+ cttComms 
+ ### list of tct->list(grn)
+){
+  ctts<-names(classList);
+  ans<-matrix(0, nrow=length(ctts), ncol=ncol(expDat));
+  rownames(ans)<-ctts;
+  for(ctt in ctts){
+    #cat(ctt,"\n")
+    ##    xgenes<-cttComms[[ctt]][[1]];
+    xgenes<-cttComms[[ctt]];
+    myProbs<-predict(classList[[ctt]], t(expDat[xgenes,]), type='prob');
+    ans[ctt,]<-myProbs[,ctt];
+  }
+  colnames(ans)<-colnames(expDat);
+  ans;
+  # classification matrix
+}
 
 
-
+#
+# MAKING CLASSIFIERS
+#
 cn_makeRFs<-function# Make one Random Forest classification per TCT
 (expTrain,
  stTrain,

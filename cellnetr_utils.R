@@ -1,16 +1,8 @@
 # CellNet
 # (C) Patrick Cahan 2012-2014
-#
 
-utils_function<-function# source all .R files in given directory
-(dirname ### directory containing R files for sourcing
-  ){
-  cmd<-paste("ls *.R", dirname, sep='');
-  rfiles<-system(cmd, intern=TRUE);
-  for(rfile in rfiles){
-    source(rfile);
-  }
-}
+# commonly used or miscellanous functions
+
 
 cn_geoFetch<-function# Fetch GEO RAW data from GEO and decompress
 (sampTab,
@@ -328,4 +320,146 @@ cn_graphMerge<-function### merge graphs
 
 
 
+sigOvers<-function# run cn_sigOverlap for many gene lists
+(sigObj,#
+ geneLists,#
+ universe, #
+ holmThresh=1e-4,
+ sizeThresh=25){
+  ans<-list();
+  glNames<-names(geneLists);
+  for( glname in glNames){
+    geneList<-geneLists[[glname]];
+    tmp<-cn_sigOverlap(sigObj, geneList, glname,universe);
+    xans<-as.vector(tmp[tmp$holm<holmThresh & tmp$ratio>1 & tmp$annSize>sizeThresh,]$annName);
+    ans[[glname]]<-xans;
+  }
+  ans;
+}
+
+
+
+cn_sigOverlap<-function#
+(sigs,
+ geneSet,
+ gsName,
+ universe){
+  ans<-data.frame();
+  
+  queryGenes<-intersect(universe, geneSet);
+  nGenesQuery<-length(queryGenes);
+  
+  queryNames<-rep(gsName, length(sigs));
+  annNames<-names(sigs);
+  pvals<-rep(0, length(sigs));
+  nBoths<-rep(0, length(sigs));
+  expecteds<-rep(0, length(sigs));
+  ratios<-rep(0, length(sigs));
+  genes<-rep('', length(sigs));
+  nGS<-rep(0, length(sigs));
+  nAnn<-rep(0, length(sigs));
+  
+  for(i in seq(length(sigs))){
+    # set up contingency table
+    
+    # only include genes that are both in the signature AND in the universe
+    annGenes <- intersect( universe, sigs[[i]]);
+    
+    # genesBoth = genes that are both in the query genese (module) and in the annotation (from the GMT file)
+    genesBoth<-intersect(annGenes,queryGenes);
+    nBoth<-length(genesBoth);
+    
+    #  if(nBoth>0){
+    
+    
+    genesQueryOnly <- setdiff(queryGenes, genesBoth);
+    genesAnnOnly   <- setdiff(annGenes,   genesBoth);
+    genesNeither   <- setdiff(universe,   c(queryGenes, annGenes));
+    
+    nQueryOnly     <- length(genesQueryOnly);
+    nAnnOnly       <- length(genesAnnOnly  );
+    nNeither       <- length(genesNeither  );
+    
+    mt<-matrix( c( nBoth,nQueryOnly,nAnnOnly, nNeither ), nrow=2, byrow=T);
+    
+    # tResult<-fisher.test(mt);
+    tResult<-chisq.test(mt);
+    
+    #queryNames[i]<-gsName;
+    #annNames[i]<-names(sigs)[i];
+    pvals[i]<-tResult$p.value;
+    nBoths[i]<-tResult$observed[1];
+    expecteds[i]<-tResult$expected[1];
+    ratios[i]<-tResult$observed[1]/tResult$expected[1];
+    genes[i]<-paste(genesBoth,collapse=',');
+    nGS[i]<-length(queryGenes);
+    nAnn[i]<-length(annGenes);
+  }
+  ans<-data.frame(queryName=queryNames,
+                  querySize=nGS,
+                  annName=annNames,
+                  annSize=nAnn,
+                  pval=pvals,
+                  nBoth=nBoths,
+                  expected=expecteds,
+                  ratio=ratios,
+                  genes=genes);
+  #  }
+  ans<-cbind(ans, holm=p.adjust(ans$pval, method='holm'));
+  # re-order columns
+  ans<-ans[,c("queryName", "querySize", "annName", "annSize", "pval","holm", "ratio", "nBoth", "expected", "genes")];
+  ans;
+}
+
+
+
+cn_findGene<-function # find what subents a gene is in
+(sns,
+ gene){
+  ans<-vector();
+  snNames<-names(sns);
+  for(snName in snNames){
+    if( any(sns[[snName]]==gene) ){
+      ans<-append(ans, snName);
+    }
+  }
+  ans;
+}
+
+
+cn_getGeneWeights<-function# extract the gene weighting for each gene in a c/t GRN
+(cnProc,
+ ctt){
+
+  tVals<-cnProc[['tVals']];
+  classList<-cnProc[['classList']];
+  genes<-cnProc[['grnList']][[ctt]];
+  weights<-rep(1, length(genes));
+  names(weights)<-genes;
+  if(cnProc[['exprWeight']]){
+    cat("expr weights\t");
+    meanVect<-unlist(tVals[[ctt]][['mean']][genes]);
+    weights<-(2**meanVect)/sum(2**meanVect);
+  }
+  if(cnProc[['classWeight']]){
+    cat("class weights\n")
+    classImp<-classList[[ctt]]$importance[genes,1];
+    weights<-weights*classImp;
+  }
+
+  names(weights)<-genes;
+  weights;
+}
+
+
+mat_zscores<-function# computes sqrt(zscore_row + zscore_col) .. see JJ Faith et al 2007
+(corrMat # does it matter whether TF is row or col?
+){
+  z_row<-scale(t(corrMat))**2;
+  cat(dim(z_row),"\n");
+  z_col<-scale(corrMat)**2;
+  cat(dim(z_col),"\n");
+  ans<-sqrt( z_row+z_col);
+  ans;  
+}
 
