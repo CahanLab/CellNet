@@ -451,9 +451,19 @@ cn_getGeneWeights<-function# extract the gene weighting for each gene in a c/t G
   weights;
 }
 
+mat_zscores<-function# computes sqrt(zscore_row + zscore_col) .. slightly modidied from JJ Faith et al 2007
+(corrMat
+){
+  corrMat<-abs(corrMat);
+  zscs_2<-round(scale(corrMat), 3);
+  zscs_2<- zscs_2 + t(zscs_2);
+  zscs_2;
+}
 
+
+if(FALSE){
 mat_zscores<-function# computes sqrt(zscore_row + zscore_col) .. see JJ Faith et al 2007
-(corrMat # does it matter whether TF is row or col?
+(corrMat
 ){
   z_row<-scale(t(corrMat))**2;
   cat(dim(z_row),"\n");
@@ -461,5 +471,14 @@ mat_zscores<-function# computes sqrt(zscore_row + zscore_col) .. see JJ Faith et
   cat(dim(z_col),"\n");
   ans<-sqrt( z_row+z_col);
   ans;  
-}
+}}
 
+
+
+
+myzscore<-function# zscore
+(vect){
+  mn<-mean(vect);
+  ssd<-sd(vect);
+  (vect-mn)/ssd;
+}

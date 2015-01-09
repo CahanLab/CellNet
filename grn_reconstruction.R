@@ -391,3 +391,31 @@ cn_extractRegsDF<-function# extracts the TRs, zscores, and corr values passing t
 }
 
 
+sample_profiles_grn<-function# sample equivalent numbers of profiles per cell type
+(sampTab,### sample table
+  minNum=NULL, # min number of samples to get per CT
+  dLevel="description1" ### grouping
+  ){
+
+  nperCT<-table(sampTab[,dLevel]);   
+  if(is.null(minNum)){
+    minNum<-min(nperCT);
+  }
+
+  nsamps<-vector();
+  ctts<-names(nperCT);
+  for(ctt in ctts){
+    stTmp<-sampTab[sampTab[,dLevel]==ctt,];
+    cat(ctt,":",nrow(stTmp),"\n");
+    ids<-sample( rownames(stTmp),minNum);
+    nsamps<-append(nsamps, ids);
+  }
+  sampTab[nsamps,];
+}
+
+
+
+
+
+
+
