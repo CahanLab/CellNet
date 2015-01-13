@@ -34,6 +34,49 @@ cn_classify<-function
 #
 # MAKING CLASSIFIERS
 #
+
+samp_for_class<-function# return a sampTab for training a test classifier
+(sampTab,
+  prop=0.5,
+  dLevel="description1"){
+
+  ctts<-unique(as.vector(sampTab[,dLevel]));
+  stTrain<-data.frame();
+  for(ctt in ctts){
+    stTmp<-sampTab[sampTab[,dLevel]==ctt,];
+    stTrain<-rbind(stTrain, .samp_for_class(stTmp,prop));
+  }
+  stTrain;
+}
+
+.samp_for_class<-function
+(sampTab,
+  prop=0.5){
+
+  expIDcounts<-sort(table(sampTab$exp_id));
+  expIDs<-names(expIDcounts);
+  total<-sum(expIDcounts);
+
+  runningTotal<-0;
+  i<-1;
+  xi<-floor( length(expIDcounts)/2 );
+  while(i<=length(expIDcounts)){
+    runningTotal<-sum(expIDcounts[1:i]);
+    if(runningTotal/total > prop){
+      xi<- i-1;
+      break;
+    }
+    i<-i+1;
+  }
+  expIDs<-expIDs[1:xi];
+  
+  stTrain<-data.frame();
+  for(expID in expIDs){
+    stTrain<-rbind(stTrain, sampTab[sampTab$exp_id==expID,]);
+  }
+  stTrain;
+}
+
 cn_makeRFs<-function# Make one Random Forest classification per TCT
 (expTrain,
  stTrain,

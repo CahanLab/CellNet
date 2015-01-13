@@ -465,3 +465,171 @@ cn_barplot_exp<-function
 }
 
 
+plot_grn_summary<-function# plot basics stats of grnTable produced by cn_grnDoRock
+(grnRes### result of running cn_grnDoRock
+  ){
+  x<-grnRes$grnStuff$grnTable;
+  nTargetsPerTF<-table(x$TF);
+  ntp<-data.frame(TF=names(nTargetsPerTF), count=as.vector(nTargetsPerTF));
+  nRegPerTarg<-table(x$TG)
+  npp<-data.frame(TF=names(nRegPerTarg), count=as.vector(nRegPerTarg));
+
+  x1<-ggplot(ntp, aes(x=count)) + geom_histogram(colour="black", fill="white") + 
+    ggtitle("Number of targets per TF") + labs(x="Number of targets");
+
+  x2<-ggplot(npp, aes(x=count)) + geom_histogram(colour="black", fill="white") + 
+    ggtitle("Number of regulators per target") + labs(x="Number of regulators");
+
+  ###multiplot(x1, x2,cols=2);
+  list(x1, x2);
+}
+
+plot_commList_summary<-function# plot basics stats of graphList produced by cn_grnDoRock
+(grnRes### result of running cn_grnDoRock
+  ){
+    x<-grnRes$grnStuff$graphList;
+    funsize<-function(agraph, type="nodes"){
+      if(type=="nodes"){
+        ans<-length(V(agraph));
+      }
+      else{
+        ans<-length(E(agraph));
+      }
+      ans;
+    }
+
+    nnodes<-unlist(lapply(x, funsize, type='nodes'));
+    df1<-data.frame(sn_name=names(x), size=nnodes);
+    xplot1<-ggplot(df1, aes(x=size)) + geom_histogram(colour="black", fill="white") + 
+    ggtitle("Node distribution") + labs(x="Number of nodes") + labs(y='Number of subnets');
+
+    nedges<-unlist(lapply(x, funsize, type='edges'));
+    df2<-data.frame(sn_name=names(x), size=nedges);
+    xplot2<-ggplot(df2, aes(x=size)) + geom_histogram(colour="black", fill="white") + 
+    ggtitle("Edge distribution") + labs(x="Number of edges") + labs(y='Number of subnets');
+    ####multiplot(xplot1, xplot2, cols=2);
+    list(xplot1, xplot2);
+  }
+
+plot_ctSN_general_summary<-function# plot basics stats of ct communities produced by cn_grnDoRock
+(grnRes### result of running cn_grnDoRock
+  ){
+    ctGRNs<-grnRes$ctGRNs$general$graphs; # list of ct -> one graph
+
+    nnodes<-unlist(lapply(ctGRNs, vcount));
+    df1<-data.frame(sn_name=names(ctGRNs), size=nnodes);
+    xplot1<-ggplot(df1, aes(x=sn_name, y=size, width=.7)) + geom_bar(stat="identity") + #, colour="black", fill="white") + 
+    ggtitle("GRN size - nodes") + labs(y="Number of nodes") + labs(x='') + coord_flip() + theme_bw() + theme(axis.text.y = element_text(size=5))
+
+    nedges<-unlist(lapply(ctGRNs, ecount));
+    df2<-data.frame(sn_name=names(ctGRNs), size=nedges);
+    xplot2<-ggplot(df2, aes(x=sn_name, y=size, width=.7)) + geom_bar(stat="identity") + #, colour="black", fill="white") + 
+    ggtitle("GRN size - edges") + labs(y="Number of edges") + labs(x='') + coord_flip() + theme_bw() + theme(axis.text.y = element_text(size=5))
+    ###multiplot(xplot1, xplot2, cols=1);
+    list(xplot1, xplot2);
+}
+
+plot_ctSN_subnet_summary<-function# plot basics stats of subnet ct communities produced by cn_grnDoRock
+(grnRes### result of running cn_grnDoRock
+  ){
+
+    nodesize<-function(agraph, ntype='Target'){
+      length(V(agraph)[V(agraph)$type==ntype]);
+    }
+    
+
+    ctGRNs<-grnRes$ctGRNs$subnets$graphs; # list of ct -> one graph
+    ctts<-names(ctGRNs);
+    ntargs<-vector();
+    nregs<-vector();
+    snnames<-vector();
+    df1<-data.frame();
+    for(ctt in ctts){
+      ntargs<-append(ntargs, unlist(lapply(ctGRNs[[ctt]], nodesize, ntype='Target')));
+      nregs<-append(nregs, unlist(lapply(ctGRNs[[ctt]], nodesize, ntype='Regulator')));
+      snnames<-append(snnames, names(ctGRNs[[ctt]]));
+    }
+    df1<-data.frame(sn_name=snnames, size=ntargs, type="Target")
+    df1<-rbind(df1, data.frame(sn_name=snnames, size=nregs, type="Regulator"));
+
+    xplot1<-ggplot(df1, aes(x=sn_name, y=size, width=.7, fill=type)) + geom_bar(stat="identity") + #, colour="black", fill="white") 
+      ggtitle("Sub-network size - nodes") + labs(y="Number of genes") + 
+      labs(x='') + coord_flip() + theme_bw() + 
+      theme(axis.text.y = element_text(size=5))
+
+    
+    if(FALSE){
+    nnodes<-unlist(lapply(ctGRNs, vcount));
+    df1<-data.frame(sn_name=names(ctGRNs), size=nnodes);
+    
+    nedges<-unlist(lapply(ctGRNs, ecount));
+    df2<-data.frame(sn_name=names(ctGRNs), size=nedges);
+    xplot2<-ggplot(df2, aes(x=sn_name, y=size, width=.7)) + geom_bar(stat="identity") + #, colour="black", fill="white") + 
+    ggtitle("GRN size - edges") + labs(y="Number of edges") + labs(x='') + coord_flip() + theme_bw()
+    multiplot(xplot1, xplot2, cols=1);
+  }
+  xplot1
+}
+
+
+
+# FROM::: http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  require(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+grn_report<-function# make a one page pdf of GRN results
+(ctGRNs ### result of running cn_grnDoRock
+){  
+  a1<-plot_grn_summary(ctGRNs);
+  a2<-plot_commList_summary(ctGRNs);
+  a3<-plot_ctSN_general_summary(ctGRNs)
+  multiplot(a1[[1]], a2[[1]], a3[[1]], a1[[2]], a2[[2]], a3[[2]],cols=2);
+}
+
+
+
+

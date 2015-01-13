@@ -80,11 +80,12 @@ Norm_cleanPropRaw<-function
 ### load and normalize each group separately, then return expProp (proportional expression)
 (sampTab,
  ### sample table as returned by geo_fixNames
- platform
+ platform,
  ### platform name. Options are ...
+ inc=1e3
  ){
   
-  expRaw<-Norm_preNormRaw(sampTab);
+  expRaw<-Norm_preNormRaw(sampTab, inc=inc);
   expRaw<-exprs(expRaw);
   geneTab<-Norm_loadAnnotation(platform);
   rownames(geneTab)<-as.vector(geneTab$probe_id)
@@ -260,6 +261,57 @@ Norm_quantNorm<-function#
   ans;
 }
 
+find_tfs<-function# find transcript factors
+(species='Hs' # species abbreviation
+  ){
 
+  cat("Loading gene annotations ...\n")
+  require(GO.db);
+
+  if(species=='Hs'){
+    require(org.Hs.eg.db);
+    egSymbols<-as.list(org.Hs.egSYMBOL);
+    goegs<-as.list(org.Hs.egGO2ALLEGS);
+  }
+  else{
+    require(org.Mm.eg.db);
+    egSymbols<-as.list(org.Mm.egSYMBOL);
+    goegs<-as.list(org.Mm.egGO2ALLEGS);
+  }
+
+  goterms<-as.list(GOTERM);
+  goids<-names(goegs);
+  onts<-lapply(goids, Ontology);
+  bps<-onts[onts=='BP'];
+  goids<-names(unlist(bps));
+
+  cat("matching gene symbols and annotations")
+  gobpList<-list();
+  for(goid in goids){
+    egs <- goegs[[ goid ]];
+    goterm<-Term(goterms[[goid]]);
+    genes<-sort(unique(as.vector(unlist( egSymbols[egs] ))));
+    gobpList[[goterm]]<-genes;
+  }
+
+  ### newHsTRs<-gobpList[['regulation of transcription, DNA-dependent']];
+  regNames<-names(gobpList)[grep("regulation of transcription", names(gobpList))];
+  trs<- unique(unlist(gobpList[regNames]));
+  cat("Regulation of transcription: ", length(trs),"\n");
+
+  mfs<-onts[onts=='MF'];
+  goidsMF<-names(unlist(mfs));
+
+  gomfList<-list();
+  for(goid in goidsMF){
+    egs <- goegs[[ goid ]];
+    goterm<-Term(goterms[[goid]]);
+    genes<-sort(unique(as.vector(unlist( egSymbols[egs] ))));
+    gomfList[[goterm]]<-genes;
+  }
+  dbs<-gomfList[['DNA binding']];
+  cat("DNA binding: ", length(dbs),"\n");
+  sort(intersect(trs, dbs));
+}
 
 

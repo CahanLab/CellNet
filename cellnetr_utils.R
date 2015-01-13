@@ -3,6 +3,13 @@
 
 # commonly used or miscellanous functions
 
+utils_myDist<-function# 1-PCC distance
+(x
+ ###x: numeric matrix
+){
+  as.dist(1-cor(t(x)));
+  ### distance matrix  
+}
 
 cn_geoFetch<-function# Fetch GEO RAW data from GEO and decompress
 (sampTab,
@@ -451,14 +458,6 @@ cn_getGeneWeights<-function# extract the gene weighting for each gene in a c/t G
   weights;
 }
 
-mat_zscores<-function# computes sqrt(zscore_row + zscore_col) .. slightly modidied from JJ Faith et al 2007
-(corrMat
-){
-  corrMat<-abs(corrMat);
-  zscs_2<-round(scale(corrMat), 3);
-  zscs_2<- zscs_2 + t(zscs_2);
-  zscs_2;
-}
 
 
 if(FALSE){
@@ -482,3 +481,18 @@ myzscore<-function# zscore
   ssd<-sd(vect);
   (vect-mn)/ssd;
 }
+
+list_intersect<-function### applies 'intersect' to members of a list
+(aList){
+  ii<-2;
+  a<-aList[[1]];
+  while(ii <= length(aList)){
+    a<-intersect(a, aList[[ii]]);
+    ii<-ii+1;
+  }
+  a;
+}
+
+
+
+

@@ -183,7 +183,9 @@ CN3_calcPRs<-function# assess performance of GRN predictions based on zscores
       positives<-rownames(zscores[ which(x>threshold) ,]);
     }
     nPos<-length(positives);
+    #cat("pos: ", nPos,"\n")
     TP<-intersect(goldStandard, positives);
+    #cat("tp: ", length(goldStandard),"\n")
     FN<-setdiff(goldStandard, positives);    
     precision <- length(TP)/nPos;
     recall <- length(TP)/(length(TP)+length(FN));

@@ -21,7 +21,6 @@ cn_grnDoRock<-function # getRawGRN, findSpecGenes, and specGRNs
   targetGenes<-rownames(expDat);
   grnall<-cn_getRawGRN(zscores, corrs, targetGenes, zThresh=zThresh, snName=snName);
   specGenes<-cn_specGenesAll(expDat, sampTab, qtile=qtile, dLevel=dLevel, dLevelGK=dLevelGK);
-  
   ctGRNs<-cn_specGRNs(grnall, specGenes,keepCT=keepCT, holmThresh=holmThresh, sizeThresh=sizeThresh);
   list(grnStuff=grnall, specGenes=specGenes,ctGRNs=ctGRNs);  
 }
@@ -261,7 +260,7 @@ cn_makeSGs<-function# make induced subgraphs from gene lists and iGraph object
 
 ig_tabToIgraph<-function# return a iGraph object
 (grnTab, ### table of TF, TF, maybe zscores, maybe correlations
- simplify=TRUE,
+ simplify=FALSE, # failed when iranges is loaded...
  directed=FALSE,
  weights=TRUE
 ){
@@ -413,7 +412,31 @@ sample_profiles_grn<-function# sample equivalent numbers of profiles per cell ty
   sampTab[nsamps,];
 }
 
+grn_corr_round<-function # gene-gene correlations, and round
+(expDat ### expression matrix
+  ){
+  corrX<-cor(t(expDat));
+  round(corrX, 3);
+}
 
+grn_zscores<-function # compute CLR-like zscores
+(corrVals,### correlation matrix
+ tfs ### vector of  transcriptional regualtor names
+  ){
+  zscs<-mat_zscores(corrVals);
+  gc();
+  zscs[,tfs];
+}
+
+
+mat_zscores<-function# computes sqrt(zscore_row + zscore_col) .. slightly modidied from JJ Faith et al 2007
+(corrMat ### correlation matrix
+){
+  corrMat<-abs(corrMat);
+  zscs_2<-round(scale(corrMat), 3);
+  zscs_2<- zscs_2 + t(zscs_2);
+  zscs_2;
+}
 
 
 
