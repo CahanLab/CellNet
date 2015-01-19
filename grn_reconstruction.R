@@ -438,6 +438,219 @@ mat_zscores<-function# computes sqrt(zscore_row + zscore_col) .. slightly modidi
   zscs_2;
 }
 
+#######################################
+# functions to assess GRN predictions
+#######################################
+
+cn_calcPRs<-function# assess performance of GRN predictions based on zscores
+###details Recall (Sensitivity): fraction of gold standard regulatory relationships detected by GRN
+###details Precision (1-FPR): Proportion of called relationships that are in the gold standard
+### This returns a list: one the actual perforamnce, and a list of random results
+(zscores,
+ ### matrix of zscores
+ tfs,
+ ### vector of tf(s) perturbed
+ goldStandard,
+ ### gold stanrd gene list
+ universe=NULL,
+ ### genes tested
+ tRange=seq(3,6,by=0.25),
+ ### threshold sequence
+ random=FALSE,
+ ### compute a random selection of calls, too, based on the number of genes actually predicted
+ randomIter=10,
+ ### numer of random selects to make, returns only the average
+ funType='intersect'
+ ### how to treat >1 TF, intersect or union
+){
+  if(!is.null(universe)){
+    zscores<-zscores[universe,];
+    goldStandard<-intersect(universe, goldStandard);
+  }
+  
+  allGenes<-rownames(zscores);
+  ans<-matrix(0, nrow=length(tRange), ncol=4);
+  randList<-list();
+  # setup list to store performance of random GRNs
+  if(random){
+    for(xi in seq(randomIter)){
+      randList[[xi]]<-matrix(0, nrow=length(tRange), ncol=4);
+      colnames(randList[[xi]])<-c("Score", "Precision", "Recall", "Predictions");
+    }
+  }  
+  
+  x<-zscores[,tfs];
+  numTFs<-length(tfs);
+  for(i in seq(length(tRange))){
+    threshold<-tRange[i];
+    if(length(tfs)>1){
+      tmpPos<-vector();
+      for(ai in seq(length(tfs))){            
+        tmpPos<-append(tmpPos, rownames(zscores[ which(x[,ai]>threshold) ,]));
+      }
+      if(funType=='intersect'){
+        aTab<-table(tmpPos);
+        positives<-names(which(aTab==numTFs));
+      }
+      else{
+        positives<-unique(tmpPos);
+      }
+    }
+    else{
+      positives<-rownames(zscores[ which(x>threshold) ,]);
+    }
+    nPos<-length(positives);
+    #cat("pos: ", nPos,"\n")
+    TP<-intersect(goldStandard, positives);
+    #cat("tp: ", length(goldStandard),"\n")
+    FN<-setdiff(goldStandard, positives);    
+    precision <- length(TP)/nPos;
+    recall <- length(TP)/(length(TP)+length(FN));
+    ans[i,]<-c(threshold, precision, recall, nPos);
+  }
+  if(random){
+    for(j in seq(randomIter)){
+      # to randomly select TF, uncomment next line
+      # xTF<-sample(colnames(zscores),1);
+      # re-order zscores
+      newX<-sample(zscores[,tfs],length(x));
+      for(i in seq(length(tRange))){
+        threshold<-tRange[i];
+        positives<-rownames(zscores[ which(newX>threshold) ,]);          
+        nPos<-length(positives);
+        TP<-intersect(goldStandard, positives);
+        FN<-setdiff(goldStandard, positives);    
+        precision <- length(TP)/nPos;
+        recall <- length(TP)/(length(TP)+length(FN));
+        randList[[j]][i,]<-c(threshold, precision, recall, nPos);
+      }
+    }
+  }
+  colnames(ans)<-c("Score", "Precision", "Recall", "Predictions");
+  
+  list(obs=ans, rand=randList);
+  ### list of performance results of form: data frame of Score (cutoff), Precision, Recall, Predictions (n)
+  ### obs = real GRN, rand = list of random GRNs
+}
+
+
+cn_addAUPRs<-function### utility function to add the running AUPR to the result of CLR_testAss
+(bigList
+ ### biglist result of CLR_testAss
+){
+  
+  tmpX<-CN2_computeAUCPR(bigList[[1]]);
+  bigList[[1]]<- cbind(bigList[[1]], AUPR=tmpX);
+  
+  xList<-bigList[[2]];
+  for(i in seq(length(xList))){
+    tmpX<-cn_computeAUCPR(xList[[i]]);
+    xList[[i]]<- cbind(xList[[i]], AUPR=tmpX);      
+  }
+  bigList[[2]]<-xList;
+  bigList;
+}
+
+cn_summ_AUPRs<-function ### processes result of cn_addAUPRs: p-value of fold improvements,df for visualization
+(bigList,
+ ### result of cn_addAUPRs
+ name
+ ### name of analysis
+){
+  
+  # compute p-vals at each zscores as 1 +  (number of times in which random AUPR >= observed AUPR) / 1 + number of random iterations 
+  obs<-bigList[[1]];
+  randoms<-bigList[[2]];
+  numers<-rep(1, nrow(obs));
+  denoms<-rep(1+length(randoms), nrow(obs));
+  for(i in seq(nrow(obs))){
+    auprs<-unlist(lapply(randoms, "[", i, "AUPR") );
+    numers[i]<-1 + length(which(auprs>=obs[i,"AUPR"]));
+  }
+  pvals<-data.frame(Score=obs[,"Score"],Pval=numers/denoms, GS=rep(name, nrow(obs)));  
+  
+  ans<-data.frame();
+  for(i in seq(length(randoms))){
+    newF<-obs;
+    newF<-cbind(newF, Fold=obs[,"AUPR"]/randoms[[i]][,"AUPR"]);
+    ans<-rbind(ans, newF);
+  }
+  ans<-cbind(ans, gs=name);
+  list(bigTable=ans, pvals=pvals);
+}
+
+cn_computeAUCPR<-function### compute AUPCR
+(perfDF,
+ ###
+ precisionCol="Precision",
+ ###
+ recallCol="Recall",
+ ###
+ predCol="Predictions"
+){
+  
+  ### Notes: starts at top left, and accumulates to max
+  str<-(nrow(perfDF)-1);
+  stp<-2;
+  
+  # sometimes you can still get NA in 
+  areas<-rep(0, nrow(perfDF));
+  
+  pts<-seq(str,stp,-1);
+  for(i in pts){
+    a<-(i+1);
+    cc<-(i-1);
+    ptA<-c(perfDF[a,recallCol], perfDF[a,precisionCol]);
+    ptB<-c(perfDF[i,recallCol], perfDF[i,precisionCol]);
+    ptC<-c(perfDF[cc,recallCol], perfDF[cc,precisionCol]);
+    tmpArea<-cn_rectArea(ptA, ptB, ptC);
+    if(is.nan(tmpArea)){
+      #cat(perfDF[i,]$Score,"\n");
+      tmpArea<-0;
+    }
+    areas[i]<-areas[(i+1)]+tmpArea;
+  }
+  
+  # far right point
+  a<-2;
+  b<-1;
+  cc<-1;
+  ptA<-c(perfDF[a,recallCol], perfDF[a,precisionCol]);
+  ptB<-c(perfDF[i,recallCol], perfDF[i,precisionCol]);
+  ptC<-c(perfDF[cc,recallCol], perfDF[cc,precisionCol]);
+  areas[b]<-areas[2]+cn_rectArea(ptA, ptB, ptC);
+  
+  # far left point
+  a<-nrow(perfDF);
+  b<-nrow(perfDF);
+  cc<-(b-1);
+  ptA<-c(perfDF[a,recallCol], perfDF[a,precisionCol]);
+  ptB<-c(perfDF[i,recallCol], perfDF[i,precisionCol]);
+  ptC<-c(perfDF[cc,recallCol], perfDF[cc,precisionCol]);
+  areas[b]<-cn_rectArea(ptA, ptB, ptC);
+  areas;
+}
+
+
+cn_rectArea<-function# compute area of rect given by 
+(ptA,
+ ### 
+ ptB,
+ ###
+ ptC
+ ###
+){
+  xRight <- ptB[1]+( (ptC[1]-ptB[1])/2);
+  xLeft  <- ptA[1]+( (ptB[1]-ptA[1])/2);
+  width<-abs(xRight - xLeft);
+  rectArea<-width*ptB[2];
+  #cat("xLeft=",xLeft,"\n");
+  #cat("xRight=", xRight, "\n");
+  #cat("width=",width,"\n");
+  #cat("height=",ptB[2],"\n");
+  rectArea;
+}
+
 
 
 

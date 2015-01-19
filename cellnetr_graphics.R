@@ -630,6 +630,45 @@ grn_report<-function# make a one page pdf of GRN results
   multiplot(a1[[1]], a2[[1]], a3[[1]], a1[[2]], a2[[2]], a3[[2]],cols=2);
 }
 
+plot_class_rocs<-function# plot results of cn_classifications
+(assessed # result of runnung cn_classAssess
+  ){
+  ctts<-names(assessed);
+  df<-data.frame();
+  for(ctt in ctts){
+    tmp<-assessed[[ctt]];
+    tmp<-cbind(tmp, ctype=ctt);
+    df<-rbind(df, tmp);
+  }
 
+  rocsAll<-transform(df, TP = as.numeric(as.character(TP)), 
+    TN = as.numeric(as.character(TN)), 
+    FN = as.numeric(as.character(FN)), 
+    FP = as.numeric(as.character(FP)));
+
+    precfunc<-function(df){
+      ans<-vector();
+      for(i in 1:nrow(df)){
+        ans<-append(ans, df[i,"TP"]/(df[i,"TP"]+df[i,"FP"]));
+      }
+      ans;
+    }
+
+    sensfunc<-function(df){
+      ans<-vector();
+      for(i in 1:nrow(df)){
+        ans<-append(ans, df[i,"TP"]/(df[i,"TP"]+df[i,"FN"]));
+      }
+      ans;
+    }
+
+  precs<-precfunc(rocsAll)
+  sens<-sensfunc(rocsAll)
+  rocsAll2<-cbind(rocsAll, data.frame(recall=sens, precision=precs));
+
+  ggplot(data=rocsAll2, aes(x=as.numeric(as.vector(recall)), y=as.numeric(as.vector(precision)))) + geom_point(size = 1) + 
+  theme_bw() + xlab("Recall") + ylab("Precision") + facet_wrap( ~ ctype, ncol=4) +
+  theme(axis.text = element_text(size=5)) + ggtitle("Classification performance")
+}
 
 
