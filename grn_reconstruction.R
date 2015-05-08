@@ -14,13 +14,16 @@ cn_grnDoRock<-function # getRawGRN, findSpecGenes, and specGRNs
  dLevel='description1',
  dLevelGK="description2",
  zThresh=4,
- qtile=0.95,
+ #qtile=0.95,
+ holmSpec=1e-10,
+ cval
  holmThresh=1e-4,
  sizeThresh=25)
 {
   targetGenes<-rownames(expDat);
   grnall<-cn_getRawGRN(zscores, corrs, targetGenes, zThresh=zThresh, snName=snName);
-  specGenes<-cn_specGenesAll(expDat, sampTab, qtile=qtile, dLevel=dLevel, dLevelGK=dLevelGK);
+  ### specGenes<-cn_specGenesAll(expDat, sampTab, qtile=qtile, dLevel=dLevel, dLevelGK=dLevelGK);
+  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holm, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
   ctGRNs<-cn_specGRNs(grnall, specGenes,keepCT=keepCT, holmThresh=holmThresh, sizeThresh=sizeThresh);
   list(grnStuff=grnall, specGenes=specGenes,ctGRNs=ctGRNs);  
 }
