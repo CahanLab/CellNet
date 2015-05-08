@@ -84,7 +84,7 @@ cn_barplot_grnSing<-function ### wrapper to barplot secific GRN
  ### result of creating a cellnet processor
  snName,
  ### name of subnet to plot establishment level 
- ctrSamps,
+ ctrlSamps,
  ### names of samples in training data
  bOrder
  ### order of bars

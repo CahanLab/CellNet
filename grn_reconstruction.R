@@ -57,34 +57,42 @@ cn_getRawGRN<-function# get raw GRN, communities from zscores, and corr
 cn_specGenesAll<-function# finds general and context dependent specifc genes
 (expDat, ### expression matrix
  sampTab, ### sample table
- qtile=0.95, ### quantile
+ ### qtile=0.95, ### quantile
+ holm=1e-10,
+ cval=0.5,
+ cvalGK=0.75,
  dLevel="description1",
  dLevelGK="description2"){
   matcher<-list();
-  general<-cn_findSpecGenes(expDat, sampTab, qtile=qtile, dLevel=dLevel);
+###  general<-cn_findSpecGenes(expDat, sampTab, qtile=qtile, dLevel=dLevel);
+  general<-cn_findSpecGenes(expDat, sampTab, holm=holm, cval=cval, dLevel=dLevel);
   ctXs<-list()# one per germlayer
-  germLayers<-unique(as.vector(sampTab[,dLevelGK]));
-  for(germlayer in germLayers){
-    stTmp<-sampTab[sampTab[,dLevelGK]==germlayer,];
-    expTmp<-expDat[,rownames(stTmp)];
-    xxx<-cn_findSpecGenes(expTmp, stTmp, qtile=qtile, dLevel=dLevel);
-    cts<-names(xxx);
-    for(ct in cts){
-      matcher[[ct]]<-germlayer;
-      # remove general ct-specific genes from this set
-      cat(ct," ");
+  if(!is.null(dLevelGK)){
+    
+    germLayers<-unique(as.vector(sampTab[,dLevelGK]));
+    for(germlayer in germLayers){
+      stTmp<-sampTab[sampTab[,dLevelGK]==germlayer,];
+      expTmp<-expDat[,rownames(stTmp)];
+##      xxx<-cn_findSpecGenes(expTmp, stTmp, qtile=qtile, dLevel=dLevel);
+        xxx<-cn_findSpecGenes(expTmp, stTmp, holm=holm, cval=cvalGK,dLevel=dLevel);
+      cts<-names(xxx);
+      for(ct in cts){
+        matcher[[ct]]<-germlayer;
+        # remove general ct-specific genes from this set
+        cat(ct," ");
       
-      a<-general[[ct]];
-      b<-xxx[[ct]];
-      ba<-setdiff(b, a);
-      both<-union(a,b);
-      cat("general: ",length(a),"\t");
-      cat("context: ",length(b),"\t");
-      cat("comon: ",length(both),"\t");
-      cat("context only: ", length(ba), "\n");
-      xxx[[ct]]<-ba;
+        a<-general[[ct]];
+        b<-xxx[[ct]];
+        ba<-setdiff(b, a);
+        both<-union(a,b);
+        cat("general: ",length(a),"\t");
+        cat("context: ",length(b),"\t");
+        cat("union: ",length(both),"\t");
+        cat("context only: ", length(ba), "\n");
+        xxx[[ct]]<-ba;
+      }
+      ctXs[[germlayer]]<-xxx;
     }
-    ctXs[[germlayer]]<-xxx;
   }
   ctXs[['general']]<-general;
   list(context=ctXs, matcher=matcher);
@@ -194,12 +202,15 @@ cn_specGRNs<-function### find subnets associated with gene lists, and break them
   
   # a community can be detected as enriched in either the gneral and/or context gene lists
   # for each CT,create one list of communities enriched in either case.
-  ct_sns2<-list();
+  ### 03-03-2015 ct_sns2<-list();
+  ct_sns2<-ct_sns;
   for(groupName in groupNames){
     a<-ct_sns[['general']][[groupName]];
-    gll<-geneLists$matcher[[groupName]];
-    b<-ct_sns[[gll]][[groupName]];
-    ct_sns2[[groupName]]<-union(a,b);
+    if(length(geneLists$matcher)>0){
+      gll<-geneLists$matcher[[groupName]];
+      b<-ct_sns[[gll]][[groupName]];
+      ct_sns2[[groupName]]<-union(a,b);
+    }
   }
   ct_sns2;
 }
@@ -207,9 +218,54 @@ cn_specGRNs<-function### find subnets associated with gene lists, and break them
 
 cn_findSpecGenes<-function# find genes that are preferentially expressed in specified samples
 (expDat, ### expression matrix
- sampTab, ### sample table
+ sampTab, ### sample tableß
+ holm=1e-50, ### sig threshold
+ cval=0.5, ### R thresh
+ dLevel="description1", #### annotation level to group on
+ prune=FALSE ### limit to genes exclusively detected as CT in one CT
+ ){
+  
+  cat("Template matching...\n")
+  myPatternG<-cn_sampR_to_pattern(as.vector(sampTab[,dLevel]));
+  specificSets<-apply(myPatternG, 1, cn_testPattern, expDat=expDat);
+
+  # adaptively extract the best genes per lineage
+  cat("First pass identification of specific gene sets...\n")
+  cvalT<-vector();
+  ctGenes<-list();
+  ctNames<-unique(as.vector(sampTab[,dLevel]));
+  for(ctName in ctNames){
+    x<-specificSets[[ctName]];
+    tmp<-rownames(x[x$cval>cval,]);
+    tmp2<-rownames(x[x$holm<holm,]);
+    tmp<-intersect(tmp, tmp2)
+    ctGenes[[ctName]]<-tmp;
+###    cvalT<-append(cvalT, cval);
+  }
+  
+  if(prune){
+   cat("Prune common genes...\n");
+  # now limit to genes exclusive to each list
+   specGenes<-list();
+   for(ctName in ctNames){
+     others<-setdiff(ctNames, ctName);
+     x<-setdiff( ctGenes[[ctName]], unlist(ctGenes[others]));
+     specGenes[[ctName]]<-x;
+   }
+   ans<-specGenes;
+  }
+  else{
+   ans<-ctGenes;
+  }
+  ans;
+}
+
+cn_findSpecGenesOLD<-function# find genes that are preferentially expressed in specified samples
+(expDat, ### expression matrix
+ sampTab, ### sample tableß
  qtile=0.95, ### quantile
- dLevel="description1" #### annotation level to group on
+ dLevel="description1", #### annotation level to group on
+ prune=TRUE ### limit to genes exclusively detected as CT in one CT
  ){
   
   cat("Template matching...\n")
@@ -229,15 +285,21 @@ cn_findSpecGenes<-function# find genes that are preferentially expressed in spec
     cvalT<-append(cvalT, cval);
   }
   
-  cat("Prune common genes...\n");
+  if(prune){
+   cat("Prune common genes...\n");
   # now limit to genes exclusive to each list
-  specGenes<-list();
-  for(ctName in ctNames){
-    others<-setdiff(ctNames, ctName);
-    x<-setdiff( ctGenes[[ctName]], unlist(ctGenes[others]));
-    specGenes[[ctName]]<-x;
+   specGenes<-list();
+   for(ctName in ctNames){
+     others<-setdiff(ctNames, ctName);
+     x<-setdiff( ctGenes[[ctName]], unlist(ctGenes[others]));
+     specGenes[[ctName]]<-x;
+   }
+   ans<-specGenes;
   }
-  specGenes;
+  else{
+   ans<-ctGenes;
+  }
+  ans;
 }
 
 
@@ -649,6 +711,19 @@ cn_rectArea<-function# compute area of rect given by
   #cat("width=",width,"\n");
   #cat("height=",ptB[2],"\n");
   rectArea;
+}
+
+cn_extractSubNets<-function# make subnets from a GRN
+(aGraph, # igraph
+ geneLists # named list of genes
+){
+    graphs<-list();
+    nnames<-names(geneLists);
+    genesInGraph<-V(aGraph)$name;
+    for(nname in nnames){
+      graphs[[nname]]<-induced.subgraph(aGraph, intersect(geneLists[[nname]], genesInGraph));
+    }
+    list(subnets=list(graphs=graphs, geneLists=geneLists), general=list(graphs=graphs, geneLists=geneLists));
 }
 
 

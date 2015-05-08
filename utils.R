@@ -493,6 +493,54 @@ list_intersect<-function### applies 'intersect' to members of a list
   a;
 }
 
+expr_simExp<-function### simulate expression matrix give expression distributions (mean, sd)
+(expDistrs, # list of gene distributions, for example produced by cn_make_tVals
+ nprofiles, # number of profiles to sample
+ fudgeFact=1, # fudge factor to increase (od decrease sd estimate)
+ sampName='rand' #prefix for sample names
+ ){
 
+  genes<-names(expDistrs[[1]]);
+  ans<-matrix(0, nrow=length(genes), ncol=nprofiles);
+  for(i in seq(length(genes))){
+    ans[i,]<-rnorm(nprofiles, mean=expDistrs[[1]][[i]], sd= (fudgeFact * expDistrs[[2]][[i]]))
+  }
+  rownames(ans)<-genes;
+  cnames<-paste(sampName,"_",1:nprofiles,sep='');
+  colnames(ans)<-cnames;
+  ans;
+}
+
+expr_simExps<-function### simulate expression matrix give expression distributions (mean, sd)
+(expDistrs, # list of gene distributions, for example produced by cn_make_tVals
+ nprofiles, # number of profiles to generate per item in expDistrs
+ fudgeFact=1 # fudge factor to increase (od decrease sd estimate)
+ ){
+
+  sampleClasses<-names(expDistrs);
+  expAns<-matrix(0, nrow=length(expDistrs[[1]][[1]]), ncol=length(expDistrs) * nprofiles);
+  rownames(expAns)<-names(expDistrs[[1]][[1]]);
+  cat(dim(expAns),"\n")
+  str<-1;
+  stp<-nprofiles;
+  cnames<-vector();
+  descs<-vector();
+  for(sClass in sampleClasses){
+    cat(str,"-",stp,"\n");
+    aaa<-expr_simExp(expDistrs[[sClass]], nprofiles, fudgeFact=fudgeFact, sampName=paste(sClass,"_rand",sep=''));
+    cnames<-append(cnames, colnames(aaa));
+
+    expAns[,str:stp] <- aaa;
+    
+    str<-stp+1;
+    stp<-str+nprofiles-1;
+    descs<-append(descs, rep(sClass, nprofiles));
+  }
+  colnames(expAns)<-cnames;
+  sampTab<-data.frame(sample_name=colnames(expAns), sample_id=colnames(expAns), description1=descs);
+  rownames(sampTab)<-colnames(expAns);
+  list(simDat=expAns, sampTab=sampTab);
+  
+}
 
 
