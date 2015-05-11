@@ -16,7 +16,7 @@ cn_grnDoRock<-function # getRawGRN, findSpecGenes, and specGRNs
  zThresh=4,
  #qtile=0.95,
  holmSpec=1e-10,
- cval
+ cval,
  holmThresh=1e-4,
  sizeThresh=25)
 {
@@ -107,79 +107,31 @@ cn_specGenesAll<-function# finds general and context dependent specifc genes
     
 }
 
-cn_specGRNs<-function### find subnets associated with gene lists, and break them down further
+cn_specGRNs<-function### extract sub-networks made up of CT genes; don't bother finding communities
 (rawGRNs, ### result of running cn_getRawGRN
- geneLists, ### result of running cn_specGenesAll
- keepCT=FALSE, # whether to only keep ct-genes as part of ct-sns, alternative (default) is to just exclude CT genes from other cell types
- holmThresh=1e-4,
- sizeThresh=25){
-  
-  # NB: find communities that are enriched in genes in geneLists
-  # geneLists$context has each germ_layer and a general group
-  # Enriched communties MAY also include genes that are associated with other CTs, either as
-  # in the general or context-dependent sense. Prune these genes from these eniriched subnets.
-  ct_sns<-.cn_specGRNs(rawGRNs, geneLists, holmThresh,sizeThresh);
+ specGenes ### result of running cn_specGenesAll
+ ){
 
-  # for each annotation/groupName, remove genes from associated communities
-  # that are also CT-genes for other CTs 
-  sub_newGLs<-list();
-  sub_newGRs<-list();
+  # should return a list of gene lists and igraphs
+  geneLists<-list();
+  graphLists<-list();
+
+  groupNames<-names(specGenes[['context']][['general']]);  
+  big_graph<-rawGRNs[['graph']];
+
+  matcher<-specGenes$matcher;
   
-  general_GLs<-list();
-  general_GRs<-list();
-  
-  groupNames<-names(geneLists$context$general);  
-  rawSN_graphs<-rawGRNs[['graphList']];
-  rawSN_geneLists<-rawGRNs[['geneLists']];
-  geneListsAll<-geneLists$context;
-  matcher<-geneLists$matcher;
-  
+  allgenes<-V(big_graph)$name;
+
   for(ct in groupNames){
-    
-    tmpGLs<-list();
-    tmpGRs<-list();
-    
-    nnames<-ct_sns[[ct]];
-    otherCTs<-setdiff(groupNames, ct);
-    otherGenes_general<-unlist(geneListsAll$general[otherCTs]);
     gll<-matcher[[ct]];
-    sameGLs<-names(which(matcher==gll));
-    otherCTs<-setdiff(sameGLs, ct);
-    otherGenes_context<-unlist(geneListsAll[[gll]][otherCTs]);
-    otherGenes<-union(otherGenes_general, otherGenes_context);
-    
-    myGenes<-union(geneListsAll$general[[ct]], geneListsAll[[gll]][[ct]]);
-    
-    ii<-1;
-    for(nname in nnames){
-      newName<-paste("SN_", ct,"_",ii,sep='');
-      cat(ct, " ", nname,"", length(rawSN_geneLists[[nname]]), " ... ");
-      subg<-rawSN_graphs[[nname]];
-      
-      grnGenes<-V(subg)$name;
-      
-      if(!keepCT){
-        # remove target genes that are considered specific to other cell types
-        newGenes<-setdiff(grnGenes, otherGenes);
-      }
-      else{
-        newGenes<-intersect(myGenes, grnGenes);
-      }
-      
-      tmpGRs[[newName]]<-induced.subgraph(subg,newGenes);
-      tmpGLs[[newName]]<-newGenes;
-      ii<-ii+1;
-    }
-    sub_newGLs[[ct]]<-tmpGLs;
-    sub_newGRs[[ct]]<-tmpGRs;
-    
-    # merge these
-    general_GLs[[ct]]<-sort(unique(as.vector(unlist(tmpGLs))));
-    general_GRs[[ct]]<-cn_graphMerge(tmpGRs);
+    mygenes<-union(specGenes[['context']][['general']][[ct]], specGenes[['context']][[gll]][[ct]]);
+    cat(ct," ",gll,"\n");
+    geneLists[[ct]]<-intersect(allgenes, mygenes);
+    graphLists[[ct]]<-induced.subgraph(big_graph, geneLists[[ct]]);
   }
-  list(subnets=list(graphs=sub_newGRs, geneLists=sub_newGLs), general=list(graphs=general_GRs, geneLists=general_GLs));
-  ###list(graphs=sub_newGRs, geneLists=sub_newGLs);
-  ### list of igraphs=list({ct}=list), gene_lists
+  list(geneLists=geneLists, graphLists=graphLists);
+
 }
 
 .cn_specGRNs<-function### find and merge enriched communities

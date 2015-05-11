@@ -13,11 +13,12 @@ cn_make_processor<-function # train a CellNet object
  exprWeight=TRUE # weight GRN est by gene expression
  ){
   
-  grnList<-ctGRNs$ctGRNs$general$geneLists;
+  grnList<-ctGRNs$geneLists;
   
   # Make classifiers
   cat("Making classifiers (this can take awhile) ...\n");
-  classList<-make_classifiers(ctGRNs, expTrain, stTrain, dLevel);
+#  classList<-make_classifiers(ctGRNs, expTrain, stTrain, dLevel);
+  classList<-cn_makeRFs(expTrain, stTrain, grnList, dLevel=dLevel);
   cat("Done making classifiers :)\n");
   
   trainNorm<-cn_trainNorm(expTrain, stTrain, subNets=grnList, classList=classList, dLevel=dLevel, classWeight=classWeight, exprWeight=exprWeight);
