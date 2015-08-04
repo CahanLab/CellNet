@@ -10,21 +10,18 @@ cn_grnDoRock<-function # getRawGRN, findSpecGenes, and specGRNs
  zscores, ### zscores
  corrs, ### pearson correlation values
  snName, ### network name prefix
- keepCT=FALSE,
+ cval=0.5,
+ cvalGK=0.75,
  dLevel='description1',
  dLevelGK="description2",
- zThresh=4,
- #qtile=0.95,
- holmSpec=1e-10,
- cval,
- holmThresh=1e-4,
- sizeThresh=25)
+ zThresh=6,
+ holmSpec=1e-10)
 {
   targetGenes<-rownames(expDat);
   grnall<-cn_getRawGRN(zscores, corrs, targetGenes, zThresh=zThresh, snName=snName);
   ### specGenes<-cn_specGenesAll(expDat, sampTab, qtile=qtile, dLevel=dLevel, dLevelGK=dLevelGK);
-  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holm, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
-  ctGRNs<-cn_specGRNs(grnall, specGenes,keepCT=keepCT, holmThresh=holmThresh, sizeThresh=sizeThresh);
+  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
+  ctGRNs<-cn_specGRNs(grnall, specGenes);
   list(grnStuff=grnall, specGenes=specGenes,ctGRNs=ctGRNs);  
 }
 

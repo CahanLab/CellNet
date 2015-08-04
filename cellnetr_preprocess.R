@@ -249,6 +249,20 @@ trans_dNorm<-function
 }
 
 
+trans_eShift<-function # shift the expression of each sample so that the min=minVal
+(expDat,
+ minVal=0){
+  
+  myFunc<-function(vect, myMin){
+    vect-min(vect)+myMin;
+  }
+  
+  ans<-apply(expDat, 2, myFunc, myMin=minVal);
+  rownames(ans)<-rownames(expDat);
+  colnames(ans)<-colnames(expDat);
+  ans;
+}
+
 Norm_quantNorm<-function#
 (expDat){
   require(preprocessCore);

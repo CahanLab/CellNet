@@ -13,15 +13,15 @@ cn_make_processor<-function # train a CellNet object
  exprWeight=TRUE # weight GRN est by gene expression
  ){
   
-  grnList<-ctGRNs$geneLists;
+  geneLists<-ctGRNs[['ctGRNs']][['geneLists']];
   
   # Make classifiers
   cat("Making classifiers (this can take awhile) ...\n");
 #  classList<-make_classifiers(ctGRNs, expTrain, stTrain, dLevel);
-  classList<-cn_makeRFs(expTrain, stTrain, grnList, dLevel=dLevel);
+  classList<-cn_makeRFs(expTrain, stTrain, geneLists, dLevel=dLevel);
   cat("Done making classifiers :)\n");
   
-  trainNorm<-cn_trainNorm(expTrain, stTrain, subNets=grnList, classList=classList, dLevel=dLevel, classWeight=classWeight, exprWeight=exprWeight);
+  trainNorm<-cn_trainNorm(expTrain, stTrain, subNets=geneLists, classList=classList, dLevel=dLevel, classWeight=classWeight, exprWeight=exprWeight);
   meanExpTrain<-as.matrix(GEP_makeMean(expTrain,as.vector(stTrain[,dLevel]),type='mean'));
   
   ans<-list(expTrain=expTrain,
@@ -29,7 +29,7 @@ cn_make_processor<-function # train a CellNet object
             stTrain=stTrain,
             dLevelTrain=dLevel,
             ctGRNs=ctGRNs,
-            grnList=grnList,
+            grnList=geneLists,
             classList=classList,
             trainingScores=trainNorm[['trainingScores']],
             normVals=trainNorm[['normVals']],
@@ -50,7 +50,7 @@ make_classifiers<-function# wrappper to cn_makeRFs
  sampTab, ### sample table
  dLevel ### description level to indicate cell types
  ){
-	geneLists<-ctGRNs$ctGRNs$general$geneLists;
+	geneLists<-ctGRNs[['ctGRNs']][['grnLists']];
  	cn_makeRFs(expDat,sampTab,geneLists, dLevel=dLevel);
 }
 
