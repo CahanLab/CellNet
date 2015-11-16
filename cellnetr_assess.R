@@ -1,6 +1,6 @@
-#
-#
-#
+# CellNet
+# (C) Patrick Cahan 2012-2014#
+
 
 CN3_AUCs<-function# make ROCs for each classifier, and return AUC as data frame
 (ct_scores,# matrix of classification scores, rows = classifiers, columns = samples, colnames=sampleids

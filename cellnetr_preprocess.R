@@ -1,4 +1,5 @@
-
+# CellNet
+# (C) Patrick Cahan 2012-2014
 
 expr_readSampTab<-function
 ### properly read a csv file as a sampTab

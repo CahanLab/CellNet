@@ -1,3 +1,5 @@
+# CellNet
+# (C) Patrick Cahan 2012-2014
 
 mp_rainbowPlot<-function### make a rainbow colored dot plot
 (expDat,### expression data matrix

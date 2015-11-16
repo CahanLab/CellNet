@@ -1,4 +1,5 @@
-
+# CellNet
+# (C) Patrick Cahan 2012-2014
 
 cn_apply<-function
 ### run CellNet on expQuery
