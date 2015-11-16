@@ -1,6 +1,19 @@
 # CellNet
 # (C) Patrick Cahan 2012-2014
 
+
+expr_reorder<-function# re-order the sampTab, by dLevel, given dLevel names
+(sampTab,
+ dLevel,
+ nnames){
+  
+  newTab<-data.frame();
+  for(nname in nnames){
+    newTab<-rbind(newTab,sampTab[which(sampTab[,dLevel]==nname),]);
+  }  
+  newTab;    
+}
+
 expr_readSampTab<-function
 ### properly read a csv file as a sampTab
 (fname

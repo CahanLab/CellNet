@@ -146,12 +146,12 @@ cn_nis_all<-function
  relaWeight=1
  ### whether to weight by overall expression such that TFs with higher expression in ctt are more important (1=do the weighting)
  ){
-  ctGRNs<-names(cnProc$igGRNs);
+  snNames<-names(cnProc$ctGRNs$ctGRNs$graphLists);
   ans<-list()
-  for(ctGRN in ctGRNs){
-    cat("scoring ", ctGRN,"\n")
-    x<-cn_nis(cnRes, cnProc, ctGRN, ctt,relaWeight);
-    ans[[ctGRN]]<-x;
+  for(snName in snNames){
+    cat("scoring ", snName,"\n")
+    x<-cn_nis(cnRes, cnProc, snName, ctt,relaWeight);
+    ans[[snName]]<-x;
 #    x<-cbind(x, grn=rep(ctGRN, nrow(x)));
 #    ans<-rbind(ans, x);
   }
@@ -174,7 +174,7 @@ cn_nis<-function
  ### whether to weight by overall expression such that TFs with higher expression in ctt are more important (1=do the weighting)
 ){
   
-  tfTargList<-cnProc[['tfTargets']];
+  tfTargList<-cnProc[['ctGRNs']][['ctGRNs']][['tfTargets']];
   # return a DF of : tfs, nTargets, targetScore, tfScore, totalScore
   nTargets<-vector();
   targetScore<-vector();

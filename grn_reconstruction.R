@@ -127,9 +127,34 @@ cn_specGRNs<-function### extract sub-networks made up of CT genes; don't bother 
     geneLists[[ct]]<-intersect(allgenes, mygenes);
     graphLists[[ct]]<-induced.subgraph(big_graph, geneLists[[ct]]);
   }
-  list(geneLists=geneLists, graphLists=graphLists);
+
+  tfTargets<-cn_MakeTLs(graphLists);
+   
+  list(geneLists=geneLists, graphLists=graphLists, tfTargets=tfTargets);
 
 }
+
+cn_MakeTLs<-function(graphList){
+  tfTargs<-list();
+  nnames<-names(graphList);
+  for(nname in nnames){
+    tfTargs[[nname]]<-cn_get_targets(graphList[[nname]]);
+  }
+  tfTargs;
+}
+
+cn_get_targets<-function(aGraph){
+  targList<-list();
+  regs<-V(aGraph)$label[V(aGraph)$type=='Regulator'];
+  if(length(regs)>0){ 
+    for(reg in regs){
+       targList[[reg]]<-unique(sort(V(aGraph)$label[neighbors(aGraph, reg)]));
+    }
+  }
+  targList;
+}
+
+
 
 .cn_specGRNs<-function### find and merge enriched communities
 (rawGRNs, ### result of running cn_getRawGRN

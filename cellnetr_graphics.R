@@ -489,7 +489,7 @@ plot_grn_summary<-function# plot basics stats of grnTable produced by cn_grnDoRo
 plot_commList_summary<-function# plot basics stats of graphList produced by cn_grnDoRock
 (grnRes### result of running cn_grnDoRock
   ){
-    x<-grnRes$grnStuff$graphList;
+    x<-grnRes$ctGRNs$graphLists;
     funsize<-function(agraph, type="nodes"){
       if(type=="nodes"){
         ans<-length(V(agraph));
@@ -516,7 +516,7 @@ plot_commList_summary<-function# plot basics stats of graphList produced by cn_g
 plot_ctSN_general_summary<-function# plot basics stats of ct communities produced by cn_grnDoRock
 (grnRes### result of running cn_grnDoRock
   ){
-    ctGRNs<-grnRes$ctGRNs$general$graphs; # list of ct -> one graph
+    ctGRNs<-grnRes$ctGRNs$graphLists; # list of ct -> one graph
 
     nnodes<-unlist(lapply(ctGRNs, vcount));
     df1<-data.frame(sn_name=names(ctGRNs), size=nnodes);
