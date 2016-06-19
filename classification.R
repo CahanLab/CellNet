@@ -22,6 +22,8 @@ cn_classify<-function
     #cat(ctt,"\n")
     ##    xgenes<-cttComms[[ctt]][[1]];
     xgenes<-cttComms[[ctt]];
+    ### 06-05-16
+    xgenes<-intersect(xgenes, rownames(expDat));
     myProbs<-predict(classList[[ctt]], t(expDat[xgenes,]), type='prob');
     ans[ctt,]<-myProbs[,ctt];
   }

@@ -1,11 +1,13 @@
 # CellNet 
 # (C) Patrick Cahan 2012-2016
 
-library(igraph);
-library(gplots);
-library(ggplot2);
-library(randomForest);
-library(preprocessCore);
+library(igraph)
+library(gplots)
+library(ggplot2)
+library(randomForest)
+library(preprocessCore)
+library(parallel)
+library(GO.db)
 
 
 utils_sourceRs<-function# source all .R files in given directory

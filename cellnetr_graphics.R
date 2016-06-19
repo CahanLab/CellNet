@@ -1,5 +1,5 @@
 # CellNet
-# (C) Patrick Cahan 2012-2014
+# (C) Patrick Cahan 2012-2016
 
 mp_rainbowPlot<-function### make a rainbow colored dot plot
 (expDat,### expression data matrix
@@ -88,14 +88,21 @@ cn_barplot_grnSing<-function ### wrapper to barplot secific GRN
  ### name of subnet to plot establishment level 
  ctrlSamps,
  ### names of samples in training data
- bOrder
+ bOrder,
  ### order of bars
+ dlevel='dLevelQuery'
+ ### which stquery level to plot on
 ){
   
+  if(dlevel=='dLevelQuery'){
+    dlevel<-cnObj[['dLevelQuery']]
+  }
+
   qScores<-cnObj[['normScoresQuery']];
   ctrlScores<-cnProc[['trainingScores']]
   
-  .cn_barplot_grnSing(qScores, ctrlScores, cnObj[['stQuery']], cnObj[['dLevelQuery']], snName, ctrlSamps, bOrder);
+###  .cn_barplot_grnSing(qScores, ctrlScores, cnObj[['stQuery']], cnObj[['dLevelQuery']], snName, ctrlSamps, bOrder);
+.cn_barplot_grnSing(qScores, ctrlScores, cnObj[['stQuery']], dlevel, snName, ctrlSamps, bOrder);
 }
 
 

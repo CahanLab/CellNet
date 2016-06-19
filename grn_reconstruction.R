@@ -1,5 +1,5 @@
 # CellNet
-# (C) Patrick Cahan 2012-2014
+# (C) Patrick Cahan 2012-2016
 
 # GRN reconstruction functions
 

@@ -87,6 +87,8 @@ cn_score<-function
   for(ctt in ctts){
     # cat(ctt,"\n");
     genes<-subList[[ctt]];
+    # 06-06-16 -- added to allow for use of GRNs defined elsewhere
+    genes<-intersect(genes, rownames(expDat));
     #    snNames<-names(subnets);
     #    rnames<-append(rnames, snNames);    
     #    for(sName in snNames){
@@ -141,10 +143,11 @@ cn_trainNorm<-function # Figure out normalization factors for GRNs, and norm tra
  classWeight=FALSE, ### weight GRN status by importance of gene to classifier
  exprWeight=TRUE ### weight GRN status by expression level of gene?
 ){
+
   if(is.null(tVals)){
     tVals<-cn_make_tVals(expTrain, stTrain, dLevel);
   }
-  
+
   ctts<-as.vector(unique(stTrain[,dLevel]));
   scoreList<-list();
   normList<-list(); # a list of ctt->subnet->mean value
@@ -152,7 +155,8 @@ cn_trainNorm<-function # Figure out normalization factors for GRNs, and norm tra
   
   cat("calculating GRN scores on training data ...\n");
   tmpScores<-cn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight); 
-  
+
+
   minVect<-apply(tmpScores, 1, min);
   names(minVect)<-rownames(tmpScores);
   
@@ -163,6 +167,7 @@ cn_trainNorm<-function # Figure out normalization factors for GRNs, and norm tra
     # determine nomalization factors
     ##snets<-names(subNets[[ctt]]);
     snets<-ctt;
+
     scoreDF<-cn_extract_SN_DF(tmpScores, stTrain, dLevel, snets);
     scoreDF<-cn_reduceMatLarge(scoreDF, "score", "description", "subNet");
     xdf<-scoreDF[which(scoreDF$grp_name==ctt),];
@@ -171,9 +176,12 @@ cn_trainNorm<-function # Figure out normalization factors for GRNs, and norm tra
     normList[names(tmpSNS)]<-tmpSNS;      
   }
   
+
   # normalize training scores
   nScores<-cn_normalizeScores(normList, tmpScores, rownames(tmpScores));
+
   scoreDF<-cn_extract_SN_DF(nScores, stTrain, dLevel);
+
   scoreDF<-cn_reduceMatLarge(scoreDF, "score", "description", "subNet");
 
   list(trainingScores=scoreDF,

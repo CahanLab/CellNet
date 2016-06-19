@@ -26,7 +26,8 @@ fastq_trim<-function### trim reads
   fnameCol="fname1",
   cname="sra_id",
   finalLength=40,
-  outDir="./")
+  outDir="./",
+  galorePath="~/rnaseq")
 {
 
   fnames<-paste(as.vector(sampTab[,fnameCol]), collapse=" ");
@@ -36,7 +37,7 @@ fastq_trim<-function### trim reads
   tmpDF<-data.frame(fnames=as.vector(sampTab[,fnameCol]), lefts=trimLefts, rights=trimRights);
   tfname<-"tmpLengths.txt";
   write.table(tmpDF, file=tfname, col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t");
-  thecall<-"~/rnaseq/trim_galore --no_report_file --clip_R1 ";
+  thecall<-paste(galorePath, "/trim_galore --no_report_file --clip_R1 ",sep='');
   cmd<-paste("parallel --colsep \"\\t\" \"",thecall," {2} --three_prime_clip_R1 {3} --length 20 -o ", outDir," {1}\" :::: ",tfname,sep='');
   system(cmd);
 
