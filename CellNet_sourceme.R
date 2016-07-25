@@ -2,7 +2,7 @@
 # (C) Patrick Cahan 2012-2016
 
 library(igraph)
-library(gplots)
+###library(gplots)
 library(ggplot2)
 library(randomForest)
 library(preprocessCore)
