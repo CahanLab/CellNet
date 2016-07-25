@@ -171,7 +171,7 @@ cn_HmClass<-function
     bcol<-NA;
   }
   pheatmap(classMat,
-    col=ccools,
+    col=cools,
     border_color=bcol,
     cluster_rows = FALSE,
     cluster_cols = FALSE)
@@ -355,7 +355,7 @@ cn_barplot_exp<-function
   expX<-cbind(stTrain, expTrain[gName,]);
   colnames(expX)[4]<-gName;
   
-  ddq<-cnRes[['dLevelQuery']];
+  ddq<-cnObj[['dLevelQuery']];
   stQuery<-stQuery[,c("sample_id", "sample_name", ddq)];
   nQs<-length(unique(stQuery[,ddq]));
   

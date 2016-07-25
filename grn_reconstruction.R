@@ -19,8 +19,7 @@ cn_grnDoRock<-function # getRawGRN, findSpecGenes, and specGRNs
 {
   targetGenes<-rownames(expDat);
   grnall<-cn_getRawGRN(zscores, corrs, targetGenes, zThresh=zThresh, snName=snName);
-  ### specGenes<-cn_specGenesAll(expDat, sampTab, qtile=qtile, dLevel=dLevel, dLevelGK=dLevelGK);
-  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
+   specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
   ctGRNs<-cn_specGRNs(grnall, specGenes);
   list(grnStuff=grnall, specGenes=specGenes,ctGRNs=ctGRNs);  
 }
