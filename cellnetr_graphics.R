@@ -174,8 +174,7 @@ cn_HmClass<-function
     col=ccools,
     border_color=bcol,
     cluster_rows = FALSE,
-    cluster_cols = FALSE
-  }
+    cluster_cols = FALSE)
   # classification heatmap
 }
 
