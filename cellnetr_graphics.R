@@ -163,7 +163,7 @@ cn_HmClass<-function
  isBig=FALSE
  ### is this a big heatmap
 ){
-  classMat<-cnResclassRes;
+  classMat<-cnRes$classRes;
 
   cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
   bcol<-'white';
