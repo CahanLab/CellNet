@@ -96,18 +96,3 @@ utils_count_comments<-function
   x<-system(cmd, intern=T);
   length(x);
 }
-
-utils_stripwhite<-function
-### strip whitespace from a string
-(string
- #### string
- ){
-  gsub("^\\s+|\\s+$", "", string)
-}
-
-utils_myDate<-function
-### print date
-()
-{
-  format(Sys.time(), "%b_%d_%Y");
-}

@@ -156,101 +156,25 @@ cn_barplot_grnSing<-function ### wrapper to barplot secific GRN
 
 
 
-cn_hmClass<-function
-### plot classification heatmap
-(cn, 
- ### CellNet Object
- main=NULL, 
- ### title
- dLevel=NULL,
- ### dLevel default=NULL
- isBig=FALSE
- ### is big? =FALSE
- ){
-  
-  classRes<-cn$classRes;
-  sampTab<-cn$stQuery;
-  
-  if(!is.null(dLevel)){
-    colnames(classRes)<-as.vector(sampTab[,dLevel]);
-  }
-  .cn_HmClass(classRes,main, isBig=isBig);  
-  ### classification heatmap
-}
-
-.cn_HmClass<-function
+cn_HmClass<-function
 ### heatmap of the classification result
-(classMat, 
- ### aMat columns are samples, rows are reference cell types
- main=NULL, 
- ### title
- sampTab=NULL,  
- ### sample table
- dLevel="description1", 
- ### level at which to extract column labels
- scale='none',
- ### scale?
- clusterR=FALSE,
- ### cluster the rows?
- clusterC=FALSE,
- ### cluster the columns?
- margin=c(6,6),
- ### margin
- cexR=.75,
- ### cexR
- cexC=.5,
- ### cexC
- aDist=dist,
- ### distance metric
+(cnRes, 
+ ### cellnet result
  isBig=FALSE
- ### is Big? false
+ ### is this a big heatmap
 ){
-  
-  if(is.null(sampTab)){
-    labCol=colnames(classMat);
-  }
-  else{
-    labCol<-as.vector(sampTab[,dLevel]);
-  }
+  classMat<-cnResclassRes;
+
+  cools<-colorRampPalette(c("black", "limegreen", "yellow"))( 100 )
+  bcol<-'white';
   if(isBig){
-    heatmap.2(classMat,
-              col=colorpanel(99, "black","limegreen","yellow"),
-              breaks=seq(from=0, to=1,length.out=100 ),
-              #col=colorpanel(100, "black","yellow"),
-              scale=scale,
-              trace='none',
-              key=T,
-              Rowv=clusterR,
-              Colv=clusterC,
-              labCol=labCol,
-              density.info='none',
-              cexRow=cexR,
-              cexCol=cexC,
-              margin=margin,
-              dist=aDist,
-              main=main);  
+    bcol<-NA;
   }
-  else{
-    heatmap.2(classMat,
-              col=colorpanel(99, "black","limegreen","yellow"),
-              breaks=seq(from=0, to=1,length.out=100 ),
-              #col=colorpanel(100, "black","yellow"),
-              scale=scale,
-              trace='none',
-              key=T,
-              Rowv=clusterR,
-              Colv=clusterC,
-              labCol=labCol,
-              density.info='none',
-              cexRow=cexR,
-              cexCol=cexC,
-              margin=margin,
-              colsep=seq(ncol(classMat)),
-              rowsep=seq(nrow(classMat)),
-              sepcol='white',
-              sepwidth=c(0.001,0.001),
-              dist=aDist,
-              main=main);  
+  pheatmap(classMat,
+    col=ccools,
+    border_color=bcol,
+    cluster_rows = FALSE,
+    cluster_cols = FALSE
   }
   # classification heatmap
 }
