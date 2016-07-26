@@ -2,8 +2,6 @@
 # (C) Patrick Cahan 2012-2016
 
 # GRN reconstruction functions
-
-
 cn_grnDoRock<-function # getRawGRN, findSpecGenes, and specGRNs
 (sampTab, ### sample table
  expDat, ### properly normalized expression matrix
@@ -19,7 +17,7 @@ cn_grnDoRock<-function # getRawGRN, findSpecGenes, and specGRNs
 {
   targetGenes<-rownames(expDat);
   grnall<-cn_getRawGRN(zscores, corrs, targetGenes, zThresh=zThresh, snName=snName);
-   specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
+  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
   ctGRNs<-cn_specGRNs(grnall, specGenes);
   list(grnStuff=grnall, specGenes=specGenes,ctGRNs=ctGRNs);  
 }
@@ -38,19 +36,10 @@ cn_getRawGRN<-function# get raw GRN, communities from zscores, and corr
   colnames(grn)[1:2]<-c("TG", "TF");
   
   # make an iGraph object and find communities
-  cat("Finding communities...\n");
+  #cat("Finding communities...\n");
   igTmp<-ig_tabToIgraph(grn, directed=FALSE, weights=TRUE);
-  iCommTmp<-infomap.community(igTmp,e.weights=E(igTmp)$weight);
-  
-  # make gene lists of the communities and name them
-  geneLists<-cn_commToNames(iCommTmp, snName);
-  
-  # make igraphs for each subnet
-  graphLists<-cn_makeSGs(igTmp, geneLists);
-  
-  
-  list(grnTable=grn, graph=igTmp, geneLists=geneLists, graphList=graphLists);
-  ### list of grnTable, graph, community  gene lists and igraphs
+  list(grnTable=grn, graph=igTmp);
+  ### list of grnTable and corresponding graph
 }
 
 cn_specGenesAll<-function# finds general and context dependent specifc genes
@@ -155,43 +144,6 @@ cn_get_targets<-function(aGraph){
 
 
 
-.cn_specGRNs<-function### find and merge enriched communities
-(rawGRNs, ### result of running cn_getRawGRN
- geneLists, ### result of running cn_specGenesAll
- holmThresh=1e-4,
- sizeThresh=25){
-  # init
-  groupNames<-names(geneLists$context$general);
-  
-  rawSN_geneLists<-rawGRNs[['geneLists']];
-  
-  allgenes<-union(rawGRNs[['grnTable']][,"TF"], rawGRNs[['grnTable']][,"TG"]);
-  
-  # find communities enriched in geneLists genes
-  cat("Finding communities enriched for provided gene sets...\n");
-  contexts<-names(geneLists$context);
-  
-  ct_sns<-list();
-  for(context in contexts){
-    ct_sns[[context]]<-sigOvers(rawSN_geneLists, geneLists$context[[context]], allgenes, holmThresh=holmThresh, sizeThresh=sizeThresh);
-  }
-  
-  # a community can be detected as enriched in either the gneral and/or context gene lists
-  # for each CT,create one list of communities enriched in either case.
-  ### 03-03-2015 ct_sns2<-list();
-  ct_sns2<-ct_sns;
-  for(groupName in groupNames){
-    a<-ct_sns[['general']][[groupName]];
-    if(length(geneLists$matcher)>0){
-      gll<-geneLists$matcher[[groupName]];
-      b<-ct_sns[[gll]][[groupName]];
-      ct_sns2[[groupName]]<-union(a,b);
-    }
-  }
-  ct_sns2;
-}
-
-
 cn_findSpecGenes<-function# find genes that are preferentially expressed in specified samples
 (expDat, ### expression matrix
  sampTab, ### sample tableß
@@ -235,49 +187,6 @@ cn_findSpecGenes<-function# find genes that are preferentially expressed in spec
   }
   ans;
 }
-
-cn_findSpecGenesOLD<-function# find genes that are preferentially expressed in specified samples
-(expDat, ### expression matrix
- sampTab, ### sample tableß
- qtile=0.95, ### quantile
- dLevel="description1", #### annotation level to group on
- prune=TRUE ### limit to genes exclusively detected as CT in one CT
- ){
-  
-  cat("Template matching...\n")
-  myPatternG<-cn_sampR_to_pattern(as.vector(sampTab[,dLevel]));
-  specificSets<-apply(myPatternG, 1, cn_testPattern, expDat=expDat);
-
-  # adaptively extract the best genes per lineage
-  cat("First pass identification of specific gene sets...\n")
-  cvalT<-vector();
-  ctGenes<-list();
-  ctNames<-unique(as.vector(sampTab[,dLevel]));
-  for(ctName in ctNames){
-    x<-specificSets[[ctName]];
-    cval<-quantile(x$cval, qtile);
-    tmp<-rownames(x[x$cval>cval,]);
-    ctGenes[[ctName]]<-tmp;
-    cvalT<-append(cvalT, cval);
-  }
-  
-  if(prune){
-   cat("Prune common genes...\n");
-  # now limit to genes exclusive to each list
-   specGenes<-list();
-   for(ctName in ctNames){
-     others<-setdiff(ctNames, ctName);
-     x<-setdiff( ctGenes[[ctName]], unlist(ctGenes[others]));
-     specGenes[[ctName]]<-x;
-   }
-   ans<-specGenes;
-  }
-  else{
-   ans<-ctGenes;
-  }
-  ans;
-}
-
 
 
 cn_makeSGs<-function# make induced subgraphs from gene lists and iGraph object

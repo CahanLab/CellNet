@@ -2,8 +2,10 @@
 # (C) Patrick Cahan 2012-2016
 
 library(igraph)
-###library(gplots)
+library(tidyr)
+library(pheatmap)
 library(ggplot2)
+library(plyr)
 library(randomForest)
 library(preprocessCore)
 library(parallel)

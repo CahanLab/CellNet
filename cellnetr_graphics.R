@@ -17,6 +17,24 @@ mp_rainbowPlot<-function### make a rainbow colored dot plot
   # rainbow plot
 }
 
+plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
+(tfScores, ### result of running cn_nis_all
+ targetCT ### what is the target cell type? 
+){
+  xx<-as.data.frame(t(tfScores[[targetCT]]))
+  cnames<-colnames(xx)
+  newX<-gather_(xx, "gene", "expression", cnames)
+  newx2<-transform(newX, gene=reorder(gene, -expression))
+  newx3<-ddply(newx2, "gene", transform, medVal=median(expression))
+  ggplot(newx3, aes(x=gene, y=expression)) + 
+    geom_boxplot(aes(fill=medVal)) + coord_flip() + theme_bw() + 
+    scale_fill_gradient2(low='purple', mid='white', high='orange') + 
+    ylab("Network influence score") + xlab("Transcriptional regulator") + theme(legend.position="none")
+}
+
+
+
+
 cn_stdout<-function
 ### save pdfs of standard output
 (cnObj,
