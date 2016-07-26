@@ -29,7 +29,7 @@ plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
   ggplot(newx3, aes(x=gene, y=expression)) + 
     geom_boxplot(aes(fill=medVal)) + coord_flip() + theme_bw() + 
     scale_fill_gradient2(low='purple', mid='white', high='orange') + 
-    ylab("Network influence score") + xlab("Transcriptional regulator") + theme(legend.position="none")
+    ylab("Network influence score") + xlab("Transcriptional regulator") + theme(legend.position="none", axis.text=element_text(size=8))
 }
 
 
