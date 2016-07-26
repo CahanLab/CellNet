@@ -113,6 +113,58 @@ salmon_load_tranEst<-function# load Salmon-based transcript estimates
   list(TPM=TPM, NumReads=NumReads);
 }
 
+trans_fetch_index<-function # get files needed to run Salmon and Hisat2 QC pipeline
+(destination="/media/ephemeral1/dat/ref",
+  species='mouse',
+  bucket='cellnet-rnaseq',
+  dir="ref"){
+
+  curdir<-system('pwd', intern=T);
+  setwd(destination);
+
+  # fetch 4 files:
+  # 1. hisat2Indices_050216.tar.gz
+  fname1<-"hisat2Indices_050216.tar.gz";
+  cat("fetching hisat2 indices\n");
+  s3_get(dir, fname1, bucket);
+  cat("unpackagin indices\n");
+  utils_unpack(fname1);
+
+  # depending on species
+  
+  # if mouse:
+  #   2. salmon.index.mouse.050316.tgz
+  #   3. geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R 
+  #   4. Mus_musculus.GRCm38.83.gtf.gz
+  if(species=='mouse'){
+    fname2<-"salmon.index.mouse.050316.tgz";
+    fname3<-"geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R";
+    fname4<-"Mus_musculus.GRCm38.83.gtf.gz";
+  }
+
+  # if human:
+  #   2. salmon.index.human.050316.tgz
+  #   3. geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R
+  #   4. Homo_sapiens.GRCh38.83.gtf.gz
+  else{
+    fname2<-"salmon.index.human.050316.tgz";
+    fname3<-"geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R";
+    fname4<-"Homo_sapiens.GRCh38.83.gtf.gz";
+  }
+
+  cat("fecthing and unpacking other stuff...\n");
+  s3_get(dir, fname2, bucket);
+  cmd<-paste("tar zxvf ", fname2, sep='');
+  system(cmd);
+
+  s3_get(dir, fname3, bucket);
+  s3_get(dir, fname4, bucket);
+  cmd<-paste("gzip -d ", fname4, sep='');
+  system(cmd);
+
+  setwd(curdir);
+}
+
 gene_expr_sum<-function# returns the gene summed matrix
 (expDatList,
   numCores=10,
