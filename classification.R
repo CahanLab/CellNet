@@ -90,6 +90,7 @@ cn_makeRFs<-function# Make one Random Forest classification per TCT
  dLevel='description1'){
   ans<-list();
   cnames<-names(geneLists);
+  cnames<-intersect(cnames, unique(as.vector(stTrain[,dLevel])));
   for(cname in cnames){
     cat(cname,"\n");
     xgenes<-intersect(rownames(expTrain), geneLists[[cname]]);  
