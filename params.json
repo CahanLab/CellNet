@@ -1,0 +1,6 @@
+{
+  "name": "Cellnet",
+  "tagline": "Assess cell fate engineering with network biology",
+  "body": "\r\nThe AWS EC2 image for processing RNA-Seq data is CellNet_RNA-Seq_Pub ami-1ad4430d.\r\n\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
