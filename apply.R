@@ -13,6 +13,14 @@ cn_apply<-function
  ### stQuery column name
 ){
   
+
+  # make sure stTrain has a sample_id col, and rownames are equivalent to it
+  if(!any(colnames(stQuery)=='sample_id')){
+    stQuery<-cbind(stQuery, sample_id=colnames(expQuery));
+    rownames(stQuery)<-as.vector(stQuery["sample_id"])
+  }
+
+
   # 08-07-14, set default to sample_name so that individual samples are plotted
   
   if(length(dLevelQuery)==0 ){

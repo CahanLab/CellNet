@@ -13,6 +13,7 @@ cn_make_processor<-function # train a CellNet object
  exprWeight=TRUE # weight GRN est by gene expression
  ){
   
+  
   geneLists<-ctGRNs[['ctGRNs']][['geneLists']];
 
   commonTypes<-intersect(stTrain[,dLevel], names(geneLists));
