@@ -17,7 +17,7 @@ cn_apply<-function
   # make sure stTrain has a sample_id col, and rownames are equivalent to it
   if(!any(colnames(stQuery)=='sample_id')){
     stQuery<-cbind(stQuery, sample_id=colnames(expQuery));
-    rownames(stQuery)<-as.vector(stQuery["sample_id"])
+    rownames(stQuery)<-as.vector(stQuery[,"sample_id"])
   }
 
 
