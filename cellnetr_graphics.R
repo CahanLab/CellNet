@@ -18,6 +18,35 @@ mp_rainbowPlot<-function### make a rainbow colored dot plot
 }
 
 plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
+(tfScores,
+### result of running cn_nis_all
+ targetCT,
+ ### what is the target cell type? 
+ sampTab,
+ ### sample table to select subset to plot
+ group,
+ ### which subset to plot?
+ dLevel="description1"
+ # level to group on
+){
+
+  stTmp<-sampTab[sampTab[,dLevel]==group,]
+  tfScores<-tfScores[[targetCT]][,rownames(stTmp)];
+
+  xx<-as.data.frame(t(tfScores))
+  cnames<-colnames(xx)
+  newX<-gather_(xx, "gene", "expression", cnames)
+  newx2<-transform(newX, gene=reorder(gene, -expression))
+  newx3<-ddply(newx2, "gene", transform, medVal=median(expression))
+  ggplot(newx3, aes(x=gene, y=expression)) + 
+    geom_boxplot(aes(fill=medVal)) + coord_flip() + theme_bw() + 
+    scale_fill_gradient2(low='purple', mid='white', high='orange') + 
+    ylab("Network influence score") + xlab("Transcriptional regulator") + theme(legend.position="none", axis.text=element_text(size=8))
+}
+
+
+if(FALSE){
+plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
 (tfScores, ### result of running cn_nis_all
  targetCT ### what is the target cell type? 
 ){
@@ -30,6 +59,7 @@ plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
     geom_boxplot(aes(fill=medVal)) + coord_flip() + theme_bw() + 
     scale_fill_gradient2(low='purple', mid='white', high='orange') + 
     ylab("Network influence score") + xlab("Transcriptional regulator") + theme(legend.position="none", axis.text=element_text(size=8))
+}
 }
 
 
