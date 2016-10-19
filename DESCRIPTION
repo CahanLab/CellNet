@@ -4,10 +4,7 @@ Version: 0.0.0.9000
 Authors@R: person("Patrick", "Cahan", email = "patrick.cahan@gmail.com", role = c("aut", "cre"))
 Description: CellNet is a network biology-based computational platform that more accurately assesses the fidelity of cellular engineering than existing methodologies and generates hypotheses for improving cell derivations. CellNet takes as input a gene expression profile and returns: (1) Classification values estimating the likelihood that the profile comes from one of the cell- and tissues types in the training data. lassification scores are stringent criteria to assess the extent to which an engineered population resembles the training data. (2) Network status, which indicates the extent to which a cell or tissue type GRN is established in the gene expression profile. The GRN status is a sensitive metric of the extent to which specific GRNs are induced or repressed in different conditions. (3) Network influence scores for all transcriptional regulators reflecting the extent to which a transcriptional regulator and its target genes are dysregulated in the query sample, weighted by the importance of the regulator the cell and tissue specific GRN. These scores can be used to prioritize candidate factors to modulate in order to improve cell engineering protocols.
 Depends:
-	R (>= 3.3.1),
-	GO.db,
-	org.Hs.eg.db,
-	org.Mm.eg.db
+	R (>= 3.3.1)
 Imports:
 	igraph,
 	tidyr,
@@ -17,7 +14,7 @@ Imports:
 	randomForest
 License: Artistic-2.0
 Encoding: UTF-8
-LazyData: false
+LazyData: true
 URL: http://pcahan1.github.io/CellNet/
 BiocViews:
 	preprocessCore,
