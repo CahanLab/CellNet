@@ -2,9 +2,11 @@
 # (C) Patrick Cahan 2012-2016
 # GRN reconstruction functions
 
+
 #' Reconstruct CT-specific GRNs
 #'
 #' runs getRawGRN, findSpecGenes, and specGRNs
+#'
 #' @param samptTab sample table
 #' @param expDat properly normalized expression matrix
 #' @param tfs vector of transcription factors
@@ -21,6 +23,7 @@
 #' system.time(grnAll<-cn_make_grn(stAll, expAll, species='Mm', zThresh=6) )
 #' 
 #' @export
+#'
 cn_make_grn<-function
 (sampTab,
  expDat,
@@ -597,6 +600,8 @@ cn_extractSubNets<-function#
 #'
 #' @return vector fo TF names
 #' @export
+#' @importFrom AnnotationDbi as.list
+#'
 find_tfs<-function# 
 (species='Hs' # species abbreviation
   ){
