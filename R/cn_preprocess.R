@@ -15,6 +15,8 @@
 #' @param total post transformation sum of read counts
 #'
 #' @return vector of downsampled read mapped to genes/transcripts
+#'
+#' @export
 downSampleW<-function
 (vector,
 total=1e5){ 
