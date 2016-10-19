@@ -10,9 +10,7 @@ Imports:
 	pheatmap,
 	ggplot2,
 	plyr,
-	randomForest,
-	preprocessCore,
-	GO.db
+	randomForest
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
