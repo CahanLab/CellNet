@@ -605,13 +605,13 @@ find_tfs<-function#
 
   if(species=='Hs'){
     require(org.Hs.eg.db);
-    egSymbols<-as.list(org.Hs.egSYMBOL);
-    goegs<-as.list(org.Hs.egGO2ALLEGS);
+    egSymbols<-as.list(rg.Hs.eg.db::org.Hs.egSYMBOL);
+    goegs<-as.list(rg.Hs.eg.db::org.Hs.egGO2ALLEGS);
   }
   else{
     require(org.Mm.eg.db);
-    egSymbols<-as.list(org.Mm.egSYMBOL);
-    goegs<-as.list(org.Mm.egGO2ALLEGS);
+    egSymbols<-as.list(org.Mm.eg.db::org.Mm.egSYMBOL);
+    goegs<-as.list(org.Mm.eg.db::org.Mm.egGO2ALLEGS);
   }
 
   goterms<-as.list(GOTERM);
