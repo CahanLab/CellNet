@@ -611,6 +611,7 @@ find_tfs<-function#
   }
   else{
     require(org.Mm.eg.db);
+    importFrom(AnnotationDbi, as.list)
     egSymbols<-as.list(org.Mm.eg.db::org.Mm.egSYMBOL);
     goegs<-as.list(org.Mm.eg.db::org.Mm.egGO2ALLEGS);
   }
