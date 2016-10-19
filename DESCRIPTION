@@ -17,4 +17,9 @@ License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
 URL: http://pcahan1.github.io/CellNet/
+BiocViews:
+	preprocessCore,
+	GO.db
+	org.Hs.eg.db,
+	org.Mm.eg.db
 RoxygenNote: 5.0.1.9000
