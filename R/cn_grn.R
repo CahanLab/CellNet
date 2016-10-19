@@ -596,6 +596,7 @@ cn_extractSubNets<-function#
 #' @param species defaul is 'Hs', can also be 'Mm;
 #'
 #' @return vector fo TF names
+#' @export
 find_tfs<-function# 
 (species='Hs' # species abbreviation
   ){
@@ -605,8 +606,8 @@ find_tfs<-function#
 
   if(species=='Hs'){
     require(org.Hs.eg.db);
-    egSymbols<-as.list(rg.Hs.eg.db::org.Hs.egSYMBOL);
-    goegs<-as.list(rg.Hs.eg.db::org.Hs.egGO2ALLEGS);
+    egSymbols<-as.list(org.Hs.eg.db::org.Hs.egSYMBOL);
+    goegs<-as.list(org.Hs.eg.db::org.Hs.egGO2ALLEGS);
   }
   else{
     require(org.Mm.eg.db);
