@@ -42,16 +42,10 @@ cn_clr<-function
     expGRN<-Norm_quantNorm(expGRN)
   }
 
-  if(is.na(corrs)){
-    cat("Calculating correlation...\n");
-    corrs<-grn_corr_round(expGRN)
-  }
-  if(is.na(zscores)){
-    cat("Calculating context dependent zscores...\n");
-    zscores<-grn_zscores(corrs, tfs);
-  }
-
-  zscores;
+  cat("Calculating correlation...\n");
+  corrs<-grn_corr_round(expGRN)
+  cat("Calculating context dependent zscores...\n");
+  grn_zscores(corrs, tfs)
 }
 
 
