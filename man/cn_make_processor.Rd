@@ -4,8 +4,8 @@
 \alias{cn_make_processor}
 \title{make a CellNet object}
 \usage{
-cn_make_processor(expTrain, stTrain, ctGRNs, tctOrder = NULL,
-  dLevel = "description1", classWeight = TRUE, exprWeight = TRUE)
+cn_make_processor(expTrain, stTrain, ctGRNs, dLevel = "description1",
+  classWeight = TRUE, exprWeight = TRUE)
 }
 \arguments{
 \item{expTrain}{expression matrix}
@@ -13,8 +13,6 @@ cn_make_processor(expTrain, stTrain, ctGRNs, tctOrder = NULL,
 \item{stTrain}{sample table}
 
 \item{ctGRNs}{result of running cn_grnDoRock}
-
-\item{tctOrder}{NULL}
 
 \item{dLevel}{sample table column name to operate on}
 

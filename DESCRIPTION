@@ -6,19 +6,19 @@ Description: CellNet is a network biology-based computational platform that more
 Depends:
 	R (>= 3.3.1)
 Imports:
+    ggplot2,
 	igraph,
-	tidyr,
 	pheatmap,
-	ggplot2,
 	plyr,
-	randomForest
+	randomForest,
+	tidyr
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
 URL: http://pcahan1.github.io/CellNet/
 BiocViews:
-	preprocessCore,
 	GO.db
 	org.Hs.eg.db,
-	org.Mm.eg.db
+	org.Mm.eg.db,
+	preprocessCore
 RoxygenNote: 5.0.1.9000

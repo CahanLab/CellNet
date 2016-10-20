@@ -422,6 +422,8 @@ geo_fixNames<-function
 #' @param inc number of samples to process simultaneously
 #'
 #' @return raw expression expressed as a proportion of overall signal per sample
+#'
+#' @export
 Norm_cleanPropRaw<-function
 (sampTab,
  platform,

@@ -18,6 +18,7 @@
 #' @import ggplot2
 #' @import randomForest
 #' @import pheatmap
+#' @import affy
 #'
 #' @export
 cn_apply<-function
@@ -132,7 +133,6 @@ cn_outputRes<-function
 #' @param expTrain expression matrix
 #' @param stTrain sample table
 #' @param ctGRNs result of running cn_grnDoRock
-#' @param tctOrder NULL
 #' @param dLevel sample table column name to operate on
 #' @param classWeight weight GRN est by classification importance
 #' @param exprWeight weight GRN est by gene expression
@@ -146,7 +146,6 @@ cn_make_processor<-function # train a CellNet object
 (expTrain,
  stTrain,
  ctGRNs, # 
- tctOrder=NULL,
  dLevel="description1",
  classWeight=TRUE,
  exprWeight=TRUE

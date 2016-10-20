@@ -715,6 +715,7 @@ cn_netScores<-function
   }
   
   for(gene in genes){
+    cat("***",gene,"\n")
     zzs<-cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]]);
     aMat[gene,]<-zzs;
   }
