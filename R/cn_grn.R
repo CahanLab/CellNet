@@ -704,6 +704,7 @@ cn_netScores<-function
   weights<-rep(1, length(genes));
   names(weights)<-genes;
   
+  cat(dim(aMat),"\n")
   if(exprWeight){
     meanVect<-unlist(tVals[[ctt]][['mean']][genes]);
     weights<-(2**meanVect)/sum(2**meanVect);
@@ -715,8 +716,8 @@ cn_netScores<-function
   }
   
   for(gene in genes){
-    cat("***",gene,"\n")
-    zzs<-cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]]);
+   ### cat("***",gene,"\n")
+    zzs<-as.matrix(cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])[1,])
     aMat[gene,]<-zzs;
   }
   xscores<-apply(aMat, 2, weighted.mean, w=weights);
