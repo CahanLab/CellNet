@@ -14,6 +14,11 @@
 #' cnRes<-cn_apply(expQuery, stQuery, cnProc, "description1")
 #'
 #' @return cnRes object
+#' @import igraph
+#' @import ggplot2
+#' @import randomForest
+#' @import pheatmap
+#'
 #' @export
 cn_apply<-function
 (expQuery,

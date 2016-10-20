@@ -382,7 +382,7 @@ ig_tabToIgraph<-function#
   verticies<-data.frame(name=c(regs,targs), label=c(regs,targs), type=types);
   
   ### iG<-graph.data.frame(tmpAns,directed=directed,v=verticies);
-  iG<-graph_from_data_frame(tmpAns,directed=directed,v=verticies);
+  iG<-igraph::graph_from_data_frame(tmpAns,directed=directed,v=verticies);
   
   if(weights){
     #E(iG)$weight<-grnTab$weight;    
