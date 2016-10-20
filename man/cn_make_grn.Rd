@@ -26,6 +26,8 @@ cn_make_grn(sampTab, expDat, species = "Mm", tfs = NA, grnSampSize = 40,
 
 \item{cvalGK}{template matching threshold for developmentally shared CT specific expression}
 
+\item{dLevel}{column name in sample table to group samples by}
+
 \item{holmSpec}{pvalue threshold for template matching}
 
 \item{samptTab}{sample table}

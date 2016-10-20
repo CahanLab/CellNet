@@ -5,7 +5,7 @@
 \title{make a CLR-like matrix for assessment purposes}
 \usage{
 cn_clr(sampTab, expDat, species = "Mm", tfs = NA, grnSampSize = 40,
-  normDat = FALSE)
+  normDat = FALSE, dLevel = "description1")
 }
 \arguments{
 \item{expDat}{properly normalized expression matrix}
@@ -15,6 +15,8 @@ cn_clr(sampTab, expDat, species = "Mm", tfs = NA, grnSampSize = 40,
 \item{grnSampSize}{min number of samples per ct or group}
 
 \item{normDat}{whether to quantile normalize the data prior to computing correlations}
+
+\item{dLevel}{column name in sample table to group samples by}
 
 \item{samptTab}{sample table}
 }

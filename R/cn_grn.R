@@ -12,6 +12,7 @@
 #' @param tfs vector of transcription factors
 #' @param grnSampSize min number of samples per ct or group 
 #' @param normDat whether to quantile normalize the data prior to computing correlations
+#' @param dLevel column name in sample table to group samples by
 #'
 #' @return zscore matrix
 #' 
@@ -23,7 +24,8 @@ cn_clr<-function
  species="Mm",
  tfs=NA,
  grnSampSize=40, #min number of samples per ct or group
- normDat=FALSE)
+ normDat=FALSE,
+ dLevel='description1')
 {
   targetGenes<-rownames(expDat)
   if(is.na(tfs)){
@@ -62,6 +64,7 @@ cn_clr<-function
 #' @param expDat properly normalized expression matrix
 #' @param tfs vector of transcription factors
 #' @param grnSampSize min number of samples per ct or group 
+#' @param dLevel column name in sample table to group samples by
 #' @param normDat whether to quantile normalize the data prior to computing correlations
 #' @param corrs matrix of gene-gene pearson correlations
 #' @param zscores CLR-defined context dependent zscores
