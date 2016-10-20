@@ -327,7 +327,16 @@ s3_get_par<-function# get files in parallel
   system(cmd);
 }
 
-
+#' get file from S3 using CLI
+#'
+#' get file from S3 using CLI
+#' @param dir path
+#' @param target filename
+#' @param bucket bucket
+#'
+#' @return nothing
+#'
+#' @export
 s3_get<-function
 (dir,
  target, # name of target file
@@ -347,6 +356,31 @@ s3_put<-function
   cmd<-paste("aws s3 cp ",target," s3://", bucket, "/", dir, "/", sep='');
   cat(cmd,"\n");
   system(cmd);  
+}
+
+
+#' List directories in a bucket
+#'
+#' List directories in a bucket
+#' @param bucket bucket
+#' @param path path
+#'
+#' @return vector of directories
+#'
+#'
+#' @export
+s3_listDir<-function
+(bucket,
+ path
+){
+#  fpath<-paste(bucket, "/",path,sep='');
+  cmd<-paste("aws s3 ls s3://", bucket, "/", path, "/", sep='');
+  cat(cmd,"\n");
+  aa<-system(cmd, intern=T)
+  bb<-unlist(lapply(aa, utils_stripwhite))
+  cc<-unlist(strsplit(bb, " "))
+  dd<-cc[grep("/", cc)]
+  unlist(strsplit(dd, "/"))
 }
 
 
