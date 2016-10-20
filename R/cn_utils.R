@@ -167,7 +167,7 @@ GEP_makeMean<-function
     for(grp in grps){
       gi<-which(groupings==grp);
       if(length(gi)==1){
-        cat("\nhere")
+        
         if(nrow(ans)==0){
           ans<-data.frame(exp[,gi]);
         }else{
