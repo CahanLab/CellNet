@@ -18,7 +18,6 @@
 #' @import ggplot2
 #' @import randomForest
 #' @import pheatmap
-#' @import affy
 #'
 #' @export
 cn_apply<-function
