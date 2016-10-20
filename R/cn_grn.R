@@ -3,6 +3,57 @@
 # GRN reconstruction functions
 
 
+#' make a CLR-like matrix for assessment purposes
+#'
+#' computes gene-gene correlation, then clr-like zscores
+#'
+#' @param samptTab sample table
+#' @param expDat properly normalized expression matrix
+#' @param tfs vector of transcription factors
+#' @param grnSampSize min number of samples per ct or group 
+#' @param normDat whether to quantile normalize the data prior to computing correlations
+#'
+#' @return zscore matrix
+#' 
+#' @export
+#'
+cn_clr<-function
+(sampTab,
+ expDat,
+ species="Mm",
+ tfs=NA,
+ grnSampSize=40, #min number of samples per ct or group
+ normDat=FALSE)
+{
+  targetGenes<-rownames(expDat)
+  if(is.na(tfs)){
+    cat("Defining transcriptional regulators...\n");
+    tfs<-find_tfs(species)
+  }
+  tfs<-intersect(targetGenes, tfs)
+
+  stGRN<-sample_profiles_grn(sampTab, minNum=grnSampSize)
+  cat("Number of samples per CT: ",mean(table(stGRN[,dLevel])),"\n")
+  expGRN<-expDat[,rownames(stGRN)]
+  if(normDat){
+    cat("Normalizing expression data...\n")
+    expGRN<-Norm_quantNorm(expGRN)
+  }
+
+  if(is.na(corrs)){
+    cat("Calculating correlation...\n");
+    corrs<-grn_corr_round(expGRN)
+  }
+  if(is.na(zscores)){
+    cat("Calculating context dependent zscores...\n");
+    zscores<-grn_zscores(corrs, tfs);
+  }
+
+  zscores;
+}
+
+
+
 #' Reconstruct CT-specific GRNs
 #'
 #' runs getRawGRN, findSpecGenes, and specGRNs
@@ -10,6 +61,8 @@
 #' @param samptTab sample table
 #' @param expDat properly normalized expression matrix
 #' @param tfs vector of transcription factors
+#' @param grnSampSize min number of samples per ct or group 
+#' @param normDat whether to quantile normalize the data prior to computing correlations
 #' @param corrs matrix of gene-gene pearson correlations
 #' @param zscores CLR-defined context dependent zscores
 #' @param cval template matching threshold for overall CT specific expression
@@ -49,6 +102,7 @@ cn_make_grn<-function
   tfs<-intersect(targetGenes, tfs)
 
   stGRN<-sample_profiles_grn(sampTab, minNum=grnSampSize)
+  cat("Number of samples per CT: ",mean(table(stGRN[,dLevel])),"\n")
   expGRN<-expDat[,rownames(stGRN)]
   if(normDat){
     cat("Normalizing expression data...\n")

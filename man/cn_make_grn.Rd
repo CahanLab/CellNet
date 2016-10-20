@@ -14,6 +14,10 @@ cn_make_grn(sampTab, expDat, species = "Mm", tfs = NA, grnSampSize = 40,
 
 \item{tfs}{vector of transcription factors}
 
+\item{grnSampSize}{min number of samples per ct or group}
+
+\item{normDat}{whether to quantile normalize the data prior to computing correlations}
+
 \item{corrs}{matrix of gene-gene pearson correlations}
 
 \item{zscores}{CLR-defined context dependent zscores}
