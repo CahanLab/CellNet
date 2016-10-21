@@ -434,7 +434,7 @@ plot_class_rocs<-function
   sens<-sensfunc(rocsAll)
   rocsAll2<-cbind(rocsAll, data.frame(recall=sens, precision=precs));
 
-  ggplot(data=rocsAll2, aes(x=as.numeric(as.vector(recall)), y=as.numeric(as.vector(precision)))) + geom_point(size = 1) + 
+  ggplot(data=rocsAll2, aes(x=as.numeric(as.vector(recall)), y=as.numeric(as.vector(precision)))) + geom_point(size = .5, alpha=.5) +  geom_path(size=.5, alpha=.75) +
   theme_bw() + xlab("Recall") + ylab("Precision") + facet_wrap( ~ ctype, ncol=4) +
   theme(axis.text = element_text(size=5)) + ggtitle("Classification performance")
 }
