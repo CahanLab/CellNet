@@ -5,7 +5,7 @@
 \title{Assess classifiers based on validation data}
 \usage{
 cn_classAssess(ct_scores, stVal, classLevels = "description2",
-  resolution = 0.005)
+  dLevelSID = "sample_id", resolution = 0.005)
 }
 \arguments{
 \item{ct_scores}{matrix of classification scores, rows = classifiers, columns = samples, colnames=sampleids}
@@ -13,6 +13,8 @@ cn_classAssess(ct_scores, stVal, classLevels = "description2",
 \item{stVal}{sample table}
 
 \item{classLevels}{column name of stVal to use as ground truth to assess classifiers}
+
+\item{dLevelSID}{column to indicate sample id}
 
 \item{resolution}{increment at which to evalutate classification}
 }

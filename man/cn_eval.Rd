@@ -4,7 +4,8 @@
 \alias{cn_eval}
 \title{run cn_clPerf across thresholds}
 \usage{
-cn_eval(vect, sampTab, dLevel, classification, threshs = seq(0, 1, by = 0.05))
+cn_eval(vect, sampTab, dLevel, classification, threshs = seq(0, 1, by = 0.05),
+  dLevelSID = "sample_id")
 }
 \arguments{
 \item{vect}{named vector}
@@ -14,6 +15,8 @@ cn_eval(vect, sampTab, dLevel, classification, threshs = seq(0, 1, by = 0.05))
 \item{classification}{classification matrix}
 
 \item{threshs}{seq of pval cutoffs}
+
+\item{dLevelSID}{column to indicate sample id}
 }
 \value{
 return a data frame of the number of TP, FN, FP, and TN, and pval cutoff

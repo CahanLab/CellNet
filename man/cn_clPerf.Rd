@@ -4,7 +4,8 @@
 \alias{cn_clPerf}
 \title{determine performance of classification at given threshold}
 \usage{
-cn_clPerf(vect, sampTab, dLevel, classification, thresh)
+cn_clPerf(vect, sampTab, dLevel, classification, thresh,
+  dLevelSID = "sample_id")
 }
 \arguments{
 \item{vect}{vector of values}
@@ -16,6 +17,8 @@ cn_clPerf(vect, sampTab, dLevel, classification, thresh)
 \item{classification}{actual classification}
 
 \item{thresh}{threshold above which to make a call}
+
+\item{dLevelSID}{column to indicate sample id}
 }
 \value{
 vector of TP FN FP TN

@@ -218,7 +218,7 @@ cn_splitMakeAssess<-function
  grns,
  prop=0.5,
  dLevel="description1",
- dLevelStudy="exp_id"
+ dLevelStudy="exp_id",
  dLevelSID="sample_id"){
 
   cat("splitting data...\n");

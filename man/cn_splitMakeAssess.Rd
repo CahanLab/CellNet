@@ -5,7 +5,7 @@
 \title{make classifiers and assess}
 \usage{
 cn_splitMakeAssess(stDat, expDat, grns, prop = 0.5, dLevel = "description1",
-  dLevelStudy = "exp_id")
+  dLevelStudy = "exp_id", dLevelSID = "sample_id")
 }
 \arguments{
 \item{stDat}{sample table}
@@ -19,6 +19,8 @@ cn_splitMakeAssess(stDat, expDat, grns, prop = 0.5, dLevel = "description1",
 \item{dLevel}{sample table column to use as response value in classifier (e.g. cell type)}
 
 \item{dLevelStudy}{column name to indicate experiment or study id}
+
+\item{dLevelSID}{column to indicate sample}
 }
 \value{
 list if classifiers, classifier result as applied to held out data, ROCs
