@@ -30,6 +30,23 @@ total=1e5){
   ans
 }
 
+#' weighted subtraction from mapped reades and log applied to all
+#'
+#' Simulate expression profile of  _total_ mapped reads
+#' @param expRaw matrix of total mapped reads per gene/transcript
+#' @param total numeric post transformation sum of read counts
+#'
+#' @return vector of downsampled read mapped to genes/transcripts
+#'
+#' @export
+trans_rnaseq<-function
+(expRaw,
+ total
+ ){
+    expCountDnW<-apply(expRaw, 2, downSampleW, total)
+    log(1+expCountDnW)
+  }
+
 #' Determines read length of fastq file
 #'
 #' Uses awk to determine read length of first read in fastq file. Assumes all reads in file are same length.
