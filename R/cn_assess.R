@@ -151,7 +151,8 @@ cn_assessGRN<-function
  funType='intersect'
 ){
   prs<-list();
-  testTFs<-names(goldStandard);
+  testTFs<-names(goldStandard)
+  testTFs<-intersect(testTFs, colnames(zscores))
   for(ttf in testTFs){
     prs[[ttf]]<-cn_calcPRs(zscores, ttf, goldStandard[[ttf]], rownames(zscores), tRange=tRange, random=random, randomIter=randomIter)
   }
