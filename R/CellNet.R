@@ -203,6 +203,7 @@ cn_make_processor<-function # train a CellNet object
 #' @param grns result of running cn_grnDoRock
 #' @param prop numeric 0<prop<1 what proportion of data to train classifiers on
 #' @param dLevel sample table column to use as response value in classifier (e.g. cell type)
+#' @param dLevelStudy column name to indicate experiment or study id
 #'
 #' @return list if classifiers, classifier result as applied to held out data, ROCs
 #'
@@ -215,10 +216,11 @@ cn_splitMakeAssess<-function
  expDat,
  grns,
  prop=0.5,
- dLevel="description1"){
+ dLevel="description1",
+ dLevelStudy="exp_id"){
 
   cat("splitting data...\n");
-  stList<-samp_for_class(stDat, prop=prop, dLevel=dLevel)
+  stList<-samp_for_class(stDat, prop=prop, dLevel=dLevel, dLevelStudy=dLevelStudy)
   stVal<-stList[['stVal']]; 
   stTrain<-stList[['stTrain']]; 
 
@@ -285,19 +287,21 @@ cn_classify<-function
 #' @param sampTab sample table must have exp_id column
 #' @param prop proportion of samples to use as training
 #' @param dLevel column name for 
+#' @param dLevelStudy column name to indicate experiment or study id
 #'
 #' @return list of stTrain stVal
 samp_for_class<-function# return a sampTab for training a test classifier
 (sampTab,
   prop=0.5,
-  dLevel="description1"){
+  dLevel="description1",
+  dLevelStudy="exp_id"){
 
   ctts<-unique(as.vector(sampTab[,dLevel]));
   stTrain<-data.frame();
   stVal<-data.frame();
   for(ctt in ctts){
     stTmp<-sampTab[sampTab[,dLevel]==ctt,];
-    stTrain<-rbind(stTrain, subSamp_for_class(stTmp,prop));
+    stTrain<-rbind(stTrain, subSamp_for_class(stTmp,prop, dLevelStudy));
 
     idsval<-setdiff( rownames(stTmp), rownames(stTrain) );
     stVal<-rbind(stVal, stTmp[idsval,]);
@@ -310,13 +314,15 @@ samp_for_class<-function# return a sampTab for training a test classifier
 #' that's it. helper function
 #' @param sampTab sample table
 #' @param prop fraction of samples to select
+#' @param dLevelStudy column name to indicate experiment or study id
 #'
 #' @return stTrain
 subSamp_for_class<-function
 (sampTab,
-  prop=0.5){
+  prop=0.5,
+  dLevelStudy="exp_id"){
 
-  expIDcounts<-sort(table(sampTab$exp_id));
+  expIDcounts<-sort(table(sampTab[,dLevelStudy]));
   expIDs<-names(expIDcounts);
   total<-sum(expIDcounts);
 
@@ -335,7 +341,7 @@ subSamp_for_class<-function
   
   stTrain<-data.frame();
   for(expID in expIDs){
-    stTrain<-rbind(stTrain, sampTab[sampTab$exp_id==expID,]);
+    stTrain<-rbind(stTrain, sampTab[sampTab[,dLevelStudy]==expID,]);
   }
   stTrain;
 }

@@ -4,7 +4,8 @@
 \alias{cn_splitMakeAssess}
 \title{make classifiers and assess}
 \usage{
-cn_splitMakeAssess(stDat, expDat, grns, prop = 0.5, dLevel = "description1")
+cn_splitMakeAssess(stDat, expDat, grns, prop = 0.5, dLevel = "description1",
+  dLevelStudy = "exp_id")
 }
 \arguments{
 \item{stDat}{sample table}
@@ -16,6 +17,8 @@ cn_splitMakeAssess(stDat, expDat, grns, prop = 0.5, dLevel = "description1")
 \item{prop}{numeric 0<prop<1 what proportion of data to train classifiers on}
 
 \item{dLevel}{sample table column to use as response value in classifier (e.g. cell type)}
+
+\item{dLevelStudy}{column name to indicate experiment or study id}
 }
 \value{
 list if classifiers, classifier result as applied to held out data, ROCs

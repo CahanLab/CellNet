@@ -4,7 +4,8 @@
 \alias{samp_for_class}
 \title{split data into train vs test}
 \usage{
-samp_for_class(sampTab, prop = 0.5, dLevel = "description1")
+samp_for_class(sampTab, prop = 0.5, dLevel = "description1",
+  dLevelStudy = "exp_id")
 }
 \arguments{
 \item{sampTab}{sample table must have exp_id column}
@@ -12,6 +13,8 @@ samp_for_class(sampTab, prop = 0.5, dLevel = "description1")
 \item{prop}{proportion of samples to use as training}
 
 \item{dLevel}{column name for}
+
+\item{dLevelStudy}{column name to indicate experiment or study id}
 }
 \value{
 list of stTrain stVal
