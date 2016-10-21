@@ -204,6 +204,7 @@ cn_make_processor<-function # train a CellNet object
 #' @param prop numeric 0<prop<1 what proportion of data to train classifiers on
 #' @param dLevel sample table column to use as response value in classifier (e.g. cell type)
 #' @param dLevelStudy column name to indicate experiment or study id
+#' @param dLevelSID column to indicate sample 
 #'
 #' @return list if classifiers, classifier result as applied to held out data, ROCs
 #'
@@ -217,7 +218,8 @@ cn_splitMakeAssess<-function
  grns,
  prop=0.5,
  dLevel="description1",
- dLevelStudy="exp_id"){
+ dLevelStudy="exp_id"
+ dLevelSID="sample_id"){
 
   cat("splitting data...\n");
   stList<-samp_for_class(stDat, prop=prop, dLevel=dLevel, dLevelStudy=dLevelStudy)
@@ -245,7 +247,7 @@ cn_splitMakeAssess<-function
   cat("assessing...\n")
   ansVal<-cn_classify(testRFs, expVal, grns$ctGRNs$geneLists)
   ###ansVal<-cn_classify(testRFs, expVal, gListsSub)
-  assessed<-cn_classAssess(ansVal, stVal, classLevels="description1", resolution=0.01);
+  assessed<-cn_classAssess(ansVal, stVal, classLevels=dLevel, dLevelSID=dLevelSID, resolution=0.01);
   list(classifiers=testRFs, classRes=ansVal, ROCs=assessed);
 }
 
