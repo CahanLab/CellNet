@@ -895,7 +895,7 @@ cn_trainNorm<-function #
   minVect<-vector(); # a list of ctt->subnet->min value, used to shift raw grn est scores
   
   cat("calculating GRN scores on training data ...\n");
-  tmpScores<-cn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, sidCol=sidCol)
+  tmpScores<-cn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight)
 
 
   minVect<-apply(tmpScores, 1, min);
