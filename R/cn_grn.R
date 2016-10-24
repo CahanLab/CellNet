@@ -872,6 +872,7 @@ cn_normalizeScores<-function
 #' @param sidCol sample id colname
 #' 
 #' @return list of trainingScores, normVals, raw_scores, minVals, tVals=tVals
+#' @export
 cn_trainNorm<-function # 
 (expTrain,
  stTrain,
