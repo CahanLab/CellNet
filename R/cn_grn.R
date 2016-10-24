@@ -869,6 +869,7 @@ cn_normalizeScores<-function
 #' @param tVals seful when debugging
 #' @param classWeight weight GRN status by importance of gene to classifier
 #' @param exprWeight weight GRN status by expression level of gene?
+#' @param sidCol sample id colname
 #' 
 #' @return list of trainingScores, normVals, raw_scores, minVals, tVals=tVals
 cn_trainNorm<-function # 
@@ -879,7 +880,8 @@ cn_trainNorm<-function #
  dLevel = "description1",
  tVals=NULL,
  classWeight=FALSE,
- exprWeight=TRUE
+ exprWeight=TRUE,
+ sidCol='sample_id'
 ){
 
   if(is.null(tVals)){
@@ -892,7 +894,7 @@ cn_trainNorm<-function #
   minVect<-vector(); # a list of ctt->subnet->min value, used to shift raw grn est scores
   
   cat("calculating GRN scores on training data ...\n");
-  tmpScores<-cn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight); 
+  tmpScores<-cn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, sidCol=sidCol)
 
 
   minVect<-apply(tmpScores, 1, min);
@@ -906,7 +908,7 @@ cn_trainNorm<-function #
     ##snets<-names(subNets[[ctt]]);
     snets<-ctt;
 
-    scoreDF<-cn_extract_SN_DF(tmpScores, stTrain, dLevel, snets);
+    scoreDF<-cn_extract_SN_DF(tmpScores, stTrain, dLevel, snets, sidCol=sidCol);
     scoreDF<-cn_reduceMatLarge(scoreDF, "score", "description", "subNet");
     xdf<-scoreDF[which(scoreDF$grp_name==ctt),];
     tmpSNS<-as.list(xdf$mean);
@@ -917,7 +919,7 @@ cn_trainNorm<-function #
   # normalize training scores
   nScores<-cn_normalizeScores(normList, tmpScores, rownames(tmpScores));
 
-  scoreDF<-cn_extract_SN_DF(nScores, stTrain, dLevel);
+  scoreDF<-cn_extract_SN_DF(nScores, stTrain, dLevel, sidCol=sidCol);
 
   scoreDF<-cn_reduceMatLarge(scoreDF, "score", "description", "subNet");
 

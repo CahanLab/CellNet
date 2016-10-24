@@ -6,7 +6,7 @@
 \usage{
 cn_trainNorm(expTrain, stTrain, subNets, classList = NULL,
   dLevel = "description1", tVals = NULL, classWeight = FALSE,
-  exprWeight = TRUE)
+  exprWeight = TRUE, sidCol = "sample_id")
 }
 \arguments{
 \item{expTrain}{expression matrix}
@@ -24,6 +24,8 @@ cn_trainNorm(expTrain, stTrain, subNets, classList = NULL,
 \item{classWeight}{weight GRN status by importance of gene to classifier}
 
 \item{exprWeight}{weight GRN status by expression level of gene?}
+
+\item{sidCol}{sample id colname}
 }
 \value{
 list of trainingScores, normVals, raw_scores, minVals, tVals=tVals

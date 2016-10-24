@@ -143,6 +143,7 @@ cn_stdout<-function
 #' @param ctrlSamps names of samples in training data
 #' @param bOrder order of bars
 #' @param dLevel which stquery level to plot on
+#' @param sidCol sample id colname
 #'
 #' @return
 #'
@@ -156,7 +157,8 @@ cn_barplot_grnSing<-function ### wrapper to barplot secific GRN
  snName,
  ctrlSamps,
  bOrder,
- dlevel='dLevelQuery'
+ dlevel='dLevelQuery',
+ sidCol="sample_id"
 ){
   
   if(dlevel=='dLevelQuery'){
@@ -167,7 +169,7 @@ cn_barplot_grnSing<-function ### wrapper to barplot secific GRN
   ctrlScores<-cnProc[['trainingScores']]
   
   ###  .cn_barplot_grnSing(qScores, ctrlScores, cnObj[['stQuery']], cnObj[['dLevelQuery']], snName, ctrlSamps, bOrder);
-  cn_barplot_grnSing_base(qScores, ctrlScores, cnObj[['stQuery']], dlevel, snName, ctrlSamps, bOrder);
+  cn_barplot_grnSing_base(qScores, ctrlScores, cnObj[['stQuery']], dlevel, snName, ctrlSamps, bOrder, sidCol=sidCol);
 }
 
 #' barplot this specific GRN
@@ -180,6 +182,7 @@ cn_barplot_grnSing<-function ### wrapper to barplot secific GRN
 #' @param snName name of subnet to plot establishment level 
 #' @param ctrSamps names of samples in training data
 #' @param bOrder order of bars
+#' @param sidCol sample id colname
 #'
 #' @return gpplot barplot
 cn_barplot_grnSing_base<-function### 
@@ -189,11 +192,12 @@ cn_barplot_grnSing_base<-function###
  dLevelQ,
  snName,
  ctrSamps,
- bOrder
+ bOrder,
+ sidCol="sample_id"
  ){
     
   # convert into a data.frame
-  aa<-cn_extract_SN_DF(qScores, stQuery,dLevelQ, rnames=snName);
+  aa<-cn_extract_SN_DF(qScores, stQuery,dLevelQ, rnames=snName, sidCol=sidCol);
   aa3<-cn_reduceMatLarge(aa, "score", "description", "subNet");
   aa3<-cbind(aa3, src=rep('query', nrow(aa3)));
   tmpAns<-data.frame();

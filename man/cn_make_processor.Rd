@@ -5,7 +5,7 @@
 \title{make a CellNet object}
 \usage{
 cn_make_processor(expTrain, stTrain, ctGRNs, dLevel = "description1",
-  classWeight = TRUE, exprWeight = TRUE)
+  classWeight = TRUE, exprWeight = TRUE, sidCol = "sample_id")
 }
 \arguments{
 \item{expTrain}{expression matrix}
@@ -19,6 +19,8 @@ cn_make_processor(expTrain, stTrain, ctGRNs, dLevel = "description1",
 \item{classWeight}{weight GRN est by classification importance}
 
 \item{exprWeight}{weight GRN est by gene expression}
+
+\item{sidCol}{column in stTrain that contains unique id for each sample and is the colname in expTrain}
 }
 \value{
 cnProc

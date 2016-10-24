@@ -5,7 +5,7 @@
 \title{barplot this specific GRN}
 \usage{
 cn_barplot_grnSing_base(qScores, ctrlScores, stQuery, dLevelQ, snName, ctrSamps,
-  bOrder)
+  bOrder, sidCol = "sample_id")
 }
 \arguments{
 \item{qScores}{queryScores}
@@ -19,6 +19,8 @@ cn_barplot_grnSing_base(qScores, ctrlScores, stQuery, dLevelQ, snName, ctrSamps,
 \item{ctrSamps}{names of samples in training data}
 
 \item{bOrder}{order of bars}
+
+\item{sidCol}{sample id colname}
 
 \item{control}{scores}
 }

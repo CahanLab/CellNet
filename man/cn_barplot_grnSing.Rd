@@ -5,7 +5,7 @@
 \title{Plot GRN status}
 \usage{
 cn_barplot_grnSing(cnObj, cnProc, snName, ctrlSamps, bOrder,
-  dlevel = "dLevelQuery")
+  dlevel = "dLevelQuery", sidCol = "sample_id")
 }
 \arguments{
 \item{cnObj}{result of analyzing query data with cn_apply}
@@ -17,6 +17,8 @@ cn_barplot_grnSing(cnObj, cnProc, snName, ctrlSamps, bOrder,
 \item{ctrlSamps}{names of samples in training data}
 
 \item{bOrder}{order of bars}
+
+\item{sidCol}{sample id colname}
 
 \item{dLevel}{which stquery level to plot on}
 }

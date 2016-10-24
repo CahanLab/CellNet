@@ -231,16 +231,23 @@ cn_reduceMatLarge<-function
   ### ans
 }
 
+
+#' returns a DF of: sample_id, description, ctt, subnet_name, score
+#'
+#' returns a DF of: sample_id, description, ctt, subnet_name, score
+#' @param scores a matrix of subNet scores
+#' @param sampTab sample table
+#' @param dLevel column name of sampTab to group values by
+#' @param rnames rownames to extract
+#' @param sidCol sample identifier column name
+#'
+#' @return returns a DF of: sample_id, description, ctt, subnet_name, score
 cn_extract_SN_DF<-function
-### returns a DF of: sample_id, description, ctt, subnet_name, score
 (scores,
- ### a matrix of subNet scores
  sampTab,
- ### sample table
  dLevel,
- ### column name of sampTab to group values by
- rnames=NULL
- ### rownames to extract
+ rnames=NULL,
+ sidCol="sample_id"
 ){
   
   if(is.null(rnames)){
@@ -258,7 +265,7 @@ cn_extract_SN_DF<-function
   snNames<-rownames(tss);
   num_subnets<-length(snNames);    
   snNames<-unlist(lapply(snNames, rep, times=nSamples));
-  sample_ids<-rep(as.vector(stTmp$sample_id), num_subnets);
+  sample_ids<-rep(as.vector(stTmp[,sidCol]), num_subnets);
   descriptions<-rep(as.vector(stTmp[,dLevel]), num_subnets);
     # myCtts<-rep(ctt, length(snNames));
   scores<-as.vector(t(tss));
@@ -329,7 +336,7 @@ s3_get_par<-function# get files in parallel
 
 #' get file from S3 using CLI
 #'
-#' get file from S3 using CLI
+#' get file from S3 using CLI, assumes AWS credentials are set
 #' @param dir path
 #' @param target filename
 #' @param bucket bucket
@@ -347,6 +354,16 @@ s3_get<-function
   system(cmd);  
 }
 
+#' put file from S3 using CLI
+#'
+#' put file from S3 using CLI, assumes AWS credentials are set
+#' @param dir path
+#' @param target filename
+#' @param bucket bucket
+#'
+#' @return nothing
+#'
+#' @export
 s3_put<-function
 (dir,
  target, # name of target file
@@ -400,13 +417,6 @@ s3_file_append<-function
 }
 
 
-########################################
-##
-## UNUSED
-##
-########################################
-
-
 zscore<-function
 ### compute zscore
 (x,
@@ -419,6 +429,14 @@ zscore<-function
   (x-meanVal)/sdVal;
   ### zscore
 }
+
+
+
+########################################
+##
+## UNUSED
+##
+########################################
 
 cn_zscoreVect<-function
 ### Compute the mean zscore of given genes in each sample
