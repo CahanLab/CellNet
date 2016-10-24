@@ -768,8 +768,12 @@ cn_netScores<-function
   
   for(gene in genes){
    ### cat("***",gene,"\n")
-    zzs<-as.matrix(cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])[1,])
+    ###zzs<-as.matrix(cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])[1,])
+
+
+    zzs<-cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])
     aMat[gene,]<-zzs;
+
   }
   xscores<-apply(aMat, 2, weighted.mean, w=weights);
   xscores;
