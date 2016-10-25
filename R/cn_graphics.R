@@ -301,7 +301,7 @@ cn_HmVars<-function
     bcol<-NA;
   }
   pheatmap(expDat,
-    annotation_col=sampTab,
+   # annotation_col=sampTab,
     annotation_legend = FALSE,
     show_colnames = F,
    ### col=cools,
