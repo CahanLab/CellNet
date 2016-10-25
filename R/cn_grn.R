@@ -619,8 +619,9 @@ mat_zscores<-function# computes sqrt(zscore_row + zscore_col) ..
 ){
   corrMat<-abs(corrMat);
   zscs_2<-round(scale(corrMat), 3);
-  zscs_2<- zscs_2 + t(zscs_2);
-  zscs_2;
+  rm(corrMat);
+  gc()
+  zscs_2 + t(zscs_2);
 }
 
 #' make subnets from a GRN

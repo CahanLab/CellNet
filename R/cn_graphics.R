@@ -259,6 +259,7 @@ cn_HmClass<-function
   }
   pheatmap(classMat,
     col=cools,
+    breaks=seq(from=0, to=1, length.out=100),
     border_color=bcol,
     cluster_rows = FALSE,
     cluster_cols = FALSE)
