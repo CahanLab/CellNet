@@ -19,8 +19,9 @@ cn_setup<-function
  system(cmd)
  setwd(wrDir)
  
+  cmd<-paste0("sudo mount /dev/xvdc /media/ephemeral1")
+  system(cmd)
 
-  ## sudo mount /dev/xvdc /media/ephemeral1
   cmd<-paste0("sudo mkdir /media/ephemeral1/dat")
   system(cmd)
   cmd<-paste0("sudo mkdir /media/ephemeral1/dat/seq")
@@ -108,6 +109,52 @@ fetch_salmon_indices<-function # get files needed to run Salmon
   setwd(curdir);
 }
 
+#' Derive gene expression estimates compatible with CellNet
+#'
+#' Derive gene expression estimates compatible with CellNet
+#' @param sampTab sample table with fname column point to fastq files
+#' @param finalLength length of reads after trimming
+#' @param species mouse or human
+#' @param bucket where to get them
+#' @param what path on s3 to get them
+#'
+#' @return nothing
+#' @export
+cn_salmon<-function
+(sampTab,
+ finalLength=40,
+ delOrig=FALSE,
+ salmonIndex="MM_GRCh38.SalmonIndex.030816",
+ geneTabfname="geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R",
+ refDir="/media/ephemeral1/dat/ref/",
+ salmonPath="~/rnaseq/SalmonBeta-0.6.1_DebianSqueeze/bin"
+  ){
+
+  cat("Trimming reads\n");
+  stTmp<-fastq_trim(sampTab, finalLength=finalLength, outDir="./");
+ 
+  # remove original fastqs
+  if(delOrig){
+    delete_par(as.vector(stTmp$fname))
+    system("rm *txt")
+  }
+
+  # Salmon
+  resNames<-salmon_par(stTmp, salmonIndex=salmonIndex, salmonPath=salmonPath)
+  cleanup()
+
+  sampTab<-cbind(stTmp, salmonDir=resNames)
+
+  # transcript-level estimates
+  transList<-salmon_load_tranEst(sampTab)
+
+  # gene level estimates
+  expGeneList<-gene_expr_sum(transList,geneTabfname=geneTabfname);
+    
+  # normalize data
+  expGeneList[['normalized']]<-trans_rnaseq(expGenList[['counts']], total=total)
+  expGeneList 
+}
 
 ############
 # RNA-SEQ
