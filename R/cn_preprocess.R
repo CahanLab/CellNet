@@ -130,7 +130,9 @@ cn_salmon<-function
  salmonPath="~/rnaseq/SalmonBeta-0.6.1_DebianSqueeze/bin"
   ){
 
-  cat("Trimming reads\n");
+  cat("determining read length\n")
+  sampTab<-cbind(sampTab, readLength=unlist(lapply(sampTab$fname, fastq_readLength)))
+  cat("Trimming reads\n")
   stTmp<-fastq_trim(sampTab, finalLength=finalLength, outDir="./");
  
   # remove original fastqs
@@ -832,11 +834,11 @@ cn_s3_fetchFastq<-function
 (bucket,
  path,
  sampTab,
- fname="fname",
+ fnameCol="fname",
  compressed=NA)
 {
   pref<-paste0("https://s3.amazonaws.com/", bucket,"/",path,"/");
-  fnames<-as.vector(sampTab[,fname])
+  fnames<-as.vector(sampTab[,fnameCol])
   nfnames<-vector()
   for(fname in fnames){
     destName<-fname
@@ -858,7 +860,7 @@ cn_s3_fetchFastq<-function
     }
     nfnames<-append(nfnames, nfile)
   }
-  sampTab[,fname]<-nfnames
+  sampTab[,fnameCol]<-nfnames
   sampTab
 }
 

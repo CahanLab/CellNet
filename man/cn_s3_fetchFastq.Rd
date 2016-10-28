@@ -4,7 +4,7 @@
 \alias{cn_s3_fetchFastq}
 \title{Fetch fastq files from S3}
 \usage{
-cn_s3_fetchFastq(bucket, path, sampTab, fname = "fname", compressed = NA)
+cn_s3_fetchFastq(bucket, path, sampTab, fnameCol = "fname", compressed = NA)
 }
 \arguments{
 \item{bucket}{name of bucket}
