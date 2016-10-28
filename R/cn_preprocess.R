@@ -127,6 +127,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
 #' @export
 cn_salmon<-function
 (sampTab,
+  total=1e5,
  fnameCol='fname',
  finalLength=40,
  delOrig=FALSE,

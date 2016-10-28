@@ -4,8 +4,8 @@
 \alias{cn_salmon}
 \title{Derive gene expression estimates compatible with CellNet}
 \usage{
-cn_salmon(sampTab, fnameCol = "fname", finalLength = 40, delOrig = FALSE,
-  salmonIndex = "MM_GRCh38.SalmonIndex.030816",
+cn_salmon(sampTab, total = 1e+05, fnameCol = "fname", finalLength = 40,
+  delOrig = FALSE, salmonIndex = "MM_GRCh38.SalmonIndex.030816",
   geneTabfname = "geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R",
   refDir = "/media/ephemeral1/dat/ref/",
   salmonPath = "~/rnaseq/SalmonBeta-0.6.1_DebianSqueeze/bin")
