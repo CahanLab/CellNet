@@ -685,7 +685,7 @@ cn_s3_fetchFastq<-function
   nfnames<-vector()
   for(fname in fnames){
     destName<-fname
-    download.file(fname, destFile=destName)
+    download.file(fname, destfile=destName)
     if(!is.na(compressed)){
       if(compressed=="gz"){
         cmd<-paste0("gzip -d ", destName)
