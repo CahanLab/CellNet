@@ -460,7 +460,7 @@ gene_expr_sum<-function# returns the gene summed matrix
   eids<-unique(allgenes)
 
   # make a cluster
-  aClust<-makeCluster(numCores, type='SOCK')
+  aClust<-parallel::makeCluster(numCores, type='SOCK')
 
   # a list of indices into all genes
   geneIndexList<-parLapply(aClust, eids, matchFunc, vect=allgenes);
@@ -1232,7 +1232,7 @@ qc_analysis<-function #wrapper to do it all and clean up
 #' @return nothing
 subsamp_fastqs<-function# 
 (fnames,
-  codeDir="~/code/CloudSeq/",
+  codeDir="~/code/",
   prop=0.01){
 
   tmpfname<-"tmpFile.txt";

@@ -4,7 +4,7 @@
 \alias{subsamp_fastqs}
 \title{randomly samples reads from single end fastqs}
 \usage{
-subsamp_fastqs(fnames, codeDir = "~/code/CloudSeq/", prop = 0.01)
+subsamp_fastqs(fnames, codeDir = "~/code/", prop = 0.01)
 }
 \arguments{
 \item{fnames}{files to subsample}
