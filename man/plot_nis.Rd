@@ -4,7 +4,8 @@
 \alias{plot_nis}
 \title{boxplot of network influence scores}
 \usage{
-plot_nis(tfScores, targetCT, sampTab, group, dLevel = "description1")
+plot_nis(tfScores, targetCT, sampTab, group, limitTo = 20,
+  dLevel = "description1")
 }
 \arguments{
 \item{tfScores}{result of running cn_nis_all}
@@ -14,6 +15,8 @@ plot_nis(tfScores, targetCT, sampTab, group, dLevel = "description1")
 \item{sampTab}{sample table to select subset to plot}
 
 \item{group}{which subset to plot}
+
+\item{limitTo}{number of TFs to show}
 
 \item{dLevel}{level to group on}
 }

@@ -39,6 +39,7 @@ mp_rainbowPlot<-function### make a rainbow colored dot plot
 #' @param sampTab sample table to select subset to plot
 #' @param group which subset to plot
 #' @param dLevel level to group on
+#' @param limitTo number of TFs to show
 #'
 #' @return ggplot object of box and whiskers
 #'
@@ -51,6 +52,7 @@ plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
  targetCT,
  sampTab,
  group,
+ limitTo=20,
  dLevel="description1"
 ){
 
@@ -62,7 +64,19 @@ plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
   newX<-gather_(xx, "gene", "expression", cnames)
   newx2<-transform(newX, gene=reorder(gene, -expression))
   newx3<-ddply(newx2, "gene", transform, medVal=median(expression, na.rm=TRUE))
-  ggplot(newx3, aes(x=gene, y=expression)) + 
+  
+  nTFs<-length(unique(newx3$gene))
+  if(limitTo==0 | limitTo>nTFs){
+    limitTo<-nTFs
+  }
+
+  genes <- unique(as.vector(newx3[order(abs(newx3$medVal), decreasing=TRUE),]$gene))[1:limitTo]
+  tmpAns <- newx3[which(newx3$gene==genes[1]),]
+  for(gene in genes[2:length(genes)]){
+    tmpAns<-rbind(tmpAns,newx3[which(newx3$gene==gene),])
+  }
+
+  ggplot(tmpAns, aes(x=gene, y=expression)) + 
     geom_boxplot(aes(fill=medVal)) + coord_flip() + theme_bw() + 
     scale_fill_gradient2(low='purple', mid='white', high='orange') + 
     ylab("Network influence score") + xlab("Transcriptional regulator") + theme(legend.position="none", axis.text=element_text(size=8))
