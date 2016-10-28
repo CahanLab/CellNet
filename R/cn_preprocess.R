@@ -680,7 +680,7 @@ cn_s3_fetchFastq<-function
  fname="fname",
  compressed=NA)
 {
-  pref<-paste0("https://s3.amazonaws.com/", path,"/");
+  pref<-paste0("https://s3.amazonaws.com/", bucket,"/",path,"/");
   fnames<-as.vector(sampTab[,fname])
   nfnames<-vector()
   for(fname in fnames){
