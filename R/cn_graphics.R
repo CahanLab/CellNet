@@ -61,7 +61,7 @@ plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
   cnames<-colnames(xx)
   newX<-gather_(xx, "gene", "expression", cnames)
   newx2<-transform(newX, gene=reorder(gene, -expression))
-  newx3<-ddply(newx2, "gene", transform, medVal=median(expression))
+  newx3<-ddply(newx2, "gene", transform, medVal=median(expression, na.rm=TRUE))
   ggplot(newx3, aes(x=gene, y=expression)) + 
     geom_boxplot(aes(fill=medVal)) + coord_flip() + theme_bw() + 
     scale_fill_gradient2(low='purple', mid='white', high='orange') + 

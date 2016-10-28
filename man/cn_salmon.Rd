@@ -13,6 +13,8 @@ cn_salmon(sampTab, total = 1e+05, fnameCol = "fname", finalLength = 40,
 \arguments{
 \item{sampTab}{sample table with fname column point to fastq files}
 
+\item{total}{number of reads to normalzie to}
+
 \item{fnameCol}{column name of fastq files}
 
 \item{finalLength}{length of reads after trimming}

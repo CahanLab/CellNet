@@ -117,6 +117,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
 #'
 #' Derive gene expression estimates compatible with CellNet
 #' @param sampTab sample table with fname column point to fastq files
+#' @param total number of reads to normalzie to
 #' @param fnameCol column name of fastq files
 #' @param finalLength length of reads after trimming
 #' @param species mouse or human
