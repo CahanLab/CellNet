@@ -39,6 +39,16 @@ cn_setup<-function
 }
 
 
+#' fetch files needed to run salmon
+#'
+#' fetch files needed to run salmon
+#' @param destination where to out the indices
+#' @param species mouse or human
+#' @param bucket where to get them
+#' @param what path on s3 to get them
+#'
+#' @return nothing
+#' @export
 fetch_salmon_indices<-function # get files needed to run Salmon 
 (destination="/media/ephemeral1/dat/ref",
   species='mouse',
