@@ -91,7 +91,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
   }
 
   cat("fecthing and unpacking stuff needed for Salmon ...\n");
-  pref<-paste0("https://s3.amazonaws.com/", bucket,"/",dir,"/",);
+  pref<-paste0("https://s3.amazonaws.com/", bucket,"/",dir,"/");
   download.file( paste0(pref,fname2) )
 
 ##  s3_get(dir, fname2, bucket);
