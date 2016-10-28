@@ -21,6 +21,7 @@ cn_setup<-function
 
  cmd<-paste0("mkdir /media/ephemeral0/tmp")
  system(cmd) 
+ Sys.setenv(TMPDIR="/media/ephemeral0/tmp")
  
   cmd<-paste0("sudo mount /dev/xvdc /media/ephemeral1")
   system(cmd)
@@ -143,15 +144,16 @@ cn_salmon<-function
 
   cat("Trimming reads\n")
   stTmp<-fastq_trim(sampTab, finalLength=finalLength, outDir="./")
- if(FALSE){
+
   # remove original fastqs
   if(delOrig){
     delete_par(as.vector(stTmp$fname))
     system("rm *txt")
   }
-
+ 
   # Salmon
-  resNames<-salmon_par(stTmp, salmonIndex=salmonIndex, salmonPath=salmonPath)
+  cat("Salmon\n")
+  resNames<-salmon_par(stTmp, salmonIndex=paste0(refDir,"/",salmonIndex), salmonPath=salmonPath)
   cleanup()
 
   sampTab<-cbind(stTmp, salmonDir=resNames)
@@ -160,13 +162,11 @@ cn_salmon<-function
   transList<-salmon_load_tranEst(sampTab)
 
   # gene level estimates
-  expGeneList<-gene_expr_sum(transList,geneTabfname=geneTabfname);
+  expGeneList<-gene_expr_sum(transList,geneTabfname=paste0(refDir,"/",geneTabfname))
     
   # normalize data
   expGeneList[['normalized']]<-trans_rnaseq(expGenList[['counts']], total=total)
-  expGeneList 
-}
-sampTab
+  expGeneList
 }
 
 ############
@@ -311,7 +311,7 @@ salmon_par<-function
   write.table(xxx, file=tfname, quote=FALSE, col.names=FALSE, row.names=FALSE, sep="\t");
 
   # use parallel to execute salmon on multiple input files simultaneously
-  cmd<-paste("parallel --jobs ",njobs," --colsep \"\\t\" \"",salmonPath, "/salmon quant -p ", numThreads," -i ",salmonIndex, " -l \"",libraryType,"\" -r {1} -o {2}\" :::: ",tfname, sep='');
+  cmd<-paste("parallel --tmpdir ./tmp/ --jobs ",njobs," --colsep \"\\t\" \"",salmonPath, "/salmon quant -p ", numThreads," -i ",salmonIndex, " -l \"",libraryType,"\" -r {1} -o {2}\" :::: ",tfname, sep='');
   system(cmd);
   oNames;
 }
@@ -460,7 +460,7 @@ gene_expr_sum<-function# returns the gene summed matrix
   eids<-unique(allgenes)
 
   # make a cluster
-  aClust<-makeCluster(numCores);
+  aClust<-makeCluster(numCores, type='SOCK')
 
   # a list of indices into all genes
   geneIndexList<-parLapply(aClust, eids, matchFunc, vect=allgenes);
@@ -1237,7 +1237,7 @@ subsamp_fastqs<-function#
 
   tmpfname<-"tmpFile.txt";
   write.table(fnames, file=tmpfname, quote=FALSE, col.names=FALSE, row.names=FALSE);
-  cmd<-paste("cat ", tmpfname, " | parallel ",codeDir,"subsetOne.py ", prop, " {} subset_{}",sep='');
+  cmd<-paste("cat ", tmpfname, " | parallel --tmpdir ./tmp/ ",codeDir,"subsetOne.py ", prop, " {} subset_{}",sep='');
   system(cmd);
 
 }
