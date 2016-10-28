@@ -18,6 +18,9 @@ cn_setup<-function
  cmd<-paste0("sudo chown ec2-user ",wrDir)
  system(cmd)
  setwd(wrDir)
+
+ cmd<-paste0("mkdir /media/ephemeral0/tmp")
+ system(cmd) 
  
   cmd<-paste0("sudo mount /dev/xvdc /media/ephemeral1")
   system(cmd)
@@ -138,10 +141,9 @@ cn_salmon<-function
   cat("determining read length\n")
   sampTab<-cbind(sampTab, readLength=unlist(lapply(as.vector(sampTab[,fnameCol]), fastq_readLength)))
 
-if(FALSE){
   cat("Trimming reads\n")
-  stTmp<-fastq_trim(sampTab, finalLength=finalLength, outDir="./");
- 
+  stTmp<-fastq_trim(sampTab, finalLength=finalLength, outDir="./")
+ if(FALSE){
   # remove original fastqs
   if(delOrig){
     delete_par(as.vector(stTmp$fname))
@@ -259,7 +261,8 @@ fastq_trim<-function### trim reads
   write.table(tmpDF, file=tfname, col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t");
 
   thecall<-"cutadapt -m 30 -u " ###20 -u -20 -o testTrimmed.fastq test1.fastq
-  cmd<-paste("parallel --colsep \"\\t\" \"",thecall," {3} -u {4} -o ", outDir,"{2} {1}\" :::: ",tfname,sep='');
+  ###cmd<-paste("parallel --colsep \"\\t\" \"",thecall," {3} -u {4} -o ", outDir,"{2} {1}\" :::: ",tfname,sep='');
+  cmd<-paste("parallel --tmpdir ./tmp/ --colsep \"\\t\" \"",thecall," {3} -u {4} -o ", outDir,"{2} {1}\" :::: ",tfname,sep='');
 
 ###  cat(cmd,"\n");
   system(cmd);
