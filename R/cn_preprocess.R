@@ -1,5 +1,5 @@
 # CellNet
-# (C) Patrick Cahan 2012-2016
+# (C) Patrick  2012-2016
 
 ############
 # RNA-SEQ
@@ -654,6 +654,59 @@ Norm_quantNorm<-function#
   rownames(ans)<-rownames(expDat);
   ans;
 }
+
+##################################
+#
+# functions to 
+# ... fetch fastqs (if needed)
+# ... process data locally
+#uu
+##################################
+
+#' Fetch fastq files from S3
+#'
+#' It assumes that the files are publicly accessible. If not then you should use s3_get after you have run aws configure and enter your aws credentials
+#' @param bucket name of bucket
+#' @param path path to fastqs
+#' @param sampTab sample table with a column fname listing the fastq files
+#' @param fnameCol name of column listing fastq files
+#'
+#' @return sammple table with de-compressed file names replacing old file names
+#' @export
+cn_s3_fetchFastq<-function
+(bucket,
+ path,
+ sampTab,
+ fname="fname",
+ compressed=NA)
+{
+  pref<-paste0("https://s3.amazonaws.com/", path,"/");
+  fnames<-as.vector(sampTab[,fname])
+  nfnames<-vector()
+  for(fname in fnames){
+    destName<-fname
+    download.file(fname, destFile=destName)
+    if(!is.na(compressed){
+      if(compressed=="gz"){
+        cmd<-paste0("gzip -d ", destName)
+        nfile<-strsplit(destName, ".gz")[[1]][1]
+     }
+      if(compressed=="bz2"){
+        cmd<-paste0("bzip2 -d ", destName)
+        nfile<-strsplit(destName, ".bz2")[[1]][1]
+      }
+      system(cmd)
+    }
+    else{
+      nfile<-destName
+    }
+    nfnames<-append(nfnames, nfile)
+  }
+  sampTab[,fname]<-nfnames
+  sampTab
+}
+
+
 
 ########################################################
 #
