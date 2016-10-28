@@ -113,6 +113,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
 #'
 #' Derive gene expression estimates compatible with CellNet
 #' @param sampTab sample table with fname column point to fastq files
+#' @param fnameCol column name of fastq files
 #' @param finalLength length of reads after trimming
 #' @param species mouse or human
 #' @param bucket where to get them
@@ -122,6 +123,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
 #' @export
 cn_salmon<-function
 (sampTab,
+ fnameCol='fname',
  finalLength=40,
  delOrig=FALSE,
  salmonIndex="MM_GRCh38.SalmonIndex.030816",
@@ -130,8 +132,11 @@ cn_salmon<-function
  salmonPath="~/rnaseq/SalmonBeta-0.6.1_DebianSqueeze/bin"
   ){
 
+  # make sure we are in the right place
+  setwd("/media/ephemeral0/analysis/")
+
   cat("determining read length\n")
-  sampTab<-cbind(sampTab, readLength=unlist(lapply(sampTab$fname, fastq_readLength)))
+  sampTab<-cbind(sampTab, readLength=unlist(lapply(as.vector(sampTab[,fnameCol]), fastq_readLength)))
   cat("Trimming reads\n")
   stTmp<-fastq_trim(sampTab, finalLength=finalLength, outDir="./");
  
