@@ -91,17 +91,17 @@ fetch_salmon_indices<-function # get files needed to run Salmon
   }
 
   cat("fecthing and unpacking stuff needed for Salmon ...\n");
- ## pref<-paste0("https://s3.amazonaws.com/", bucket,"/",dir,"/");
- ## download.file( paste0(pref,fname2), destfile=fname2)
+  pref<-paste0("https://s3.amazonaws.com/", bucket,"/",dir,"/");
+  download.file( paste0(pref,fname2), destfile=fname2)
 
-  s3_get(dir, fname2, bucket);
+##  s3_get(dir, fname2, bucket);
   cmd<-paste("tar zxvf ", fname2, sep='');
   system(cmd);
 
-##  download.file( paste0(pref,fname3), destfile=fname3)
-##  download.file( paste0(pref,fname4), destfile=fname4)
-  s3_get(dir, fname3, bucket);
-  s3_get(dir, fname4, bucket);
+  download.file( paste0(pref,fname3), destfile=fname3)
+  download.file( paste0(pref,fname4), destfile=fname4)
+##  s3_get(dir, fname3, bucket);
+##  s3_get(dir, fname4, bucket);
   cmd<-paste("gzip -d ", fname4, sep='');
   system(cmd);
 
