@@ -165,7 +165,7 @@ cn_salmon<-function
   expGeneList<-gene_expr_sum(transList,geneTabfname=paste0(refDir,"/",geneTabfname))
     
   # normalize data
-  expGeneList[['normalized']]<-trans_rnaseq(expGenList[['counts']], total=total)
+  expGeneList[['normalized']]<-trans_rnaseq(expGeneList[['counts']], total=total)
   expGeneList
 }
 
