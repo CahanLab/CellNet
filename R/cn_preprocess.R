@@ -64,6 +64,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
     fname1<-"hisat2Indices_050216.tar.gz";
     cat("fetching hisat2 indices\n");
     s3_get(dir, fname1, bucket);
+
     cat("unpackagin indices\n");
     utils_unpack(fname1);
   }
@@ -90,12 +91,17 @@ fetch_salmon_indices<-function # get files needed to run Salmon
   }
 
   cat("fecthing and unpacking stuff needed for Salmon ...\n");
-  s3_get(dir, fname2, bucket);
+  pref<-paste0("https://s3.amazonaws.com/", bucket,"/",dir,"/",);
+  download.file( paste0(pref,fname2) )
+
+##  s3_get(dir, fname2, bucket);
   cmd<-paste("tar zxvf ", fname2, sep='');
   system(cmd);
 
-  s3_get(dir, fname3, bucket);
-  s3_get(dir, fname4, bucket);
+  download.file( paste0(pref,fname3) )
+  download.file( paste0(pref,fname4) )
+ ## s3_get(dir, fname3, bucket);
+ ## s3_get(dir, fname4, bucket);
   cmd<-paste("gzip -d ", fname4, sep='');
   system(cmd);
 
