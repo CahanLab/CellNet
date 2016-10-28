@@ -137,6 +137,8 @@ cn_salmon<-function
 
   cat("determining read length\n")
   sampTab<-cbind(sampTab, readLength=unlist(lapply(as.vector(sampTab[,fnameCol]), fastq_readLength)))
+
+if(FALSE){
   cat("Trimming reads\n")
   stTmp<-fastq_trim(sampTab, finalLength=finalLength, outDir="./");
  
@@ -161,6 +163,8 @@ cn_salmon<-function
   # normalize data
   expGeneList[['normalized']]<-trans_rnaseq(expGenList[['counts']], total=total)
   expGeneList 
+}
+sampTab
 }
 
 ############
