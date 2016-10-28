@@ -1,6 +1,98 @@
 # CellNet
 # (C) Patrick  2012-2016
 
+
+#' set up directories on ephemeral drives that will be needed to store large files
+#'
+#' Creates a dir /media/ephemeral0/analysis, changes ownership ti ec2-user, sets cwd to this dir, sets up dir in /media/ephemeral1 for reference data
+#' 
+#' @param wrDir working directory
+#'
+#' @return nothing
+#' @export
+cn_setup<-function
+(wrDir="/media/ephemeral0/analysis")
+{
+ cmd<-paste0("sudo mkdir ", wrDir)
+ system(cmd)
+ cmd<-paste0("sudo chown ec2-user ",wrDir)
+ system(cmd)
+ setwd(wrDir)
+ 
+
+  ## sudo mount /dev/xvdc /media/ephemeral1
+  cmd<-paste0("sudo mkdir /media/ephemeral1/dat")
+  system(cmd)
+  cmd<-paste0("sudo mkdir /media/ephemeral1/dat/seq")
+  system(cmd)
+  cmd<-paste0("sudo mkdir /media/ephemeral1/dat/ref")
+  system(cmd)
+
+  cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat")
+  system(cmd)
+
+  cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/seq")
+  system(cmd)
+
+  cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/ref")
+  system(cmd)
+}
+
+
+fetch_salmon_indices<-function # get files needed to run Salmon 
+(destination="/media/ephemeral1/dat/ref",
+  species='mouse',
+  bucket='cellnet-rnaseq',
+  dir="ref"){
+
+  curdir<-system('pwd', intern=T);
+  setwd(destination);
+
+  if(FALSE){
+  # fetch 4 files:
+  # 1. hisat2Indices_050216.tar.gz
+    fname1<-"hisat2Indices_050216.tar.gz";
+    cat("fetching hisat2 indices\n");
+    s3_get(dir, fname1, bucket);
+    cat("unpackagin indices\n");
+    utils_unpack(fname1);
+  }
+  # depending on species
+  
+  # if mouse:
+  #   2. salmon.index.mouse.050316.tgz
+  #   3. geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R 
+  #   4. Mus_musculus.GRCm38.83.gtf.gz
+  if(species=='mouse'){
+    fname2<-"salmon.index.mouse.050316.tgz";
+    fname3<-"geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R";
+    fname4<-"Mus_musculus.GRCm38.83.gtf.gz";
+  }
+
+  # if human:
+  #   2. salmon.index.human.050316.tgz
+  #   3. geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R
+  #   4. Homo_sapiens.GRCh38.83.gtf.gz
+  else{
+    fname2<-"salmon.index.human.050316.tgz";
+    fname3<-"geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R";
+    fname4<-"Homo_sapiens.GRCh38.83.gtf.gz";
+  }
+
+  cat("fecthing and unpacking stuff needed for Salmon ...\n");
+  s3_get(dir, fname2, bucket);
+  cmd<-paste("tar zxvf ", fname2, sep='');
+  system(cmd);
+
+  s3_get(dir, fname3, bucket);
+  s3_get(dir, fname4, bucket);
+  cmd<-paste("gzip -d ", fname4, sep='');
+  system(cmd);
+
+  setwd(curdir);
+}
+
+
 ############
 # RNA-SEQ
 ############
