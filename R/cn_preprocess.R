@@ -13,6 +13,8 @@
 cn_setup<-function
 (wrDir="/media/ephemeral0/analysis")
 {
+ cmd<-paste0("sudo chown ec2-user /media/ephemeral0")
+ system(cmd)
  cmd<-paste0("sudo mkdir ", wrDir)
  system(cmd)
  cmd<-paste0("sudo chown ec2-user ",wrDir)
