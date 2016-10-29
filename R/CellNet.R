@@ -20,6 +20,7 @@
 #' @import pheatmap
 #' @import plyr
 #' @import tidyr
+#' @import parallel
 #'
 #' @export
 cn_apply<-function

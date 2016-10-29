@@ -24,6 +24,10 @@ cn_setup<-function
  cmd<-paste0("mkdir /media/ephemeral0/tmp")
  system(cmd) 
  Sys.setenv(TMPDIR="/media/ephemeral0/tmp")
+
+ cmd<-paste0("mkdir /media/ephemeral0/analysis/tmp")
+ system(cmd) 
+
  
   cmd<-paste0("sudo mount /dev/xvdc /media/ephemeral1")
   system(cmd)
@@ -43,6 +47,8 @@ cn_setup<-function
 
   cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/ref")
   system(cmd)
+
+  ###library(parallel) # for some reason this is not loading when 
 }
 
 
