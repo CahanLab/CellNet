@@ -80,15 +80,15 @@ cn_make_grn<-function
  species="Mm",
  tfs=NA,
  ###snName, ### network name prefix
- grnSampSize=40, #min number of samples per ct or group
+ grnSampSize=0, #min number of samples per ct or group
  normDat=FALSE,
  corrs=NA, ### pearson correlation values
  zscores=NA, ### zscores
  cval=0.5,
  cvalGK=0.75,
  dLevel='description1',
- dLevelGK="description2",
- zThresh=6,
+ dLevelGK="description6",
+ zThresh=4,
  holmSpec=1e-10)
 {
   targetGenes<-rownames(expDat)
@@ -97,6 +97,10 @@ cn_make_grn<-function
     tfs<-find_tfs(species)
   }
   tfs<-intersect(targetGenes, tfs)
+
+  if(grnSampSize==0){
+    grnSampSize<-min(table(sampTab[,dLevel]))
+  }
 
   stGRN<-sample_profiles_grn(sampTab, minNum=grnSampSize)
   cat("Number of samples per CT: ",mean(table(stGRN[,dLevel])),"\n")
