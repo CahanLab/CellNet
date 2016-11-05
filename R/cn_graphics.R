@@ -414,7 +414,7 @@ cn_barplot_exp<-function
 #'
 #' @examples
 #' testAssTues<-cn_splitMakeAssess(stTrain, expTrain, ctGRNs, prop=.5)
-#' plot_class_PRcs(testAssTues$ROCs)
+#' plot_class_PRs(testAssTues$ROCs)
 #'
 #' @export
 plot_class_PRs<-function

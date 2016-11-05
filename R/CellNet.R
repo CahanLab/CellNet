@@ -251,7 +251,7 @@ cn_splitMakeAssess<-function
   ansVal<-cn_classify(testRFs, expVal, grns$ctGRNs$geneLists)
   ###ansVal<-cn_classify(testRFs, expVal, gListsSub)
   assessed<-cn_classAssess(ansVal, stVal, classLevels=dLevel, dLevelSID=dLevelSID, resolution=0.01);
-  list(classifiers=testRFs, classRes=ansVal, ROCs=assessed);
+  list(classifiers=testRFs, classRes=ansVal, PRs=assessed);
 }
 
 #' classify data
