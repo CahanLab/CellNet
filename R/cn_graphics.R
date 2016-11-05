@@ -407,17 +407,17 @@ cn_barplot_exp<-function
 
 #' Plot results of cn_classAssess
 #'
-#' Plot one ROC per CT
+#' Plot one precision recall curve per CT
 #' @param assessed result of runnung cn_classAssess
 #'
 #' @return ggplot pbject
 #'
 #' @examples
 #' testAssTues<-cn_splitMakeAssess(stTrain, expTrain, ctGRNs, prop=.5)
-#' plot_class_rocs(testAssTues$ROCs)
+#' plot_class_PRcs(testAssTues$ROCs)
 #'
 #' @export
-plot_class_rocs<-function
+plot_class_PRs<-function
 (assessed
   ){
   ctts<-names(assessed);
@@ -428,7 +428,7 @@ plot_class_rocs<-function
     df<-rbind(df, tmp);
   }
 
-  rocsAll<-transform(df, TP = as.numeric(as.character(TP)), 
+  prsAll<-transform(df, TP = as.numeric(as.character(TP)), 
     TN = as.numeric(as.character(TN)), 
     FN = as.numeric(as.character(FN)), 
     FP = as.numeric(as.character(FP)));
@@ -449,11 +449,11 @@ plot_class_rocs<-function
       ans;
     }
 
-  precs<-precfunc(rocsAll)
-  sens<-sensfunc(rocsAll)
-  rocsAll2<-cbind(rocsAll, data.frame(recall=sens, precision=precs));
+  precs<-precfunc(prsAll)
+  sens<-sensfunc(prsAll)
+  prsAll2<-cbind(prsAll, data.frame(recall=sens, precision=precs));
 
-  ggplot(data=rocsAll2, aes(x=as.numeric(as.vector(recall)), y=as.numeric(as.vector(precision)))) + geom_point(size = .5, alpha=.5) +  geom_path(size=.5, alpha=.75) +
+  ggplot(data=prsAll2, aes(x=as.numeric(as.vector(recall)), y=as.numeric(as.vector(precision)))) + geom_point(size = .5, alpha=.5) +  geom_path(size=.5, alpha=.75) +
   theme_bw() + xlab("Recall") + ylab("Precision") + facet_wrap( ~ ctype, ncol=4) +
   theme(axis.text = element_text(size=5)) + ggtitle("Classification performance")
 }
