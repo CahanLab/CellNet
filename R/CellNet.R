@@ -134,10 +134,6 @@ cn_writeReadme<-function
 }
 
 
-
-
-
-
 #' Write out classification scores, normalized data to csv
 #'
 #' and it compresses them, too
