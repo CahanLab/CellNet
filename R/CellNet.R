@@ -81,6 +81,63 @@ cn_apply<-function
   # cnRes object
 }
 
+#' Helper function to write a markdown line for the Readme
+#'
+#' This writes a string that includes the number of samples, the name and number of C/Ts, and S3 links for a given cnProc
+#'
+#'
+#' @param cnProc cnProc
+#' @param species species
+#' @param date date made
+#' @param url url 
+#'
+#' @return string
+#'
+#' @examples
+#' myMDstring<-cn_writeReadme(cnProc, "mouse", date="Oct_25_2016")
+#'
+#' @export
+cn_writeReadme<-function
+(cnProc,
+  species,
+  date=NA,
+  url="https://s3.amazonaws.com/CellNet/rna_seq/"
+){
+  url<-paste0(url, species,"/")
+  if(is.na(date)){
+    date<-utils_myDate()
+  }
+  ans<-paste0("| ", species, " | ", date, " | ")
+  stTrain<-cnProc[['stTrain']]
+  ctCounts<-table(stTrain[, cnProc[['dLevelTrain']]])
+  for(i in 1:(length(ctCounts)-1)){
+    ct<-names(ctCounts)[i]
+    ccount<-ctCounts[[ct]]
+    ans<-paste0(ans, ct , " (", ccount, "), ")
+  }
+  ct<-names(ctCounts)[i+1]
+  ccount<-ctCounts[[ct]]
+  ans<-paste0(ans, ct , " (", ccount, ") | ")
+  # cnProc
+  myLink<-paste0(url, "cnProc_RS_", species, "_",date,".rda")
+  ans<-paste0(ans, "[cnProc](",myLink,") | ")
+
+  # metadata
+  myLink<-paste0(url, "sampTab_RS_", species, "_",date,".rda")
+  ans<-paste0(ans, "[metadata](",myLink,") | ")
+
+  # expression data
+   myLink<-paste0(url, "expList_RS_", species, "_",date,".rda")
+   ans<-paste0(ans, "[expression data](",myLink,") |")
+
+  ans;
+}
+
+
+
+
+
+
 #' Write out classification scores, normalized data to csv
 #'
 #' and it compresses them, too
