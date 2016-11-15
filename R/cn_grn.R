@@ -89,7 +89,7 @@ cn_make_grn<-function
  dLevel='description1',
  dLevelGK="description6",
  zThresh=4,
- holmSpec=1e-10)
+ holmSpec=1e-6)
 {
   targetGenes<-rownames(expDat)
   if(is.na(tfs)){
@@ -124,7 +124,8 @@ cn_make_grn<-function
 
   grnall<-cn_getRawGRN(zscores, corrs, targetGenes, zThresh=zThresh)#, snName=snName);
 
-  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
+#####  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
+  specGenes<-cn_specGenesAll(expGRN, stGRN, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK)
   ### specTFs<-cn_specGenesAll(expDat[tfs,], sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
   ctGRNs<-cn_specGRNs(grnall, specGenes);
   ###ctGRNs<-cn_specGRNs(grnall, specTFs);

@@ -7,7 +7,7 @@
 cn_make_grn(sampTab, expDat, species = "Mm", tfs = NA, grnSampSize = 0,
   normDat = FALSE, corrs = NA, zscores = NA, cval = 0.5,
   cvalGK = 0.75, dLevel = "description1", dLevelGK = "description6",
-  zThresh = 4, holmSpec = 1e-10)
+  zThresh = 4, holmSpec = 1e-06)
 }
 \arguments{
 \item{expDat}{properly normalized expression matrix}
