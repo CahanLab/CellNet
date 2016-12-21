@@ -177,7 +177,7 @@ cn_salmon<-function
 
   # make sure we are in the right place
  # setwd("/media/ephemeral0/analysis/")
-
+cat("determining read length\n")
   cat("determining read length\n")
   sampTab<-cbind(sampTab, readLength=unlist(lapply(as.vector(sampTab[,fnameCol]), fastq_readLength)))
 
