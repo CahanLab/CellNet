@@ -11,44 +11,83 @@
 #' @return nothing
 #' @export
 cn_setup<-function
-(wrDir="/media/ephemeral0/analysis")
+(local=FALSE,
+  wrDir="/media/ephemeral0/analysis")
 {
- cmd<-paste0("sudo chown ec2-user /media/ephemeral0")
- system(cmd)
- cmd<-paste0("sudo mkdir ", wrDir)
- system(cmd)
- cmd<-paste0("sudo chown ec2-user ",wrDir)
- system(cmd)
- setwd(wrDir)
+  if(local) {
+    system("mkdir CellNetLocal")
+    ## Working Directory
+    setwd("CellNetLocal")
+    ## Directory for Indices and gene_trans file
+    system("mkdir ref")
+    ## tmp directory is for parallel
+    system("mkdir ./tmp")
+    Sys.setenv(TMPDIR="./tmp")
+  }
+  else {
 
- cmd<-paste0("mkdir /media/ephemeral0/tmp")
- system(cmd) 
- Sys.setenv(TMPDIR="/media/ephemeral0/tmp")
+   cmd<-paste0("sudo chown ec2-user /media/ephemeral0")
+  system(cmd)
+  cmd<-paste0("sudo mkdir ", wrDir)
+  system(cmd)
+  cmd<-paste0("sudo chown ec2-user ",wrDir)
+  system(cmd)
+  setwd(wrDir)
 
- cmd<-paste0("mkdir /media/ephemeral0/analysis/tmp")
- system(cmd) 
+   cmd<-paste0("mkdir /media/ephemeral0/tmp")
+  system(cmd) 
+  Sys.setenv(TMPDIR="/media/ephemeral0/tmp")
+
+  cmd<-paste0("mkdir /media/ephemeral0/analysis/tmp")
+  system(cmd) 
 
  
-  cmd<-paste0("sudo mount /dev/xvdc /media/ephemeral1")
-  system(cmd)
+    cmd<-paste0("sudo mount /dev/xvdc /media/ephemeral1")
+    system(cmd)
 
-  cmd<-paste0("sudo mkdir /media/ephemeral1/dat")
-  system(cmd)
-  cmd<-paste0("sudo mkdir /media/ephemeral1/dat/seq")
-  system(cmd)
-  cmd<-paste0("sudo mkdir /media/ephemeral1/dat/ref")
-  system(cmd)
+    cmd<-paste0("sudo mkdir /media/ephemeral1/dat")
+   system(cmd)
+   cmd<-paste0("sudo mkdir /media/ephemeral1/dat/seq")
+   system(cmd)
+   cmd<-paste0("sudo mkdir /media/ephemeral1/dat/ref")
+   system(cmd)
 
-  cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat")
-  system(cmd)
+    cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat")
+    system(cmd)
 
-  cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/seq")
-  system(cmd)
+    cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/seq")
+   system(cmd)
 
-  cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/ref")
-  system(cmd)
+    cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/ref")
+    system(cmd)
+  }  
+}
 
-  ###library(parallel) # for some reason this is not loading when 
+#' wrapper to fetch files needed to run salmon in case of errors
+#'
+#' fetch files needed to run salmon
+#' @param destination where to put the indices
+#' @param species mouse or human
+#' @param bucket where to get them
+#' @param dirw hat path on s3 to get them
+#' @param salmonVersion version of salmon, if > 0.6 gets latest indices
+#'
+#' @return nothing
+#' @export
+fetchIndexHandler <- function
+(destination = "/media/ephemeral1/dat/ref",
+ species = "mouse",
+ bucket='cellnet-rnaseq',
+ dir="ref",
+ iFile="salmon.index.mouse.050316.tgz") {
+  tryCatch({
+    fetch_salmon_indices(destination,species,bucket,dir, iFile=iFile)
+  }, error = function(e) {
+    print("Doesn't Always work the first time. Trying again!")
+    setwd("..")
+    fetch_salmon_indices(destination,species,bucket,dir, iFile=iFile)
+  }
+  )
 }
 
 
@@ -58,7 +97,7 @@ cn_setup<-function
 #' @param destination where to out the indices
 #' @param species mouse or human
 #' @param bucket where to get them
-#' @param what path on s3 to get them
+#' @param dir what path on s3 to get them
 #'
 #' @return nothing
 #' @export
@@ -66,21 +105,13 @@ fetch_salmon_indices<-function # get files needed to run Salmon
 (destination="/media/ephemeral1/dat/ref",
   species='mouse',
   bucket='cellnet-rnaseq',
-  dir="ref"){
+  dir="ref",
+  iFile="salmon.index.mouse.050316.tgz"){
 
   curdir<-system('pwd', intern=T);
   setwd(destination);
 
-  if(FALSE){
-  # fetch 4 files:
-  # 1. hisat2Indices_050216.tar.gz
-    fname1<-"hisat2Indices_050216.tar.gz";
-    cat("fetching hisat2 indices\n");
-    s3_get(dir, fname1, bucket);
-
-    cat("unpackagin indices\n");
-    utils_unpack(fname1);
-  }
+ fname2<-iFile
   # depending on species
   
   # if mouse:
@@ -88,7 +119,6 @@ fetch_salmon_indices<-function # get files needed to run Salmon
   #   3. geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R 
   #   4. Mus_musculus.GRCm38.83.gtf.gz
   if(species=='mouse'){
-    fname2<-"salmon.index.mouse.050316.tgz";
     fname3<-"geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R";
     fname4<-"Mus_musculus.GRCm38.83.gtf.gz";
   }
@@ -98,7 +128,6 @@ fetch_salmon_indices<-function # get files needed to run Salmon
   #   3. geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R
   #   4. Homo_sapiens.GRCh38.83.gtf.gz
   else{
-    fname2<-"salmon.index.human.050316.tgz";
     fname3<-"geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R";
     fname4<-"Homo_sapiens.GRCh38.83.gtf.gz";
   }
@@ -136,7 +165,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
 #' @export
 cn_salmon<-function
 (sampTab,
-  total=1e5,
+ total=1e5,
  fnameCol='fname',
  finalLength=40,
  delOrig=FALSE,
