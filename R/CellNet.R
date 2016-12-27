@@ -266,7 +266,7 @@ cn_make_processor<-function # train a CellNet object
 #'
 #' @export
 cn_remake_processor<-function # train a CellNet object
-(cnProc
+(cnProc,
  newGenes,
  sidCol="sample_id"
  ){
