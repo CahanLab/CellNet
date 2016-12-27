@@ -249,6 +249,80 @@ cn_make_processor<-function # train a CellNet object
   ans;
 }
 
+#' make a CellNet object from an existing one with subset of genes
+#'
+#' Does lots of stuff, but mostly you will care about the fact that it trains C/T classifiers
+#' @param cnProc old cnProc
+#' @param newGenes new set of genes
+#' @param ctGRNs result of running cn_grnDoRock
+#' @param dLevel sample table column name to operate on
+#' @param classWeight weight GRN est by classification importance
+#' @param exprWeight weight GRN est by gene expression
+#' @param sidCol column in stTrain that contains unique id for each sample and is the colname in expTrain
+#' @return cnProc
+#'
+#' @examples
+#'
+#'
+#' @export
+cn_remake_processor<-function # train a CellNet object
+(cnProc
+ newGenes,
+ sidCol="sample_id"
+ ){
+   
+  ctGRNs<-cnProc$ctGRNs 
+  stTrain<-cnProc$stTrain
+  expTrain<-cnProc$expTrain
+  dLevel<-cnProc$dLevelTrain
+  classWeight<-cnProc$classWeight
+  exprWeight<-cnProc$exprWeight
+
+  geneLists<-ctGRNs[['ctGRNs']][['geneLists']]
+  
+  oldGenes<-rownames(expTrain)
+  newGenes<-intersect(newGenes, oldGenes)
+  expTrain<-expTrain[newGenes,]
+  commonTypes<-intersect(stTrain[,dLevel], names(geneLists));
+
+  ctGRNs[['ctGRNs']][['geneLists']]<-ctGRNs[['ctGRNs']][['geneLists']][commonTypes];
+  ctGRNs[['ctGRNs']][['graphLists']]<-ctGRNs[['ctGRNs']][['graphLists']][commonTypes];
+  ctGRNs[['ctGRNs']][['tfTargets']]<-ctGRNs[['ctGRNs']][['tfTargets']][commonTypes];
+  geneLists<-ctGRNs[['ctGRNs']][['geneLists']];
+  
+
+  # Make classifiers
+  cat("Making classifiers (this can take awhile) ...\n");
+  classList<-cn_makeRFs(expTrain, stTrain, geneLists, dLevel=dLevel);
+  ###classList<-cn_makeRFs(expTrain, stTrain, gListsSub, dLevel=dLevel);
+  cat("Done making classifiers :)\n");
+  
+  trainNorm<-cn_trainNorm(expTrain, stTrain, subNets=geneLists, classList=classList, dLevel=dLevel, classWeight=classWeight, exprWeight=exprWeight, sidCol=sidCol);
+  ###trainNorm<-cn_trainNorm(expTrain, stTrain, subNets=gListsSub, classList=classList, dLevel=dLevel, classWeight=classWeight, exprWeight=exprWeight);
+   
+  cat("done training norm\n")
+  meanExpTrain<-as.matrix(GEP_makeMean(expTrain,as.vector(stTrain[,dLevel]),type='mean'));
+  cat("done GEP make mean\n")
+
+
+  ans<-list(expTrain=expTrain,
+            expMeanTrain=meanExpTrain,
+            stTrain=stTrain,
+            dLevelTrain=dLevel,
+            ctGRNs=ctGRNs,
+            grnList=geneLists,
+            classList=classList,
+            trainingScores=trainNorm[['trainingScores']],
+            normVals=trainNorm[['normVals']],
+            raw_scores=trainNorm[['raw_scores']],
+            minVals=trainNorm[['minVals']],
+            tVals=trainNorm[['tVals']],
+            classWeight=classWeight,
+            exprWeight=exprWeight);
+  class(ans)<-"cnProc";
+  ans;
+}
+
 # convenience function to split make and assess classifiers
 
 #' make classifiers and assess
