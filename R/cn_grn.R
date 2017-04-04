@@ -345,6 +345,9 @@ cn_get_targets_of<-function(aGraph, tfs){
 #' @param prune boolean limit to genes exclusively detected as CT in one CT
 #'
 #' @return a list of something
+#'
+#' @export
+#'
 cn_findSpecGenes<-function# 
 (expDat, ### expression matrix
  sampTab, ### sample tableß
