@@ -260,6 +260,8 @@ trans_rnaseq<-function
 #' @param fastq filename
 #'
 #' @return numeric read length
+#'
+#' @export
 fastq_readLength<-function
 (fastq
   ){
@@ -277,6 +279,8 @@ fastq_readLength<-function
 #' @param outDir where to store the trimmed fastq files
 
 #' @return sampTab with filenames of trimmed fastqs appended
+#'
+#' @export
 fastq_trim<-function### trim reads 
 (sampTab, 
   fnameCol="fname",

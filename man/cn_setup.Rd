@@ -4,7 +4,7 @@
 \alias{cn_setup}
 \title{set up directories on ephemeral drives that will be needed to store large files}
 \usage{
-cn_setup(wrDir = "/media/ephemeral0/analysis")
+cn_setup(local = FALSE, wrDir = "/media/ephemeral0/analysis")
 }
 \arguments{
 \item{wrDir}{working directory}
