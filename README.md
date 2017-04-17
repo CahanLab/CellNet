@@ -1,7 +1,7 @@
 # CellNet
 
 ### Introduction
-CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. You can run it as a command line tool on the cloud through Amazon Web Services (**recommended**), or you can run it locally (**not recommended**).
+CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. You can run it as a command line tool on the cloud through Amazon Web Services (**recommended**), or you can run it locally (**not recommended**). Here we provide a 'bare-bones' walk-thru of how to apply CellNet to your RNA-Seq data. 
 
 ## Ways to Run CellNet
 #### Running CellNet in the Cloud
@@ -36,8 +36,9 @@ The main ingredients of a cnProc are:
 
 | SPECIES | DATE | CELL & TISSUE TYPES(# of profiles) | cnProc |
 |---------|------|------------------------------------|--------|
-| Human | Oct, 24 2016 | b_cell (83), dendritic_cell (75), endothelial_cell (53), esc (52), fibroblast (79), heart (30), hspc (27), intestine_colon (64), kidney (29), liver (33), lung (95), macrophage (254), monocyte (207), neuron (109), skeletal_muscle (189), t_cell (53) | [Download](https://s3.amazonaws.com/CellNet/rna_seq/human/cnProc_RS_human_Oct_24_2016.rda) |
-| Mouse | Oct, 21 2016 | b_cell (193), dendritic_cell (134), esc (134), fibroblast (182), heart (189), hspc (75), intestine_colon (149), kidney (109), liver (265), lung (116), macrophage (176), neuron (188), nk_cell (53), skeletal_muscle (130), t_cell (87), wat (64) | [Download](https://s3.amazonaws.com/CellNet/rna_seq/mouse/cnProc_RS_mouse_Oct_21_2016.rda) |
+| Human | Oct, 24 2016 | b_cell (83), dendritic_cell (75), endothelial_cell (53), esc (52), fibroblast (79), heart (30), hspc (27), intestine_colon (64), kidney (29), liver (33), lung (95), macrophage (254), monocyte (207), neuron (109), skeletal_muscle (189), t_cell (53) | [Download](https://s3.amazonaws.com//cellnet-rnaseq/ref/cnproc/HS/cnProc_RS_human_Oct_24_2016.rda) | 
+| Mouse | Oct, 21 2016 | b_cell (193), dendritic_cell (134), esc (134), fibroblast (182), heart (189), hspc (75), intestine_colon (149), kidney (109), liver (265), lung (116), macrophage (176), neuron (188), nk_cell (53), skeletal_muscle (130), t_cell (87), wat (64) | [Download](https://s3.amazonaws.com//cellnet-rnaseq/ref/cnproc/MM/cnProc_RS_mouse_Oct_21_2016.rda) | 
+| Human | Apr_05_2017 | b_cell (83), dendritic_cell (55), endothelial_cell (51), esc (52), fibroblast (46), heart (60), hspc (192), intestine_colon (85), kidney (62), liver (107), lung (94), monocyte_macrophage (206), neuron (90), skeletal_muscle (187), t_cell (43) | [cnProc](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_RS_HS_Apr_05_2017.rda) |
 
 #### Example Data
 
@@ -45,11 +46,13 @@ These are some datasets you can use to test-drive applying CellNet to RNA-Seq da
 
 | SPECIES | DATE | SRA ID | DESCRIPTION | METADATA | EXPRESSION |
 |---------|------|--------|-------------|----------|------------|
-| Human   | Oct 30, 2015 | SRP043684 | Engineered Neurons | [Run table](https://s3.amazonaws.com/CellNet/rna_seq/human/sampTab_RS_human_Oct_24_2016.rda) | [expression data](https://s3.amazonaws.com/CellNet/rna_seq/human/expList_RS_human_Oct_24_2016.rda) |
-| Mouse | Mar 15, 2016 | SRP059670 | Reprogramming to Pluripotency | [Run table](https://s3.amazonaws.com/CellNet/rna_seq/mouse/sampTab_RS_mouse_Oct_21_2016.rda) | [expression data](https://s3.amazonaws.com/CellNet/rna_seq/mouse/expList_RS_mouse_Oct_21_2016.rda) |
+| Human   | Oct 30, 2015 | SRP043684 | Engineered Neurons | [metadata](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/st_SRP043684_example.rda) | [expression data](https://s3.amazonaws.com/expList_SRP043684_example.rda) |
+| Mouse | Mar 15, 2016 | SRP059670 | Reprogramming to Pluripotency | [metadata](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/st_SRP059670_example.rda) | [expression data](https://s3.amazonaws.com/expList_SRP059670_example.rda) |
+
+
 #### A Simplified Protocol
 
-This is a general overview of the commands that can be used to pre-process (pseudoalign and quantify) and apply CellNet to your expression data.
+This is a general overview of the commands that can be used to pre-process (pseudoalign and quantify) and apply CellNet to your expression data. The example below works for data from mouse samples.
 
 Pre-processing:
 
