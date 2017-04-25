@@ -119,6 +119,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
   #   3. geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R 
   #   4. Mus_musculus.GRCm38.83.gtf.gz
   if(species=='mouse'){
+    fname2<-"salmon.index.mouse.050316.tgz"
     fname3<-"geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R";
     fname4<-"Mus_musculus.GRCm38.83.gtf.gz";
   }
@@ -128,6 +129,7 @@ fetch_salmon_indices<-function # get files needed to run Salmon
   #   3. geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R
   #   4. Homo_sapiens.GRCh38.83.gtf.gz
   else{
+    fname2<-"salmon.index.human.050316.tgz"
     fname3<-"geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R";
     fname4<-"Homo_sapiens.GRCh38.83.gtf.gz";
   }

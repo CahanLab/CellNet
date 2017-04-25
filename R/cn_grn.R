@@ -729,12 +729,35 @@ find_tfs<-function#
 cn_rawScore<-function
 (vect,
  mmean,
- ssd
+ ssd,
+ xmax=1e3
 ){
   zcs<-zscore(vect, mmean, ssd);
-  xmax<-1000; # arbitrary, and corrected for later, but want some high enough that it should not be exceeded
+  ### xmax<-1000; # arbitrary, and corrected for later, but want some high enough that it should not be exceeded 
   xmax-abs(zcs);
 }
+
+
+#' min diff 
+#'
+#' computes mean gene A in CT 1 - mean gene A in CT 2, where CT2 has the non CT1 max value. does this for genes
+#' @param tVals tVals 
+#' @param genes vector of gene names
+#' @param ct ct to compare to
+#' @return vector of differences
+minDif<-function
+(tVals,
+  genes,
+  ct){
+  octs<-setdiff(names(tVals), ct)
+  qq<-lapply(tVals[octs], "[[", "mean")
+  ##tVals[[ct]][["mean"]][[gene]]#-max(unlist(lapply(qq, "[[", gene)))
+  tmpMat<-matrix(unlist(lapply(qq, "[", genes)), nrow=length(genes))
+  rownames(tmpMat)<-genes
+  maxes<-apply(tmpMat, 1, max)
+  unlist(tVals[[ct]][["mean"]][genes])-maxes
+}
+
 
 #' GRN status
 #'
@@ -755,7 +778,8 @@ cn_netScores<-function
  ctt, 
  classList=NULL, 
  classWeight=FALSE, 
- exprWeight=TRUE
+ exprWeight=TRUE,
+ xmax=1e3
 ){
 
   aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat));
@@ -764,14 +788,24 @@ cn_netScores<-function
   weights<-rep(1, length(genes));
   names(weights)<-genes;
   
+  #otherCTs<-setdiff(names(tVals), ct)
+  
   cat(dim(aMat),"\n")
   if(exprWeight){
     meanVect<-unlist(tVals[[ctt]][['mean']][genes]);
     weights<-(2**meanVect)/sum(2**meanVect);
+    if(FALSE){
+      bDifs<-minDif(tVals, genes, ctt)
+    # set to zero neg vals
+      bDifs[bDifs<0]<-0
+      weights<-bDifs/sum(bDifs)
+    }
   }
     
   if(classWeight){
     classImp<-classList[[ctt]]$importance[genes,1];
+    ### 04-19-17
+    ###classImp<-classImp/sum(classImp)
     weights<-weights*classImp;
   }
   
@@ -780,7 +814,7 @@ cn_netScores<-function
     ###zzs<-as.matrix(cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])[1,])
 
 
-    zzs<-cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]])
+    zzs<-cn_rawScore(expDat[gene,], tVals[[ctt]][['mean']][[gene]], tVals[[ctt]][['sd']][[gene]], xmax=xmax)
     aMat[gene,]<-zzs;
 
   }
@@ -807,7 +841,8 @@ cn_score<-function
  classList=NULL,
  minVals=NULL, 
  classWeight=FALSE,
- exprWeight=TRUE
+ exprWeight=TRUE,
+ xmax=1e3
 ){
   #nSubnets<-sum(sapply(subList, length));
   nSubnets<-length(subList);
@@ -823,7 +858,7 @@ cn_score<-function
     #    snNames<-names(subnets);
     #    rnames<-append(rnames, snNames);    
     #    for(sName in snNames){
-    ans[rIndex,]<-cn_netScores(expDat, genes, tVals=tVals, ctt=ctt,classList, classWeight=classWeight,exprWeight=exprWeight);
+    ans[rIndex,]<-cn_netScores(expDat, genes, tVals=tVals, ctt=ctt,classList, classWeight=classWeight,exprWeight=exprWeight, xmax=xmax);
     rnames<-append(rnames, ctt);
     rIndex<-rIndex+1;
     #   }
@@ -891,11 +926,13 @@ cn_trainNorm<-function #
  tVals=NULL,
  classWeight=FALSE,
  exprWeight=TRUE,
- sidCol='sample_id'
+ sidCol='sample_id',
+ xmax=1e3,
+ predSD=FALSE
 ){
 
   if(is.null(tVals)){
-    tVals<-cn_make_tVals(expTrain, stTrain, dLevel);
+    tVals<-cn_make_tVals(expTrain, stTrain, dLevel, predictSD=predSD)
   }
 
   ctts<-as.vector(unique(stTrain[,dLevel]));
@@ -904,7 +941,7 @@ cn_trainNorm<-function #
   minVect<-vector(); # a list of ctt->subnet->min value, used to shift raw grn est scores
   
   cat("calculating GRN scores on training data ...\n");
-  tmpScores<-cn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight)
+  tmpScores<-cn_score(expTrain, subNets, tVals, classList, minVals=NULL, classWeight=classWeight, exprWeight=exprWeight, xmax=xmax)
 
 
   minVect<-apply(tmpScores, 1, min);
