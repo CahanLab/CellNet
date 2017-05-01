@@ -89,7 +89,8 @@ cn_make_grn<-function
  dLevel='description1',
  dLevelGK="description6",
  zThresh=4,
- holmSpec=1e-6)
+ holmSpec=1e-6,
+ prune=FALSE)
 {
   targetGenes<-rownames(expDat)
   if(is.na(tfs)){
@@ -125,7 +126,7 @@ cn_make_grn<-function
   grnall<-cn_getRawGRN(zscores, corrs, targetGenes, zThresh=zThresh)#, snName=snName);
 
 #####  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
-  specGenes<-cn_specGenesAll(expGRN, stGRN, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK)
+  specGenes<-cn_specGenesAll(expGRN, stGRN, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK, prune=prune)
   ### specTFs<-cn_specGenesAll(expDat[tfs,], sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
   ctGRNs<-cn_specGRNs(grnall, specGenes);
   ###ctGRNs<-cn_specGRNs(grnall, specTFs);
@@ -180,9 +181,10 @@ cn_specGenesAll<-function
  cval=0.5,
  cvalGK=0.75,
  dLevel="description1",
- dLevelGK="description2"){
+ dLevelGK="description2",
+ prune=FALSE){
   matcher<-list();
-  general<-cn_findSpecGenes(expDat, sampTab, holm=holm, cval=cval, dLevel=dLevel);
+  general<-cn_findSpecGenes(expDat, sampTab, holm=holm, cval=cval, dLevel=dLevel,prune=prune);
   ctXs<-list()# one per germlayer
   if(!is.null(dLevelGK)){
     
@@ -190,7 +192,7 @@ cn_specGenesAll<-function
     for(germlayer in germLayers){
       stTmp<-sampTab[sampTab[,dLevelGK]==germlayer,];
       expTmp<-expDat[,rownames(stTmp)];
-      xxx<-cn_findSpecGenes(expTmp, stTmp, holm=holm, cval=cvalGK,dLevel=dLevel);
+      xxx<-cn_findSpecGenes(expTmp, stTmp, holm=holm, cval=cvalGK,dLevel=dLevel, prune=prune);
       cts<-names(xxx);
       for(ct in cts){
         matcher[[ct]]<-germlayer;
