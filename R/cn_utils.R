@@ -432,12 +432,6 @@ zscore<-function
 
 
 
-########################################
-##
-## UNUSED
-##
-########################################
-
 cn_zscoreVect<-function
 ### Compute the mean zscore of given genes in each sample
 (genes,
@@ -457,5 +451,32 @@ cn_zscoreVect<-function
   ### zscore vector
 }
 
+#' make Inf and -Inf values sensible
+#'
+#' make Inf and -Inf values sensible
+#' @param zMat zMat
+#'
+#' @return corrected zMat
+#'
+cn_correctZmat<-function
+(zmat){
+  myfuncInf<-function(vect){
+    xi<-which(vect=='Inf')
+    if(any(xi)){
+      mymax<-max(vect[-xi])
+      vect[xi]<-mymax
+    }
+    vect
+  }
+  zmat<-apply(zmat,2, myfuncInf)
+  zmat[is.na(zmat)]<-0
+  zmat
+}
+
+########################################
+##
+## UNUSED
+##
+########################################
 
 

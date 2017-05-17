@@ -783,7 +783,7 @@ cn_netScores<-function
  exprWeight=TRUE,
  xmax=1e3
 ){
-
+  cat(ctt,"\n")
   aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat));
   rownames(aMat)<-genes;
   
@@ -853,7 +853,7 @@ cn_score<-function
   rnames<-vector();
   rIndex<-1;
   for(ctt in ctts){
-    # cat(ctt,"\n");
+     cat(ctt,"\n");
     genes<-subList[[ctt]];
     # 06-06-16 -- added to allow for use of GRNs defined elsewhere
     genes<-intersect(genes, rownames(expDat));
@@ -1213,8 +1213,204 @@ cn_nis<-function
   # returns network influence score.
 }
 
+trimmean<-function
+(vect){
+  mean(quantile(vect, c(.25, .5, .5,.75)))
+}
+
+#' transcription factor score
+#'
+#' Computes TF score (TFS). See forthcoming paper for details.
+#' @param cnRes object result of running cn_apply
+#' @param cnProc object result of running cn_make_processor
+#' @param tfname transcription factor
+#' @param ctt string indicating the CT to compare against
+#'
+#' @return numeric matrix where rows are TFs and columns are query samples, values are zscores
+#'
+#' @export
+cn_tfScore<-function
+(cnProc,
+ expDat,
+ ctt,
+ tfnames=NULL
+){
+  
+  if(is.null(tfnames)){
+    tfnames<-unique(unlist(lapply(cnProc$ctGRNs$ctGRNs$tfTargets, names)))
+  }
+  tVals<-cnProc[['tVals']][[ctt]]
+  # compute a matrix of zscores
 
 
+  ans<-matrix(0, nrow=length(tfnames), ncol=ncol(expDat))
+
+  bGraph<-cnProc$ctGRNs$overallGRN$graph
+  for(i in seq(length(tfnames))){
+
+    tfname<-tfnames[i]
+    cat(tfname,"\n")
+    tgenes<-unique(V(bGraph)$label[neighbors(bGraph, tfname)])
+    
+    if(FALSE){
+      zzzMat<-matrix(0, nrow=length(tgenes), ncol=ncol(expDat))  
+      for(j in seq(length(tgenes))){
+       gene<-tgenes[j]
+       zzzMat[j,]<-zscore(expDat[gene,], tVals[['mean']][[gene]], tVals[['sd']][[gene]])
+      }
+      zzzMat<-cn_correctZmat(zzzMat)
+    }
+    zzzMat<-cn_zmat(expDat[tgenes,], tVals)
+    ans[i,]<-apply(abs(zzzMat), 2, median)
+  }
+  
+  tfzs<-cn_zmat(expDat[tfnames,], tVals)
+  # scale this by max(expr_ctt, expr_query)
+  geneScale<-cn_exprScale(expDat[tfnames,], tVals[['mean']])
+  ans<-tfzs * ans * geneScale
+
+  rownames(ans)<-tfnames
+  colnames(ans)<-colnames(expDat)
+  ans
+}
+
+cn_exprScale<-function
+(expDat,
+ tVals)
+ {
+  genes<-rownames(expDat)
+  aMat<-matrix(0, nrow=length(genes), ncol=ncol(expDat))
+  for(i in seq(ncol(expDat))){  
+    aMat[,i]<-pmax(unlist(tVals[genes]), expDat[genes,i])
+  }
+  rownames(aMat)<-genes
+  colnames(aMat)<-colnames(expDat)
+  aMat
+}
+
+
+cn_zmat<-function
+(expDat,
+ tVals){
+  tgenes<-rownames(expDat)
+  zzzMat<-matrix(0, nrow=length(tgenes), ncol=ncol(expDat))  
+  for(j in seq(length(tgenes))){
+    gene<-tgenes[j]
+    
+    zzzMat[j,]<-zscore(expDat[gene,], tVals[['mean']][[gene]], tVals[['sd']][[gene]])
+  }
+  zzzMat<-cn_correctZmat(zzzMat)
+  colnames(zzzMat)<-colnames(expDat)
+  rownames(zzzMat)<-tgenes
+  zzzMat
+}
+
+
+cn_nis_bd<-function
+(cnRes,
+ cnProc,
+ subnet,# network
+ ctt, # target ct
+ relaWeight=1
+){
+  
+  tfTargList<-cnProc[['ctGRNs']][['ctGRNs']][['tfTargets']];
+  # return a DF of : tfs, nTargets, targetScore, tfScore, totalScore
+  nTargets<-vector();
+  targetScore<-vector();
+  tfScore<-vector();
+  totalScore<-vector();
+  tfWeights<-vector();
+  
+  tfs<-names(tfTargList[[subnet]]);
+  netGenes<-cnProc[['grnList']][[subnet]];
+  netGenes<-intersect(netGenes, rownames(cnProc[['expTrain']]))
+  
+  expDat<-cnRes[['expQuery']];
+  stQuery<-cnRes[['stQuery']];
+  sids<-as.vector(stQuery$sample_id);
+  
+ ### ans<-matrix(0, nrow=length(tfs), ncol=nrow(stQuery));
+  ans<-list()
+ ### rownames(ans)<-tfs;
+ ### colnames(ans)<-sids;
+  
+  tVals<-cnProc[['tVals']];
+  
+  # compute a matrix of zscores.
+  zzzMat<-matrix(0, nrow=length(netGenes), ncol=nrow(stQuery));
+  
+  for(i in seq(length(sids))){
+    sid<-sids[i];
+    #cat("computing zscores ", sid,"\n");
+    xvals<-as.vector(expDat[netGenes,sid]);
+    names(xvals)<-netGenes;
+    zzzMat[,i]<-cn_zscoreVect(netGenes, xvals, tVals, ctt);    
+  }
+  zzzMat<-cn_correctZmat(zzzMat)
+   rownames(zzzMat)<-netGenes;
+  colnames(zzzMat)<-rownames(stQuery);
+ 
+  
+
+###    meanVect<-unlist(tVals[[subnet]][['mean']][netGenes]);
+    meanVect<-unlist(tVals[[ctt]][['mean']][netGenes]);
+    weights<-(2**meanVect)/sum(2**meanVect);
+
+  for(sid in sids){
+    #cat("tf scoring ", sid,"\n");
+    xvals<-as.vector(expDat[,sid]);
+    names(xvals)<-rownames(expDat);
+    
+  
+    # assign weights
+    
+    ### # meanVect<-unlist(tVals[[ctt]][['mean']][netGenes]);
+    ####meanVect<-unlist(tVals[[subnet]][['mean']][netGenes]);
+    ####weights<-(2**meanVect)/sum(2**meanVect);
+    
+    for(i in seq(length(tfs))){
+      
+      tf<-tfs[i];
+      
+      # zscore of TF relative to target C/T
+##      tfScore[i]<-zscore(xvals[tf], tVals[[ctt]][['mean']][[tf]], tVals[[ctt]][['sd']][[tf]]);
+      
+      tfScore[i]<-zzzMat[tf,sid];
+      
+      targs<-tfTargList[[subnet]][[tf]];
+      targs<-intersect(targs, rownames(cnProc[['expTrain']]));
+      
+      # Zscores of TF targets, relative to C/T
+##      tmp<-cn_zscoreVect(targs, xvals, tVals, ctt );
+      tmp<-zzzMat[targs,sid];
+      targetScore[i]<-sum(tmp*weights[targs]);
+      ###if(targetScore[i]=='Inf'){
+      ###  ans<-list(tmp=tmp, sid=sid, weights=weights[targs])
+      ###  break
+      ###}
+      
+      ## new one:
+      totalScore[i]<-targetScore[i] + (length(targs)*tfScore[i]*weights[tf]);
+      
+      if(relaWeight!=1){ # don't weight by expression
+        meanW<-mean(weights)
+        totalScore[i]<- sum(tmp)*meanW + (length(targs)*tfScore[i])*meanW
+      }
+      nTargets[i]<-length(targs) ;
+      tfWeights[i]<-weights[tf];
+    }
+    xxx<-data.frame(tf=tfs, tfScore=tfScore, targetScore=targetScore, nTargets=nTargets,tfWeight=tfWeights, totalScore=totalScore);
+    xxx<-xxx[order(xxx$totalScore),]; # puts the worst ones at top when plotting
+    
+    xxx$tf<-factor(xxx$tf, as.vector(unique(xxx$tf)));
+    ###ans[as.vector(xxx$tf),sid]<-as.vector(xxx$totalScore);
+   ans[[sid]]<-xxx
+  }
+ ### ans;
+ ans
+
+}
 
 ###########################################################################
 #
