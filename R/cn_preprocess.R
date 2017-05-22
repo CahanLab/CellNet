@@ -101,54 +101,40 @@ fetchIndexHandler <- function
 #'
 #' @return nothing
 #' @export
-fetch_salmon_indices<-function # get files needed to run Salmon 
-(destination="/media/ephemeral1/dat/ref",
-  species='mouse',
-  bucket='cellnet-rnaseq',
-  dir="ref",
-  iFile="salmon.index.mouse.050316.tgz"){
-
-  curdir<-system('pwd', intern=T);
-  setwd(destination);
-
- fname2<-iFile
-  # depending on species
-  
-  # if mouse:
-  #   2. salmon.index.mouse.050316.tgz
-  #   3. geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R 
-  #   4. Mus_musculus.GRCm38.83.gtf.gz
-  if(species=='mouse'){
-    fname3<-"geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R";
-    fname4<-"Mus_musculus.GRCm38.83.gtf.gz";
+fetch_salmon_indices<-function
+(destination = "/media/ephemeral1/dat/ref", 
+  species = "mouse",
+  bucket = "cellnet-rnaseq",
+  dir = "ref",
+  iFile = "salmon.index.mouse.050316.tgz") 
+{
+  curdir <- system("pwd", intern = T)
+  setwd(destination)
+  fname2 <- iFile
+  if (species == "mouse") {
+    fname3 <- "geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R"
+    fname4 <- "Mus_musculus.GRCm38.83.gtf.gz"
   }
-
-  # if human:
-  #   2. salmon.index.human.050316.tgz
-  #   3. geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R
-  #   4. Homo_sapiens.GRCh38.83.gtf.gz
-  else{
-    fname3<-"geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R";
-    fname4<-"Homo_sapiens.GRCh38.83.gtf.gz";
+  else {
+    fname3 <- "geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R"
+    fname4 <- "Homo_sapiens.GRCh38.83.gtf.gz"
   }
-
-  cat("fecthing and unpacking stuff needed for Salmon ...\n");
-  pref<-paste0("https://s3.amazonaws.com/", bucket,"/",dir,"/");
-  download.file( paste0(pref,fname2), destfile=fname2)
-
-##  s3_get(dir, fname2, bucket);
-  cmd<-paste("tar zxvf ", fname2, sep='');
-  system(cmd);
-
-  download.file( paste0(pref,fname3), destfile=fname3)
-  download.file( paste0(pref,fname4), destfile=fname4)
-##  s3_get(dir, fname3, bucket);
-##  s3_get(dir, fname4, bucket);
-  cmd<-paste("gzip -d ", fname4, sep='');
-  system(cmd);
-
-  setwd(curdir);
+  cat("fetching and unpacking stuff needed for Salmon ...\n")
+  pref <- paste0("https://s3.amazonaws.com/", bucket, "/", 
+                 dir, "/")
+  download.file(paste0(pref, fname2), destfile = fname2)
+  cmd <- paste("tar zxvf ", fname2, sep = "")
+  system(cmd)
+  download.file(paste0(pref, fname3), destfile = fname3)
+  download.file(paste0(pref, fname4), destfile = fname4)
+  cmd <- paste("gzip -d ", fname4, sep = "")
+  system(cmd)
+  setwd(curdir)
 }
+
+
+
+
 
 #' Derive gene expression estimates compatible with CellNet
 #'
