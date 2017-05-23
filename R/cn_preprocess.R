@@ -455,6 +455,92 @@ trans_fetch_index<-function # get files needed to run Salmon and Hisat2 QC pipel
 #' @param nameCol gene ann table column name to average over
 #'
 #' @return list(TPM=ansTPM, counts=ansCounts);
+gene_expr_sum<-function
+(expDatList,
+ numCores=10,
+ geneTabfname="/media/ephemeral1/dat/ref/geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R",
+ nameCol="gene_name"
+){
+  
+  matchFunc<-function(val, vect){
+    which(vect==val);
+  }
+  
+  expTPM<-expDatList[['TPM']];
+  save_colnames = colnames(expTPM)
+  expCounts<-expDatList[['NumReads']];
+  if(!is.matrix(expTPM)){
+    expTPM<-as.matrix(expTPM);
+  }
+  if(!is.matrix(expCounts)){
+    expCounts<-as.matrix(expCounts);
+  }
+  
+  geneTab<-utils_loadObject(geneTabfname);
+  
+  # keep only common variables
+  sameProbes<-intersect(rownames(expTPM), rownames(geneTab));
+  expTPM<-as.matrix(expTPM[sameProbes,]);
+  expCounts<-as.matrix(expCounts[sameProbes,]);
+  geneTab<-geneTab[sameProbes,];
+  
+  # all genes
+  allgenes<-as.vector(geneTab[,nameCol]);
+  
+  # unique genes
+  eids<-unique(allgenes)
+  
+  # make a cluster
+  aClust<-parallel::makeCluster(numCores, type='SOCK')
+  
+  # a list of indices into all genes
+  geneIndexList<-parLapply(aClust, eids, matchFunc, vect=allgenes);
+  names(geneIndexList)<-eids
+  uSymbols<-vector(length=length(eids));
+  
+  stopCluster(aClust)
+  
+  
+  ansTPM<-matrix(0, nrow=length(eids), ncol=ncol(expTPM));
+  ansCounts<-ansTPM;
+  
+  for(i in seq(length(geneIndexList))){
+    eid<-eids[i]
+    #cat(".");
+    xi <-  geneIndexList[[i]];
+    
+    ## desProbes <- as.vector(geneTab[xi,]$probe_id);
+    desProbes <- as.character(geneTab[xi,]$transcript_id);
+    if(length(xi)>1){
+      ansTPM[i,]<- apply(as.matrix(expTPM[desProbes,]), 2, sum);
+      ansCounts[i,]<-apply(as.matrix(expCounts[desProbes,]), 2, sum);
+    }
+    else{
+      ansTPM[i,]<-as.matrix(expTPM[desProbes,]);
+      ansCounts[i,]<-as.matrix(expCounts[desProbes,]);
+    }
+    uSymbols[i]<-as.vector(geneTab[ xi[1] ,nameCol]);
+  }
+  rownames(ansTPM)<-uSymbols;
+  rownames(ansCounts)<-uSymbols;
+  #colnames(ansTPM)<-colnames(expTPM);
+  colnames(ansTPM) = save_colnames
+  #colnames(ansCounts)<-colnames(expCounts);
+  colnames(ansCounts) = save_colnames
+  
+  list(TPM=ansTPM, counts=ansCounts);
+}
+
+if(FALSE){
+#' Sum transcription expression estimates to gene-level expression measures
+#'
+#' Sums all trnascript level expression estimates to a single gene level estimate. Needs a table that maps transcript IDs to gene IDs.
+#' @param expDatList result of running salmon_load_tranEst
+#' @param numCores num of cores to use for parallel 
+#' @param geneTabfname gene <-> transcript mapping, df that needs cols: gene_id, transcript_id
+#' @param nameCol gene ann table column name to average over
+#'
+#' @return list(TPM=ansTPM, counts=ansCounts);
 gene_expr_sum<-function# returns the gene summed matrix
 (expDatList,
   numCores=10,
@@ -527,7 +613,7 @@ gene_expr_sum<-function# returns the gene summed matrix
   colnames(ansCounts)<-colnames(expCounts);
 
   list(TPM=ansTPM, counts=ansCounts);
-}
+}}
 
 #' re-order the sampTab, by dLevel, given dLevel names
 #'
