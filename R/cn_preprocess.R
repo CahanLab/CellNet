@@ -101,23 +101,21 @@ fetchIndexHandler <- function
 #'
 #' @return nothing
 #' @export
-fetch_salmon_indices<-function
-(destination = "/media/ephemeral1/dat/ref", 
-  species = "mouse",
-  bucket = "cellnet-rnaseq",
-  dir = "ref",
-  iFile = "salmon.index.mouse.050316.tgz") 
+fetch_salmon_indices = function (destination = "/media/ephemeral1/dat/ref", species = "mouse", 
+          bucket = "cellnet-rnaseq", dir = "ref", iFile) 
 {
   curdir <- system("pwd", intern = T)
   setwd(destination)
-  fname2 <- iFile
   if (species == "mouse") {
+    fname2 = "salmon.index.mouse.050316.tgz"
     fname3 <- "geneToTrans_Mus_musculus.GRCm38.80.exo_Jun_02_2015.R"
-    fname4 <- "Mus_musculus.GRCm38.83.gtf.gz"
   }
   else {
+    fname2 = "salmon.index.human.050316.tgz"
     fname3 <- "geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R"
-    fname4 <- "Homo_sapiens.GRCh38.83.gtf.gz"
+  }
+  if(length(iFile) != 0) {
+    fname2 = iFile
   }
   cat("fetching and unpacking stuff needed for Salmon ...\n")
   pref <- paste0("https://s3.amazonaws.com/", bucket, "/", 
@@ -126,9 +124,9 @@ fetch_salmon_indices<-function
   cmd <- paste("tar zxvf ", fname2, sep = "")
   system(cmd)
   download.file(paste0(pref, fname3), destfile = fname3)
-  download.file(paste0(pref, fname4), destfile = fname4)
-  cmd <- paste("gzip -d ", fname4, sep = "")
-  system(cmd)
+  #download.file(paste0(pref, fname4), destfile = fname4)
+  #cmd <- paste("gzip -d ", fname4, sep = "")
+  system("rm *.tgz")
   setwd(curdir)
 }
 
