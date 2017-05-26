@@ -49,6 +49,20 @@ These are some datasets you can use to test-drive applying CellNet to RNA-Seq da
 | Human   | Oct 30, 2015 | SRP043684 | Engineered Neurons | [metadata](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/st_SRP043684_example.rda) | [expression data](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/expList_SRP043684_example.rda) |
 | Mouse | Mar 15, 2016 | SRP059670 | Reprogramming to Pluripotency | [metadata](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/st_SRP059670_example.rda) | [expression data](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/expList_SRP059670_example.rda) |
 
+#### Salmon Index Table
+
+If you are running CellNet locally, you will need to have salmon installed on your machine. Below are a few indexes that we have created from our transcriptome and know to work.
+
+| SPECIES | SALMON | INDEX DOWNLOAD | NOTE/USAGE |
+|---------|----------------|----------------|------------|
+| Human | 0.6.0 | [salmon.index.human.050316.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.human.050316.tgz) | Default for AWS workflow |
+| Mouse | 0.6.0 | [salmon.index.mouse.050316.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.mouse.050316.tgz) | Default for AWS workflow |
+| Human | 0.7.3 | [salmon.index.human.122116.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.human.122116.tgz) | Protocol for local** |
+| Mouse | 0.7.3 | [salmon.index.mouse.122116.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.mouse.122116.tgz) | Protocol for local** |
+| Human | 0.8.2 | [salmon.index.human.052617.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.human.052617.tgz) | Uses latest version of Salmon to date |
+| Mouse | 0.8.2 | [salmon.index.mouse.052617.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.mouse.122116.tgz) | Uses latest version of Salmon to date |
+
+** Here's the [binary Salmon-0.7.3 Mac OSX link](https://github.com/COMBINE-lab/salmon/files/581546/Salmon-0.7.3-pre_OSX_10.11.tar.gz). Salmon-0.8.2 is a stable update and will work for either MacOSX or Linux.
 
 #### A Simplified Protocol
 
