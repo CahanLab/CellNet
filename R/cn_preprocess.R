@@ -104,7 +104,7 @@ fetchIndexHandler <- function
 #' @return nothing
 #' @export
 fetch_salmon_indices = function (destination = "/media/ephemeral1/dat/ref", species = "mouse", 
-          bucket = "cellnet-rnaseq", dir = "ref", iFile) 
+          bucket = "cellnet-rnaseq", dir = "ref", iFile = NA) 
 {
   curdir <- system("pwd", intern = T)
   setwd(destination)
@@ -116,7 +116,7 @@ fetch_salmon_indices = function (destination = "/media/ephemeral1/dat/ref", spec
     fname2 = "salmon.index.human.050316.tgz"
     fname3 <- "geneToTrans_Homo_sapiens.GRCh38.80.exo_Jul_04_2015.R"
   }
-  if(length(iFile) != 0) {
+  if(!is.na(iFile)) {
     fname2 = iFile
   }
   cat("fetching and unpacking stuff needed for Salmon ...\n")
