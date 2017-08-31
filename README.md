@@ -1,5 +1,11 @@
 # CellNet
 
+
+Shortcut to [bulk rna-se protocol](#bulk_protocol)
+
+Shortcut to [single cell protocol](#sc_protocol)
+
+
 ### Introduction
 CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. You can run it as a command line tool on the cloud through Amazon Web Services (**recommended**), or you can run it locally (**not recommended**). Here we provide a 'bare-bones' walk-thru of how to apply CellNet to your RNA-Seq data. 
 
@@ -34,11 +40,13 @@ The main ingredients of a cnProc are:
 * An R matrix giving the expression levels of a number of genes across all the samples used to train CellNet
 * An R dataframe providing metadata on the samples in the expression data matrix (things like cell-type, alignment metrics, SRA accession numbers...)
 
-| SPECIES | DATE | CELL & TISSUE TYPES(# of profiles) | cnProc |
-|---------|------|------------------------------------|--------|
-| HS | Oct_25_2016 | b_cell (83), dendritic_cell (75), endothelial_cell (53), esc (52), fibroblast (79), heart (30), hspc (27), intestine_colon (64), kidney (29), liver (33), lung (95), macrophage (254), monocyte (207), neuron (109), skeletal_muscle (189), t_cell (53) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_RS_hs_Oct_25_2016.rda) |
-| Mouse | Oct_24_2016 | b_cell (193), dendritic_cell (134), esc (134), fibroblast (182), heart (189), hspc (75), intestine_colon (149), kidney (109), liver (265), lung (116), macrophage (176), neuron (188), nk_cell (53), skeletal_muscle (130), t_cell (87), wat (64) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/MM/cnProc_MM_RS_Oct_24_2016.rda) | 
-| Human | Apr_05_2017 | b_cell (83), dendritic_cell (55), endothelial_cell (51), esc (52), fibroblast (46), heart (60), hspc (192), intestine_colon (85), kidney (62), liver (107), lung (94), monocyte_macrophage (206), neuron (90), skeletal_muscle (187), t_cell (43) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Apr_05_2017.rda) |
+| SPECIES | DATE | CELL & TISSUE TYPES(# of profiles) | cnProc | raw training data |
+|---------|------|------------------------------------|--------|-------------------|
+| HS | Oct_25_2016 | b_cell (83), dendritic_cell (75), endothelial_cell (53), esc (52), fibroblast (79), heart (30), hspc (27), intestine_colon (64), kidney (29), liver (33), lung (95), macrophage (254), monocyte (207), neuron (109), skeletal_muscle (189), t_cell (53) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_RS_hs_Oct_25_2016.rda) | |
+| Mouse | Oct_24_2016 | b_cell (193), dendritic_cell (134), esc (134), fibroblast (182), heart (189), hspc (75), intestine_colon (149), kidney (109), liver (265), lung (116), macrophage (176), neuron (188), nk_cell (53), skeletal_muscle (130), t_cell (87), wat (64) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/MM/cnProc_MM_RS_Oct_24_2016.rda) | |
+| Human | Apr_05_2017 | b_cell (83), dendritic_cell (55), endothelial_cell (51), esc (52), fibroblast (46), heart (60), hspc (192), intestine_colon (85), kidney (62), liver (107), lung (94), monocyte_macrophage (206), neuron (90), skeletal_muscle (187), t_cell (43) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Apr_05_2017.rda) | |
+| Human | Jun_20_2017 | | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Jun_20_2017.rda) |  |
+
 
 #### Example Data
 
@@ -50,7 +58,7 @@ These are some datasets you can use to test-drive applying CellNet to RNA-Seq da
 | Mouse | Mar 15, 2016 | SRP059670 | Reprogramming to Pluripotency | [metadata](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/st_SRP059670_example.rda) | [expression data](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/expList_SRP059670_example.rda) |
 
 
-#### A Simplified Protocol
+#### <a name="bulk_protocol">A Simplified Protocol</a>
 
 This is a general overview of the commands that can be used to pre-process (pseudoalign and quantify) and apply CellNet to your expression data. The example below works for data from mouse samples.
 
@@ -85,7 +93,7 @@ Classification Heat Map: Displays the likelihood that a sample is indistinguisha
     bOrder<-c("fibroblast_train", unique(as.vector(stQuery$description1)), "esc_train")
     cn_barplot_grnSing(cnRes1,cnProc,"fibroblast", c("fibroblast","esc"), bOrder, sidCol="sra_id")
 ```
-![](md_img/grnStat.png)
+<img src="md_img/grnStat.png" style="height: 400px;"/>
 
 **N**etwork **I**nfluence **S**core Box and Whisker Plot: A suggestion of transcription factors that could be better regulated, ranked by their potential impact
 ```R
@@ -93,7 +101,128 @@ Classification Heat Map: Displays the likelihood that a sample is indistinguisha
     tfScores<-cn_nis_all(cnRes1, cnProc, "esc")
     plot_nis(tfScores, "esc", stQuery, "Day0", dLevel="description1", limitTo=0)
 ```
-![](md_img/nis.png)
+<img src="md_img/nis.png" style="height: 400px;"/>
+
+#### <a name="sc_protocol">Analyzing single cell RNA-Seq data with CellNet trained on bulk-derived data</a>
+
+It is possible to analyze single cell RNA-Seq (scRNA-Seq) data with CellNet trained on bulk-derived data, if the training data is down-sampled appropriately. Below illustrate how to down-sample The protocol below is NOT trained on single cell data, and thus will only yield generic cell- and tissue-type classifications and GRN statues. We are actively working on developing a new version of CellNet that uses scRNA-Seq training data.
+
+In this example, we use scRNA-Seq 3' count based data of bead-purified human hematopoeitic cells generated by 10x Genomics [here](https://support.10xgenomics.com/single-cell-gene-expression/datasets) from the paper [Zheng et al 2017](https://www.ncbi.nlm.nih.gov/pubmed/28091601) as query data. We have compiled 5rom the B-cell (CD19+), hematopoietic progenitors (CD34+), monocytes (CD14+), natural killer (CD56+), Helper T cells (CD4+), and cytotoxic T cells (CD8+). We have prepared this data and you can download the R file [here](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/expQuery_Zheng2017_rawcounts_Aug_31_2017.rda) and the corresponding sample annotation is [here](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/stQuery_Zheng2017_Aug_31_2017.rda).
+
+Get started, load your query data, downsample and transform it. 
+```R
+    library(Rtsne)
+    library(ggplot2)
+    library(RColorBrewer)
+    library(randomForest)
+    library(CellNet)
+
+    expRawQuery<-utils_loadObject("expQuery_Zheng2017_rawcounts_Aug_31_2017.rda")
+    expQueryDn<-weighted_down(expRawQuery, 1e3)
+    expQuery<-trans_prop(expQueryDn)
+    rm(expRawQuery)
+    rm(expQueryDn)
+    gc()
+
+    stQuery<-utils_loadObject("stQuery_Zheng2017_Aug_31_2017.rda")
+
+    dim(expQuery)
+    [1] 32643  6000
+
+    dim(stQuery)
+    [1] 6000    5
+```
+
+Load training data for CellNet and the cnProc object, which will need to be re-trained. For this example, download the [Jun 20 2017 human cnProc]() and the corresponding [raw expression data](). 
+```R
+    cnProc<-utils_loadObject("cnProc_HS_RS_Jun_20_2017.rda")
+    stTrain<-cnProc$stTrain
+    dim(stTrain)
+    [1] 1003   23
+
+    expTrainRaw<-utils_loadObject("expAll_RAW_8_31_2017.rda")
+
+    dim(expTrainRaw)
+    [1] 34934  1003
+
+    expTrainDown<-weighted_down(expTrainRaw, 1e3)
+    expTrain<-trans_prop(expTrainDown, 1e5)
+    rm(expTrainRaw)
+    rm(expTrainDown)
+    gc()
+```
+
+Re-train CellNet so for scRNA-Seq query data
+```R
+    system.time(cnProcSC<-cn_remake_processor(cnProc, newGenes=rownames(expQuery),expTrain=expTrain, sidCol='sample_name'))
+       user  system elapsed 
+    183.185   3.505 186.811 
+```
+
+Analyze query data
+```R
+    system.time(cnRes<-cn_apply(expQuery, stQuery, cnProcSC, dLevelQuery='prefix'))
+      user  system elapsed 
+     29.265   5.058  34.334
+```
+
+Traditional CellNet classification heatmap
+```R
+    cn_HmClass(cnRes, isBig=T)
+```
+<img src="md_img/hm_zheng.png" style="height: 400px;"/>
+
+
+Traditional CellNet GRN status barplot
+```R
+    bOrder<-c(unique(as.vector(stQuery$prefix)), "b_cell_train")
+    cn_barplot_grnSing(cnRes,cnProcSC,"b_cell", c("b_cell"), bOrder,sidCol="sample_id")
+```
+<img src="md_img/grn_bcell_Zheng.png" style="height: 400px;"/>
+
+You can also overlay classification (or grn status) on the tSNE results.
+
+Find variable genes, run PCA and then tSNE
+```R
+    geneStats<-sc_statTab(expQuery)
+    varGenes <- findVarGenes(expQuery,geneStats,zThresh=1.5, meanType="overall_mean")
+    length(varGenes)
+    [1] 1106
+    pcRes<-prcomp(t(expQuery[varGenes,]),center=T,scale=TRUE)
+    system.time(tsneRes<-to_tsne(pcRes$x[,1:20], perplexity=30, theta=.3))
+       user  system elapsed 
+     47.982   0.826  48.853 
+
+    plot_tsne(stQuery, tsneRes, cName="prefix")
+```
+<img src="md_img/tsne_Zheng_prefix.png" style="height: 400px;"/>
+
+Plot CellNet classification on tSNE
+```R
+    datTab<-stQuery
+    datTab<-cbind(datTab, tsneRes)
+    datTab<-cbind(datTab,t(cnRes$classRes))
+    classNames<-rownames(cnRes$classRes)
+    datTab<-as.data.frame(datTab)
+    tsneMult(datTab, c("b_cell"))
+```
+<img src="md_img/bcell_class.png" style="height: 400px;"/>
+
+```R
+    tsneMult(datTab, c("t_cell"))
+```
+<img src="md_img/tcell_class.png" style="height: 400px;"/>
+
+```R
+    tsneMult(datTab, c("monocyte_macrophage"))
+```
+<img src="md_img/mac_class.png" style="height: 400px;"/>
+
+```R
+    tsneMult(datTab, c("hspc"))
+```
+<img src="md_img/hscp_class.png" style="height: 400px;"/>
+
 
 #### CellNet for Microarray Data
 You can also use CellNet to analyze *microarray* data either locally using [this code](https://pcahan1.github.io/cellnetr/), or using the [the original web application](http://cellnet.hms.harvard.edu/).
