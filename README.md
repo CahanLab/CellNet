@@ -209,7 +209,7 @@ Find variable genes, run PCA and then tSNE
 
     plot_tsne(stQuery, tsneRes, cName="prefix")
 ```
-<img src="md_img/tsne_Zheng_prefix.png" style="height: 400px;"/>
+<img src="md_img/tsne_Zheng_prefix.png" style="height: 200px;"/>
 
 Plot CellNet classification on tSNE
 ```R
@@ -220,22 +220,22 @@ Plot CellNet classification on tSNE
     datTab<-as.data.frame(datTab)
     tsneMult(datTab, c("b_cell"))
 ```
-<img src="md_img/bcell_class.png" style="height: 400px;"/>
+<img src="md_img/bcell_class.png" style="height: 200px;"/>
 
 ```R
     tsneMult(datTab, c("t_cell"))
 ```
-<img src="md_img/tcell_class.png" style="height: 400px;"/>
+<img src="md_img/tcell_class.png" style="height: 200px;"/>
 
 ```R
     tsneMult(datTab, c("monocyte_macrophage"))
 ```
-<img src="md_img/mac_class.png" style="height: 400px;"/>
+<img src="md_img/mac_class.png" style="height: 200px;"/>
 
 ```R
     tsneMult(datTab, c("hspc"))
 ```
-<img src="md_img/hscp_class.png" style="height: 400px;"/>
+<img src="md_img/hspc_class.png" style="height: 200px;"/>
 
 
 #### CellNet for Microarray Data
