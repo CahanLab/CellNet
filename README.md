@@ -43,9 +43,9 @@ The main ingredients of a cnProc are:
 | SPECIES | DATE | CELL & TISSUE TYPES(# of profiles) | cnProc | raw training data |
 |---------|------|------------------------------------|--------|-------------------|
 | HS | Oct_25_2016 | b_cell (83), dendritic_cell (75), endothelial_cell (53), esc (52), fibroblast (79), heart (30), hspc (27), intestine_colon (64), kidney (29), liver (33), lung (95), macrophage (254), monocyte (207), neuron (109), skeletal_muscle (189), t_cell (53) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_RS_hs_Oct_25_2016.rda) | |
-| Mouse | Oct_24_2016 | b_cell (193), dendritic_cell (134), esc (134), fibroblast (182), heart (189), hspc (75), intestine_colon (149), kidney (109), liver (265), lung (116), macrophage (176), neuron (188), nk_cell (53), skeletal_muscle (130), t_cell (87), wat (64) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/MM/cnProc_MM_RS_Oct_24_2016.rda) | |
+| Mouse | Oct_24_2016 | b_cell (193), dendritic_cell (134), esc (134), fibroblast (182), heart (189), hspc (75), intestine_colon (149), kidney (109), liver (265), lung (116), macrophage (176), neuron (188), nk_cell (53), skeletal_muscle (130), t_cell (87), wat (64) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/MM/cnProc_MM_RS_Oct_24_2016.rda) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/MM/expTrain_MM_rawcounts_Dec_29_16.rda) | 
 | Human | Apr_05_2017 | b_cell (83), dendritic_cell (55), endothelial_cell (51), esc (52), fibroblast (46), heart (60), hspc (192), intestine_colon (85), kidney (62), liver (107), lung (94), monocyte_macrophage (206), neuron (90), skeletal_muscle (187), t_cell (43) | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Apr_05_2017.rda) | |
-| Human | Jun_20_2017 | | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Jun_20_2017.rda) |  |
+| Human | Jun_20_2017 | | [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Jun_20_2017.rda) |  [Download](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/expTrain_HS_rawcounts_8_31_2017.rda) |
 
 
 #### Example Data
@@ -147,14 +147,14 @@ Get started, load your query data, downsample and transform it.
     [1] 6000    5
 ```
 
-Load training data for CellNet and the cnProc object, which will need to be re-trained. For this example, download the [Jun 20 2017 human cnProc]() and the corresponding [raw expression data](). 
+Load training data for CellNet and the cnProc object, which will need to be re-trained. For this example, download the [Jun 20 2017 human cnProc](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Jun_20_2017.rda) and the corresponding [raw expression data](expTrain_HS_rawcounts_8_31_2017.rda). For mouse data, see the table of cnProc and raw data above.
 ```R
     cnProc<-utils_loadObject("cnProc_HS_RS_Jun_20_2017.rda")
     stTrain<-cnProc$stTrain
     dim(stTrain)
     [1] 1003   23
 
-    expTrainRaw<-utils_loadObject("expAll_RAW_8_31_2017.rda")
+    expTrainRaw<-utils_loadObject("expTrain_HS_rawcounts_8_31_2017.rda")
 
     dim(expTrainRaw)
     [1] 34934  1003
