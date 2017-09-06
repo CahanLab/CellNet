@@ -58,17 +58,18 @@ cn_apply<-function
   
   # score the query data
   scoresQuery<-cn_score(expQuery, subNets, tVals, minVals=minVals, classList=classList, classWeight=classWeight, exprWeight=exprWeight);
-  
+
   # normalize query scores
   normScoresQuery<-cn_normalizeScores(normVals, scoresQuery, rownames(scoresQuery));
-  
+
   # classify the query data
   myClass<-cn_classify(classList,expQuery,subNets);
-  colnames(myClass)<-as.vector(stQuery[,dLevelQuery])
-  
+
+  ###colnames(myClass)<-as.character(stQuery[,dLevelQuery])
+
   # it's really useful to have the averaged training data, too
-  meanExpQuery<-as.matrix(GEP_makeMean(expQuery,as.vector(stQuery[,dLevelQuery]),type='mean'));
-  
+  meanExpQuery<-as.matrix(GEP_makeMean(expQuery,as.character(stQuery[,dLevelQuery]),type='mean'));
+
   ans<-list(expQuery=expQuery,
             stQuery=stQuery,
             dLevelQuery=dLevelQuery,            
@@ -311,6 +312,9 @@ cn_remake_processor<-function # train a CellNet object
     ###classList<-cn_makeRFs(expTrain, stTrain, gListsSub, dLevel=dLevel);
     cat("Done making classifiers :)\n");
   
+    # fix the spec genes so as to exclude genes in training but not in the q
+
+
     trainNorm<-cn_trainNorm(expTrain, stTrain, subNets=geneLists, classList=classList, dLevel=dLevel, classWeight=classWeight, exprWeight=exprWeight, sidCol=sidCol);
     ###trainNorm<-cn_trainNorm(expTrain, stTrain, subNets=gListsSub, classList=classList, dLevel=dLevel, classWeight=classWeight, exprWeight=exprWeight);
    
