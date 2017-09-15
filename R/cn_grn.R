@@ -125,11 +125,12 @@ cn_make_grn<-function
 
   grnall<-cn_getRawGRN(zscores, corrs, targetGenes, zThresh=zThresh)#, snName=snName);
 
-#####  specGenes<-cn_specGenesAll(expDat, sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
+cat("specGenes all\n")
   specGenes<-cn_specGenesAll(expGRN, stGRN, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK, prune=prune)
-  ### specTFs<-cn_specGenesAll(expDat[tfs,], sampTab, holm=holmSpec, cval=cval, cvalGK=cvalGK, dLevel=dLevel, dLevelGK=dLevelGK);
+cat(" done specGenes all\n")
+cat(" specGenes\n")
   ctGRNs<-cn_specGRNs(grnall, specGenes);
-  ###ctGRNs<-cn_specGRNs(grnall, specTFs);
+  cat("done specGenes\n")
   ###list(overallGRN=grnall, specTFs=specTFs,ctGRNs=ctGRNs);  
   list(overallGRN=grnall, specGenes=specGenes,ctGRNs=ctGRNs, grnSamples=rownames(stGRN));  
 }
@@ -155,10 +156,13 @@ cn_getRawGRN<-function# get raw GRN, communities from zscores, and corr
   # make a grn table
   cat("Making GRN table...\n")
   grn<-cn_extractRegsDF(zscores, corrs, targetGenes, zThresh);
+  cat("Done making GRN table...\n")
   colnames(grn)[1:2]<-c("TG", "TF");
   
   # make an iGraph object and find communities
+  cat("Make iGraph...\n")
   igTmp<-ig_tabToIgraph(grn, directed=FALSE, weights=TRUE);
+   cat("done with iGraph...\n")
   list(grnTable=grn, graph=igTmp);
 }
 
@@ -266,6 +270,7 @@ cn_specGRNs<-function### don't bother finding communities
   graphLists<-list();
 
   groupNames<-names(specGenes[['context']][['general']]);  
+
   big_graph<-rawGRNs[['graph']];
 
   matcher<-specGenes$matcher;
@@ -273,9 +278,16 @@ cn_specGRNs<-function### don't bother finding communities
   allgenes<-V(big_graph)$name;
 
   for(ct in groupNames){
-    gll<-matcher[[ct]];
-    mygenes<-union(specGenes[['context']][['general']][[ct]], specGenes[['context']][[gll]][[ct]]);
-    cat(ct," ",gll,"\n");
+    cat(ct,"\n")
+    if(!is.null(names(matcher))){
+      gll<-matcher[[ct]];
+      cat(ct," ",gll,"\n");
+      mygenes<-union(specGenes[['context']][['general']][[ct]], specGenes[['context']][[gll]][[ct]]);
+    }
+    else{
+      mygenes<-specGenes[['context']][['general']][[ct]]
+    }
+    
     geneLists[[ct]]<-intersect(allgenes, mygenes);
     graphLists[[ct]]<-induced.subgraph(big_graph, geneLists[[ct]]);
   }

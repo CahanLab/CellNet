@@ -1,10 +1,11 @@
 # CellNet
 
 
-Shortcut to [bulk rna-se protocol](#bulk_protocol)
+Shortcut to [bulk rna-seq protocol](#bulk_protocol)
 
 Shortcut to [single cell protocol](#sc_protocol)
 
+Link to [Cloud-based RNA-Seq web application](https://github.com/pcahan1/CellNet_Cloud)
 
 ### Introduction
 CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. You can run it as a command line tool on the cloud through Amazon Web Services (**recommended**), or you can run it locally (**not recommended**). Here we provide a 'bare-bones' walk-thru of how to apply CellNet to your RNA-Seq data. 
