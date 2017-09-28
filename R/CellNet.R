@@ -479,7 +479,7 @@ subSamp_for_class<-function
 
   if(is.null(dLevelStudy)){
     ccount<-floor(nrow(sampTab)*prop)
-    stTrain<-stTrain[sample(rownames(sampTab), ccount),]
+    stTrain<-sampTab[sample(rownames(sampTab), ccount),]
   }
   else{
     expIDcounts<-sort(table(sampTab[,dLevelStudy]));
