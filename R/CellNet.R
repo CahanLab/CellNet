@@ -476,26 +476,33 @@ subSamp_for_class<-function
   prop=0.5,
   dLevelStudy="exp_id"){
 
-  expIDcounts<-sort(table(sampTab[,dLevelStudy]));
-  expIDs<-names(expIDcounts);
-  total<-sum(expIDcounts);
 
-  runningTotal<-0;
-  i<-1;
-  xi<-floor( length(expIDcounts)/2 );
-  while(i<=length(expIDcounts)){
-    runningTotal<-sum(expIDcounts[1:i]);
-    if(runningTotal/total > prop){
-      xi<- i-1;
-      break;
-    }
-    i<-i+1;
+  if(is.null(dLevelStudy)){
+    ccount<-floor(nrow(sampTab)*prop)
+    stTrain<-stTrain[sample(rownames(sampTab), ccount),]
   }
-  expIDs<-expIDs[1:xi];
-  
-  stTrain<-data.frame();
-  for(expID in expIDs){
-    stTrain<-rbind(stTrain, sampTab[sampTab[,dLevelStudy]==expID,]);
+  else{
+    expIDcounts<-sort(table(sampTab[,dLevelStudy]));
+    expIDs<-names(expIDcounts);
+    total<-sum(expIDcounts);
+
+    runningTotal<-0;
+    i<-1;
+    xi<-floor( length(expIDcounts)/2 );
+    while(i<=length(expIDcounts)){
+      runningTotal<-sum(expIDcounts[1:i]);
+      if(runningTotal/total > prop){
+        xi<- i-1;
+        break;
+      }
+      i<-i+1;
+    }
+    expIDs<-expIDs[1:xi];
+    
+    stTrain<-data.frame();
+    for(expID in expIDs){
+      stTrain<-rbind(stTrain, sampTab[sampTab[,dLevelStudy]==expID,]);
+    }
   }
   stTrain;
 }
