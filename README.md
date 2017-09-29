@@ -30,7 +30,9 @@ You will need to install the following command line software:
 If you are using Mac OS, this can be done easily with PIP and Homebrew.
 
 #### The CellNet RNA-Seq Web Application
-* Available soon through AWS!
+
+[Cloud-based RNA-Seq web application](https://github.com/pcahan1/CellNet_Cloud)
+
 
 ## Running the Protocol
 
@@ -80,41 +82,41 @@ This is a general overview of the commands that can be used to pre-process (pseu
 Pre-processing:
 
 ```R
-    install_github("pcahan1/CellNet", ref="rpackage")
-    cn_setup()
-    library(CellNet)
-    fetch_salmon_indices(species="mouse")
-    stQuery = read.csv("sampTabFileName.csv")
-    expList = cn_salmon(stQuery) ## Assumes your fastq files are in the working directory!
+install_github("pcahan1/CellNet", ref="master")    
+cn_setup()
+library(CellNet)
+fetch_salmon_indices(species="mouse")
+stQuery = read.csv("sampTabFileName.csv")
+expList = cn_salmon(stQuery) ## Assumes your fastq files are in the working directory!
 ```
     
 Applying CellNet:
 ```R
-    download.file("https://s3.amazonaws.com/CellNet/rna_seq/mouse/cnProc_MM_RS_Oct_24_2016.rda", dest="./cnProc_MM_RS_Oct_24_2016.rda")
-    cnProc = utils_loadObject("cnProc_MM_RS_Oct_24_2016.rda")
-    cnRes = cn_apply(expList[['normalized']], stQuery, cnProc)
+download.file("https://s3.amazonaws.com/CellNet/rna_seq/mouse/cnProc_MM_RS_Oct_24_2016.rda", dest="./cnProc_MM_RS_Oct_24_2016.rda")
+cnProc = utils_loadObject("cnProc_MM_RS_Oct_24_2016.rda")
+cnRes = cn_apply(expList[['normalized']], stQuery, cnProc)
 ```
 #### Interpreting Output
 CellNet produces a number of outputs, the most important being the cnRes Object (CellNet Result). There are three figures that can be created from this:
 
 Classification Heat Map: Displays the likelihood that a sample is indistinguishable from its target cell type.
 ```R
-    cn_HmClass(cnRes)
+cn_HmClass(cnRes)
 ```
 ![](md_img/hm.png)
 
 **G**ene **R**egulatory **N**etwork Status Bar Plot: A more sensitive measure of the degree to which a particular cell type's GRN has been established in your experimental data.
 ```R
-    bOrder<-c("fibroblast_train", unique(as.vector(stQuery$description1)), "esc_train")
-    cn_barplot_grnSing(cnRes1,cnProc,"fibroblast", c("fibroblast","esc"), bOrder, sidCol="sra_id")
+bOrder<-c("fibroblast_train", unique(as.vector(stQuery$description1)), "esc_train")
+cn_barplot_grnSing(cnRes1,cnProc,"fibroblast", c("fibroblast","esc"), bOrder, sidCol="sra_id")
 ```
 <img src="md_img/grnStat.png" style="height: 400px;"/>
 
 **N**etwork **I**nfluence **S**core Box and Whisker Plot: A suggestion of transcription factors that could be better regulated, ranked by their potential impact
 ```R
-    rownames(stQuery)<-as.vector(stQuery$sra_id)
-    tfScores<-cn_nis_all(cnRes1, cnProc, "esc")
-    plot_nis(tfScores, "esc", stQuery, "Day0", dLevel="description1", limitTo=0)
+rownames(stQuery)<-as.vector(stQuery$sra_id)
+tfScores<-cn_nis_all(cnRes1, cnProc, "esc")
+plot_nis(tfScores, "esc", stQuery, "Day0", dLevel="description1", limitTo=0)
 ```
 <img src="md_img/nis.png" style="height: 400px;"/>
 
@@ -126,72 +128,72 @@ In this example, we use scRNA-Seq 3' count based data of bead-purified human hem
 
 Get started, load your query data, downsample and transform it. 
 ```R
-    library(Rtsne)
-    library(ggplot2)
-    library(RColorBrewer)
-    library(randomForest)
-    library(CellNet)
+library(Rtsne)
+library(ggplot2)
+library(RColorBrewer)
+library(randomForest)
+library(CellNet)
 
-    expRawQuery<-utils_loadObject("expQuery_Zheng2017_rawcounts_Aug_31_2017.rda")
-    expQueryDn<-weighted_down(expRawQuery, 1e3)
-    expQuery<-trans_prop(expQueryDn)
-    rm(expRawQuery)
-    rm(expQueryDn)
-    gc()
+expRawQuery<-utils_loadObject("expQuery_Zheng2017_rawcounts_Aug_31_2017.rda")
+expQueryDn<-weighted_down(expRawQuery, 1e3)
+expQuery<-trans_prop(expQueryDn)
+rm(expRawQuery)
+rm(expQueryDn)
+gc()
 
-    stQuery<-utils_loadObject("stQuery_Zheng2017_Aug_31_2017.rda")
+stQuery<-utils_loadObject("stQuery_Zheng2017_Aug_31_2017.rda")
 
-    dim(expQuery)
-    [1] 32643  6000
+dim(expQuery)
+[1] 32643  6000
 
-    dim(stQuery)
-    [1] 6000    5
+dim(stQuery)
+[1] 6000    5
 ```
 
 Load training data for CellNet and the cnProc object, which will need to be re-trained. For this example, download the [Jun 20 2017 human cnProc](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Jun_20_2017.rda) and the corresponding [raw expression data](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/expTrain_HS_rawcounts_8_31_2017.rda). For mouse data, see the table of cnProc and raw data above.
 ```R
-    cnProc<-utils_loadObject("cnProc_HS_RS_Jun_20_2017.rda")
-    stTrain<-cnProc$stTrain
-    dim(stTrain)
-    [1] 1003   23
+cnProc<-utils_loadObject("cnProc_HS_RS_Jun_20_2017.rda")
+stTrain<-cnProc$stTrain
+dim(stTrain)
+[1] 1003   23
 
-    expTrainRaw<-utils_loadObject("expTrain_HS_rawcounts_8_31_2017.rda")
+expTrainRaw<-utils_loadObject("expTrain_HS_rawcounts_8_31_2017.rda")
 
-    dim(expTrainRaw)
-    [1] 34934  1003
+dim(expTrainRaw)
+[1] 34934  1003
 
-    expTrainDown<-weighted_down(expTrainRaw, 1e3)
-    expTrain<-trans_prop(expTrainDown, 1e5)
-    rm(expTrainRaw)
-    rm(expTrainDown)
-    gc()
+expTrainDown<-weighted_down(expTrainRaw, 1e3)
+expTrain<-trans_prop(expTrainDown, 1e5)
+rm(expTrainRaw)
+rm(expTrainDown)
+gc()
 ```
 
 Re-train CellNet so for scRNA-Seq query data
 ```R
-    system.time(cnProcSC<-cn_remake_processor(cnProc, newGenes=rownames(expQuery),expTrain=expTrain, sidCol='sample_name'))
-       user  system elapsed 
-    183.185   3.505 186.811 
+system.time(cnProcSC<-cn_remake_processor(cnProc, newGenes=rownames(expQuery),expTrain=expTrain, sidCol='sample_name'))
+   user  system elapsed 
+183.185   3.505 186.811 
 ```
 
 Analyze query data
 ```R
-    system.time(cnRes<-cn_apply(expQuery, stQuery, cnProcSC, dLevelQuery='prefix'))
-      user  system elapsed 
-     29.265   5.058  34.334
+system.time(cnRes<-cn_apply(expQuery, stQuery, cnProcSC, dLevelQuery='prefix'))
+  user  system elapsed 
+29.265   5.058  34.334
 ```
 
 Traditional CellNet classification heatmap
 ```R
-    cn_HmClass(cnRes, isBig=T)
+cn_HmClass(cnRes, isBig=T)
 ```
 <img src="md_img/hm_zheng.png" style="height: 400px;"/>
 
 
 Traditional CellNet GRN status barplot
 ```R
-    bOrder<-c(unique(as.vector(stQuery$prefix)), "b_cell_train")
-    cn_barplot_grnSing(cnRes,cnProcSC,"b_cell", c("b_cell"), bOrder,sidCol="sample_id")
+bOrder<-c(unique(as.vector(stQuery$prefix)), "b_cell_train")
+cn_barplot_grnSing(cnRes,cnProcSC,"b_cell", c("b_cell"), bOrder,sidCol="sample_id")
 ```
 <img src="md_img/grn_bcell_Zheng.png" style="height: 400px;"/>
 
@@ -199,42 +201,42 @@ You can also overlay classification (or grn status) on the tSNE results.
 
 Find variable genes, run PCA and then tSNE
 ```R
-    geneStats<-sc_statTab(expQuery)
-    varGenes <- findVarGenes(expQuery,geneStats,zThresh=1.5, meanType="overall_mean")
-    length(varGenes)
-    [1] 1106
-    pcRes<-prcomp(t(expQuery[varGenes,]),center=T,scale=TRUE)
-    system.time(tsneRes<-to_tsne(pcRes$x[,1:20], perplexity=30, theta=.3))
-       user  system elapsed 
-     47.982   0.826  48.853 
+geneStats<-sc_statTab(expQuery)
+varGenes <- findVarGenes(expQuery,geneStats,zThresh=1.5, meanType="overall_mean")
+length(varGenes)
+[1] 1106
+pcRes<-prcomp(t(expQuery[varGenes,]),center=T,scale=TRUE)
+system.time(tsneRes<-to_tsne(pcRes$x[,1:20], perplexity=30, theta=.3))
+   user  system elapsed 
+ 47.982   0.826  48.853 
 
-    plot_tsne(stQuery, tsneRes, cName="prefix")
+plot_tsne(stQuery, tsneRes, cName="prefix")
 ```
 <img src="md_img/tsne_Zheng_prefix.png" style="height: 200px;"/>
 
 Plot CellNet classification on tSNE
 ```R
-    datTab<-stQuery
-    datTab<-cbind(datTab, tsneRes)
-    datTab<-cbind(datTab,t(cnRes$classRes))
-    classNames<-rownames(cnRes$classRes)
-    datTab<-as.data.frame(datTab)
-    tsneMult(datTab, c("b_cell"))
+datTab<-stQuery
+datTab<-cbind(datTab, tsneRes)
+datTab<-cbind(datTab,t(cnRes$classRes))
+classNames<-rownames(cnRes$classRes)
+datTab<-as.data.frame(datTab)
+tsneMult(datTab, c("b_cell"))
 ```
 <img src="md_img/bcell_class.png" style="height: 200px;"/>
 
 ```R
-    tsneMult(datTab, c("t_cell"))
+tsneMult(datTab, c("t_cell"))
 ```
 <img src="md_img/tcell_class.png" style="height: 200px;"/>
 
 ```R
-    tsneMult(datTab, c("monocyte_macrophage"))
+tsneMult(datTab, c("monocyte_macrophage"))
 ```
 <img src="md_img/mac_class.png" style="height: 200px;"/>
 
 ```R
-    tsneMult(datTab, c("hspc"))
+tsneMult(datTab, c("hspc"))
 ```
 <img src="md_img/hspc_class.png" style="height: 200px;"/>
 
