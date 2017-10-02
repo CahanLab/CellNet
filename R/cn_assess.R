@@ -12,6 +12,7 @@
 #' @param dLevelSID column to indicate sample id
 #'
 #' @return list of data frames with threshold, sens, precision
+#' @export 
 cn_classAssess<-function# make ROCs for each classifier
 (ct_scores,# matrix of classification scores, rows = classifiers, columns = samples, colnames=sampleids
  stVal, # sampletable

@@ -380,8 +380,8 @@ cn_findSpecGenes<-function#
   ctNames<-unique(as.vector(sampTab[,dLevel]));
   for(ctName in ctNames){
     x<-specificSets[[ctName]];
-    tmp<-rownames(x[x$cval>cval,]);
-    tmp2<-rownames(x[x$holm<holm,]);
+    tmp<-rownames(x[which(x$cval>cval),]);
+    tmp2<-rownames(x[which(x$holm<holm),]);
     tmp<-intersect(tmp, tmp2)
     ctGenes[[ctName]]<-tmp;
 ###    cvalT<-append(cvalT, cval);
