@@ -459,3 +459,261 @@ plot_class_PRs<-function
 }
 
 
+########### Plot pdfs
+
+
+#' Create pdf of classification heatmap, one column for every sample.
+#' 
+#' @param cnResQuery CellNet query results object
+#' @param study_name desired study name
+#' 
+#' @example plot_classification_hm(cnResQuery, "Study_1")
+#' 
+#' @export
+pdf_classification_hm <- function
+(cnResQuery, 
+ study_name
+){
+   mydate<-utils_myDate()
+   newSampTab <- cnResQuery$stQuery 
+   height = 8
+   width = 4 + length(newSampTab$sample_name) / 3
+   
+   fname<-paste("hm_classification_query_", study_name, "_rna-seq_", mydate,".pdf", sep="")
+   pdf(file=fname, width=width, height=height, onefile=FALSE)
+   cn_HmClass(cnResQuery)
+   dev.off()
+}
+
+#' Create pdf of GRN status of starting and target cell types, grouping samples by dlevel
+#' 
+#' @param cnResQuery CellNet query results object
+#' @param cnProc CellNet Processor object from training
+#' @param study_name desired study name
+#' @param cell_type_1 starting cell/tissue type
+#' @param cell_type_2 ending or target cell/tissue type
+#' @param dlevel column of sample table used for sample grouping
+#' 
+#' @example plot_grn_status(cnResQuery, cnProc, "esc", "heart", "Study_1", dlevel="description1")
+#' 
+#' @import ggplot2
+#' 
+#' @export
+pdf_grn_status <- function
+(cnResQuery, 
+ cnProc, 
+ cell_type_1, 
+ cell_type_2, 
+ study_name,
+ dlevel="description2"
+){
+   mydate<-utils_myDate()
+   newSampTab <- cnResQuery$stQuery  
+   height = 5
+   width = 4 + length(unique(newSampTab$description2)) / 2
+   
+   print("Plotting GRN Status...")
+   bOrder<-c(paste(cell_type_1, "_train", sep=""), 
+             unique(as.vector(newSampTab$description2)), 
+             paste(cell_type_2, "_train", sep=""))
+   cn_barplot_grnSing(cnResQuery, cnProc, cell_type_1, c(cell_type_1, cell_type_2), 
+                      bOrder, sidCol="sra_id", dlevel=dlevel)
+   fname <- paste("grnStatus_", study_name, "_", cell_type_1, "_", mydate, ".pdf", sep="");
+   ggplot2::ggsave(fname, width=width, height=height)
+   
+   
+   bOrder<-c(paste(cell_type_1, "_train", sep=""), 
+             unique(as.vector(newSampTab$description2)), 
+             paste(cell_type_2, "_train", sep=""))
+   cn_barplot_grnSing(cnResQuery, cnProc, cell_type_2, c(cell_type_1, cell_type_2), 
+                      bOrder, sidCol="sra_id", dlevel=dlevel);
+   fname <- paste("grnStatus_", study_name, "_", cell_type_2, "_", mydate, ".pdf", sep="");
+   ggplot2::ggsave(fname, width=width, height=height)
+   
+}
+
+#' Create pdf of GRN status plots, one plot with all dlevel groups for every C/T type
+#' 
+#' @param cnResQuery CellNet query results object
+#' @param cnProc CellNet Processor object from training
+#' @param study_name desired study name
+#' @param dlevel column of sample table used for sample grouping
+#' 
+#' @example plot_grn_status_by_CT(cnResQuery, cnProc, "Study_1", dlevel="description1")
+#' 
+#' @import scater
+#' 
+#' @export
+pdf_grn_status_by_CT <- function
+(cnResQuery, 
+ cnProc, 
+ study_name,
+ dlevel="description2"
+){
+   mydate<-utils_myDate()
+   newSampTab<-cnResQuery$stQuery
+   tissue_types <- rownames(summary(cnProc$ctGRNs$ctGRNs$geneLists))
+   tissue_types<-tissue_types[order(tissue_types)]
+   
+   
+   grn_plot_list<-vector("list", length(tissue_types))
+   i=1
+   for (tissue in tissue_types) {
+      cat(paste("Plotting GRN status for ", tissue, "...\n", sep=""))
+      bOrder<-c(paste(tissue, "_train", sep=""), unique(as.vector(newSampTab[[dlevel]])))
+      grn_plot<-cn_barplot_grnSing(cnResQuery, cnProc, tissue, tissue, bOrder, sidCol="sra_id", dlevel=dlevel)
+      grn_plot_list[[i]]<-grn_plot
+      i=i+1
+   }
+   grn_plot_list<-as.list(grn_plot_list)
+   
+   fname <- paste("grn_status_by_CT_", study_name, "_", mydate, ".pdf", sep="");
+   n_plot_rows<-ceiling(length(tissue_types) / 4)
+   height = 4 * n_plot_rows
+   width = 16
+   
+   cat("Finishing plot...\n")
+   pdf(fname, height=height, width=width)
+   num_empty<-n_plot_rows * 4 - length(tissue_types)
+   plot_layout<-matrix(c(1:length(tissue_types), rep(0, (num_empty))), ncol=4, byrow=TRUE)
+   multiplot(plotlist = grn_plot_list, layout=plot_layout)
+   dev.off()
+   cat("Done!\n")
+}
+
+#' Create pdf of GRN status plots, one plot with all C/T types for every dlevel group
+#' 
+#' @param cnResQuery CellNet query results object
+#' @param cnProc CellNet Processor object from training
+#' @param study_name desired study name
+#' @param target_cell_type ending or target cell/tissue type
+#' @param dlevel column of sample table used for sample grouping
+#' 
+#' @example plot_grn_status_by_dlevel(cnResQuery, cnProc, "Study_1", "heart", dlevel="description1")
+#' 
+#' @import tibble
+#' @import grid
+#' @import gridExtra
+#' @import reshape2
+#' @import ggplot2
+#' 
+#' @export
+pdf_grn_status_by_dlevel <- function
+(cnResQuery, 
+ cnProc,
+ study_name, 
+ target_cell_type,
+ dlevel="description2"
+){
+   mydate<-utils_myDate()
+   newSampTab<-cnResQuery$stQuery
+   tissue_types <- rownames(summary(cnProc$ctGRNs$ctGRNs$geneLists))
+   tissue_types<-tissue_types[order(tissue_types)]
+   
+   qScores <- as.data.frame(cnResQuery$normScoresQuery)
+   
+   dlevel_names<-unique(newSampTab[,dlevel])
+   descrip_grn_plot_list<-vector("list", length(dlevel_names))
+   i = 1
+   for (descrip in dlevel_names) {
+      cat(paste("Plotting GRN status for ", descrip, " ...\n", sep=""))
+      descrip_indices<-which(newSampTab[[dlevel]] == descrip)
+      descrip_grn_scores<-get_grn_scores(newSampTab, descrip_indices, qScores)
+      plot_df<-data.frame(matrix(ncol=2, nrow=length(tissue_types)))
+      for (j in 1:nrow(plot_df)){
+         plot_df[j,1]<-mean(as.numeric(descrip_grn_scores[j,]))
+         plot_df[j,2]<-sd(as.numeric(descrip_grn_scores[j,]))
+      }
+      rownames(plot_df)<-rownames(descrip_grn_scores)
+      
+      target_train_scores<-cnProc$trainingScores[cnProc$trainingScores$grp_name == target_cell_type,]
+      plot_df<-cbind(plot_df, target_train_scores$mean, target_train_scores$stdev)
+      
+      colnames(plot_df)<-c(paste(descrip, "mean"), paste(descrip, "st dev"), 
+                           paste(target_cell_type, "train mean"), paste(target_cell_type, "train stdev"))
+      means_df<-plot_df[,c(1,3)]
+      stdevs_df<-plot_df[,c(2,4)]
+      
+      stdevs_df<-tibble::rownames_to_column(stdevs_df, var="tissue_type")
+      melted_stdevs_df<-melt(stdevs_df)
+      
+      means_df<-tibble::rownames_to_column(means_df, var="tissue_type")
+      melted_means_df<-melt(means_df)
+      
+      y_maxes<-melted_means_df$value + melted_stdevs_df$value
+      y_mins<-melted_means_df$value - melted_stdevs_df$value
+      
+      descrip_plot<-ggplot(melted_means_df, aes(x=reorder(tissue_type, -value), y=value, fill=variable)) + 
+         geom_bar(stat="identity", position = "dodge") + 
+         geom_errorbar(mapping=aes(ymax = y_maxes, ymin = y_mins), position = "dodge", width = 0.9) +
+         ylab("GRN Status Score") + scale_fill_manual(values = c("#a6cee3", "#2952a3")) +
+         xlab("Tissue Type GRN Status") + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
+         theme(legend.position = "bottom") + ggtitle(descrip)
+      descrip_grn_plot_list[[i]]<-ggplotGrob(descrip_plot)
+      i = i + 1
+   }
+   
+   fname <- paste("grn_status_by_", dlevel, "_", target_cell_type,"_", study_name, "_", mydate, ".pdf", sep="");
+   n_plot_rows<-ceiling(length(dlevel_names) / 4)
+   height = 6 * n_plot_rows
+   width = 24
+   
+   cat("Finishing plot...\n")
+   pdf(fname, height=height, width=width)
+   grid.arrange(grobs=descrip_grn_plot_list, ncol=4)
+   dev.off()
+   cat("Done!\n")
+}
+
+#' Internal function, subset GRN scores for given sample indices
+#' 
+#' @param sampTab sample metadata table
+#' @param sample_indices integer index vector of which samples to subset
+#' @param qScores matrix of study GRN scores
+#' 
+get_grn_scores<-function
+(sampTab, 
+ sample_indices, 
+ qScores
+){
+   samptab_subset<-sampTab[sample_indices,]
+   subset_srrs<-samptab_subset$sra_id
+   subset_grn_scores<-qScores[subset_srrs]
+   #Check if you got the right columns
+   #subset_check<-filter(newSampTab, sra_id %in% colnames(subset_grn_scores))
+   return(subset_grn_scores)
+}
+
+#' Create pdf of Network Influence Scores (NISs) for given C/T type, grouping samples by dlevel
+#' @param cnResQuery CellNet query results object
+#' @param cnProc CellNet Processor object from training
+#' @param study_name desired study name
+#' @param target_cell_type ending or target cell/tissue type
+#' @param dlevel column of sample table used for sample grouping
+#' 
+#' @export
+pdf_nis_plots <- function
+(cnResQuery, 
+ cnProc, 
+ target_cell_type, 
+ study_name,
+ dlevel="description2"
+){
+   mydate<-utils_myDate()
+   newSampTab<-cnResQuery$stQuery
+   rownames(newSampTab)<-as.vector(newSampTab$sra_id)
+   tfScores<-cn_nis_all(cnResQuery, cnProc, target_cell_type);
+   
+   fname <- paste("cn_tfScores_", target_cell_type, "_", study_name, "_", mydate, ".R", sep="")
+   save(tfScores, file=fname)
+   
+   groups <- unique(newSampTab$description2)
+   fname<-paste("NIS_", study_name, "_", target_cell_type, "_", mydate, ".pdf", sep="")
+   pdf(fname)
+   for (group in groups) {
+      print(paste("Plotting NIS for ", group, sep=""))
+      group_plot <- plot_nis(tfScores, target_cell_type, newSampTab, group, dLevel=dlevel, limitTo=0) + ggtitle(group)
+      print(group_plot)
+   }
+   dev.off()
+}
