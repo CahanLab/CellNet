@@ -71,7 +71,7 @@ If you are running CellNet locally, you will need to have salmon installed on yo
 | Human | 0.7.3 | [salmon.index.human.122116.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.human.122116.tgz) | Protocol for local** |
 | Mouse | 0.7.3 | [salmon.index.mouse.122116.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.mouse.122116.tgz) | Protocol for local** |
 | Human | 0.8.2 | [salmon.index.human.052617.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.human.052617.tgz) | Uses latest version of Salmon to date |
-| Mouse | 0.8.2 | [salmon.index.mouse.052617.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.mouse.122116.tgz) | Uses latest version of Salmon to date |
+| Mouse | 0.8.2 | [salmon.index.mouse.052617.tgz](https://s3.amazonaws.com/cellnet-rnaseq/ref/salmon.index.mouse.052617.tgz) | Uses latest version of Salmon to date |
 
 ** Here's the [binary Salmon-0.7.3 Mac OSX link](https://github.com/COMBINE-lab/salmon/files/581546/Salmon-0.7.3-pre_OSX_10.11.tar.gz). Salmon-0.8.2 is a stable update and will work for either MacOSX or Linux.
 
