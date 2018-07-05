@@ -20,4 +20,3 @@ xdist<-utils_myDist(t(expDat))
 plot(hclust(xdist, 'ave'), hang=-1)
 
 }
-

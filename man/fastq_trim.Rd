@@ -21,4 +21,3 @@ sampTab with filenames of trimmed fastqs appended
 \description{
 Use cutadapt to trim reads from both ends to finalLength
 }
-

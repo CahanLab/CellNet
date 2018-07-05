@@ -19,4 +19,3 @@ return a dataframe of mean or median-ed data based on given groupings.  colnames
 \description{
 row average (or median) based on groups
 }
-

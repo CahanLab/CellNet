@@ -19,4 +19,3 @@ tVals list of ct->mean->named vector of average gene expression, ->sd->named vec
 \description{
 predicts SD based on mean expression
 }
-

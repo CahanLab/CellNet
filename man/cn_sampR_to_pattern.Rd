@@ -15,4 +15,3 @@ ans
 \description{
 return a pattern for use in cn_testPattern (template matching)
 }
-

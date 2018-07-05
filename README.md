@@ -2,8 +2,6 @@
 
 [Shortcut to bulk rna-seq protocol](#bulk_protocol)
 
-[Shortcut to single cell protocol](#sc_protocol)
-
 [Cloud-based RNA-Seq web application](https://github.com/pcahan1/CellNet_Cloud)
 
 [Microarray CellNet web application](http://cellnet.hms.harvard.edu/)
@@ -85,26 +83,20 @@ To log in to the running instance, type the following command in the shell/termi
 ssh -i aws_private_key ec2-user@instance_public_dns
 ```
 
-Once, you have logged in to the instance, you need to install the latest version of CellNet (v0.1.1).
-```
-screen
-sudo R
-library(devtools)
-install_github("pcahan1/CellNet", ref="master")
-q(save='no')
-```
+Once, you have logged in to the instance, you should launch screen. 
 
-Now, configure the instance for pre-processing RNA-Seq data, including fetching the mouse transcriptome index:
+
+ Then, you need to load the latest version of CellNet (v0.1.1), which is pre-installed on this image. (However, you can follow [these steps to install CellNet](#install_cellnet), if you ever need to do so.) You also need to configure the instance for pre-processing RNA-Seq data, including fetching the mouse transcriptome index. It is important to work in the same R session as where you call _cn_setup()_.
 ```R
+screen
 R
 library(CellNet)
-library(parallel)
-cn_setup()
-fetch_salmon_indices(species="mouse")
+cn_setup() 
 ```
 
 Now fetch the demonstration data, and the mouse cnProc
 ```R
+fetch_salmon_indices(species="mouse")
 download.file("https://s3.amazonaws.com/CellNet/rna_seq/mouse/examples/SRP059670/st_SRP059670_example.rda", "st_SRP059670_example.rda")
 stQuery <- utils_loadObject("st_SRP059670_example.rda")
 stQuery <- cn_s3_fetchFastq("CellNet","rna_seq/mouse/examples/SRP059670",stQuery,fname="fname", compressed="gz")
@@ -115,7 +107,7 @@ cnProc<-utils_loadObject("cnProc_MM_RS_Oct_24_2016.rda")
 
 Pre-process the fastq files. This runs Salmon to estimate transcript abundances:
 ```R
-expList <- cn_salmon(stQuery) ## Assumes your fastq files are in the working directory
+expList <- cn_salmon(stQuery) ## Assumes your fastq files are in the working directory. This takes ~15 minutes on the demo data
 ```
     
 Applying CellNet:
@@ -143,9 +135,9 @@ scp -i aws_private_key ec2-user@instance_public_dns:/media/ephemeral0/analysis/*
 
 **G**ene **R**egulatory **N**etwork Status Bar Plot: A more sensitive measure of the degree to which a particular cell type's GRN has been established in your experimental data.
 ```R
-fname<-'grnstats_fibroblast_example.pdf'
+fname<-'grnstats_esc_example.pdf'
 bOrder<-c("fibroblast_train", unique(as.vector(stQuery$description1)), "esc_train")
-cn_barplot_grnSing(cnRes,cnProc,"fibroblast", c("fibroblast","esc"), bOrder, sidCol="sra_id")
+cn_barplot_grnSing(cnRes,cnProc,"esc", c("fibroblast","esc"), bOrder, sidCol="sra_id")
 ggplot2::ggsave(fname, width=5.5, height=5)
 dev.off()
 ```
@@ -154,7 +146,7 @@ dev.off()
 **N**etwork **I**nfluence **S**core Box and Whisker Plot: A suggestion of transcription factors that could be better regulated, ranked by their potential impact
 ```R
 rownames(stQuery)<-as.vector(stQuery$sra_id)
-tfScores<-cn_nis_all(cnRes1, cnProc, "esc") 
+tfScores<-cn_nis_all(cnRes, cnProc, "esc") 
 
 fname<-'nis_esc_example_Day0.pdf'
 plot_nis(tfScores, "esc", stQuery, "Day0", dLevel="description1", limitTo=0) 
@@ -162,5 +154,16 @@ ggplot2::ggsave(fname, width=4, height=12)
 dev.off()
 ```
 <img src="md_img/nis.png" style="height: 400px;"/>
+
+
+
+<a name="install_cellnet">Installing CellNet</a>
+If, for some reason, you need to install CellNet anew, you can do so by using devtools:
+```R
+sudo R
+library(devtools)
+install_github("pcahan1/CellNet", ref="master")
+q(save='no')
+```
 
 

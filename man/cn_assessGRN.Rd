@@ -32,4 +32,3 @@ Recall (Sensitivity): fraction of gold standard regulatory relationships detecte
 prList<-cn_assessGRN(zscores, gs, random=TRUE)
 
 }
-

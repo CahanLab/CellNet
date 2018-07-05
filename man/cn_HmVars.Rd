@@ -26,4 +26,3 @@ selectedGenes<-c("Actb", "Gapdh", "Hlf", "Sox2")
 cn_HmVars(expDat[selectedGenes,], sampTab)
 
 }
-

@@ -32,4 +32,3 @@ sample table with QC measures appened
 \description{
 Fetch raw sra files named in sampTab and convert to fastq (using SRA toolkit), trim reads to standard length, run QC by aligning sub-sampled fastq files aginst several genomes (human, mouse, zebrafish, fly, ecoli, yeast), and counting hits to genomic features of the target genome. Finish by estimating gene expression levels with Salmon.
 }
-

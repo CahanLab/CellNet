@@ -17,4 +17,3 @@ list(subnets=list(graphs=graphs, geneLists=geneLists), general=list(graphs=graph
 \description{
 make subnets from a GRN
 }
-

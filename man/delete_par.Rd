@@ -15,4 +15,3 @@ nothing
 \description{
 used in qcAndSalmon
 }
-

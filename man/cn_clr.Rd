@@ -26,4 +26,3 @@ zscore matrix
 \description{
 computes gene-gene correlation, then clr-like zscores
 }
-

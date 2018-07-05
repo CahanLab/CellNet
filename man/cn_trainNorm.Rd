@@ -6,7 +6,7 @@
 \usage{
 cn_trainNorm(expTrain, stTrain, subNets, classList = NULL,
   dLevel = "description1", tVals = NULL, classWeight = FALSE,
-  exprWeight = TRUE, sidCol = "sample_id")
+  exprWeight = TRUE, sidCol = "sample_id", xmax = 1000, predSD = FALSE)
 }
 \arguments{
 \item{expTrain}{expression matrix}
@@ -33,4 +33,3 @@ list of trainingScores, normVals, raw_scores, minVals, tVals=tVals
 \description{
 Exactly that.
 }
-

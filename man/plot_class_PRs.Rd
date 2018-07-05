@@ -20,4 +20,3 @@ testAssTues<-cn_splitMakeAssess(stTrain, expTrain, ctGRNs, prop=.5)
 plot_class_PRs(testAssTues$ROCs)
 
 }
-

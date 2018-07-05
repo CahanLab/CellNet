@@ -17,4 +17,3 @@ list(geneLists=geneLists, graphLists=graphLists, tfTargets=tfTargets)
 \description{
 extract sub-networks made up of CT genes;
 }
-

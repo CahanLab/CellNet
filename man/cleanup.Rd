@@ -12,4 +12,3 @@ nothing
 \description{
 remove txt and trimmed.fq after running salmon
 }
-

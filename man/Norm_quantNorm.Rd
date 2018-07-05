@@ -15,4 +15,3 @@ quantile normalized matrix
 \description{
 equalize the distributions of columns
 }
-

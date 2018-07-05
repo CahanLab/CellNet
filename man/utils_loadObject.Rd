@@ -15,4 +15,3 @@ variable
 \description{
 loads an R object when you don't know the name
 }
-

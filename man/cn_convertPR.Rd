@@ -15,4 +15,3 @@ something
 \description{
 convert a result of cn_calcPRs to something easily plot-able
 }
-

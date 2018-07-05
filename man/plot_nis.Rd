@@ -30,4 +30,3 @@ NIS<0 means that the expression of the TF is lower in query samples as compared 
 plot_nis(tfScores, "hspc", sampTab, "day21")
 
 }
-

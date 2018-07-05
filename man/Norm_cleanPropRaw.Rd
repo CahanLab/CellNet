@@ -19,4 +19,3 @@ raw expression expressed as a proportion of overall signal per sample
 \description{
 load and normalize each group separately, then return expProp (proportional expression)
 }
-

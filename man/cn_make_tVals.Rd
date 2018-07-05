@@ -21,4 +21,3 @@ tVals list of ct->mean->named vector of average gene expression, ->sd->named vec
 \description{
 Calculate mean and SD
 }
-

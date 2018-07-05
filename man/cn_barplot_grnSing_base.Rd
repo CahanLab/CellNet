@@ -30,4 +30,3 @@ gpplot barplot
 \description{
 barplot this specific GRN
 }
-

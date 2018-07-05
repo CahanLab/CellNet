@@ -32,4 +32,3 @@ split the data by prop, make classifiers, assess them on held out data
 assessmentResults<-cn_splitMakeAssess(stTrain, expTrain, ctGRNs, prop=.5, dLevel="description1")
 
 }
-

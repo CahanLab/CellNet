@@ -15,4 +15,3 @@ data.frame, same columns as sampTab, but with corrected file_names
 \description{
 replace the files_names column with the actual files names, and remove samples not found
 }
-

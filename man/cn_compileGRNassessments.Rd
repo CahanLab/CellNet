@@ -24,4 +24,3 @@ ggplot(assessedGRN, aes(x=factor(Score), y=Fold)) +
  xlab("GRN Z-score threshold")
 
 }
-

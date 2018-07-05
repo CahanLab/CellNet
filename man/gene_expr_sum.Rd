@@ -23,4 +23,3 @@ list(TPM=ansTPM, counts=ansCounts);
 \description{
 Sums all trnascript level expression estimates to a single gene level estimate. Needs a table that maps transcript IDs to gene IDs.
 }
-

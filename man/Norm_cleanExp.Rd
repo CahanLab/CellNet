@@ -19,4 +19,3 @@ expression matrix
 \description{
 returns the gene averaged matrix
 }
-

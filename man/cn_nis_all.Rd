@@ -21,4 +21,3 @@ list of numeric matrix of TF scores
 \description{
 Runs cn_nis on all GRNs
 }
-

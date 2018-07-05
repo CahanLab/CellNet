@@ -15,4 +15,3 @@ something
 \description{
 reduces full path to filename
 }
-

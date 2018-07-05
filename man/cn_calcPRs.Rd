@@ -34,4 +34,3 @@ Recall (Sensitivity): fraction of gold standard regulatory relationships detecte
 grnPR<-cn_calcPRs(zscs, "Sox2", aGoldStandard[["Sox2"]], allGenes, tRange=seq(0,8, by=.5), random=TRUE, randomIter=3);
 
 }
-

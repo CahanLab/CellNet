@@ -26,4 +26,3 @@ This writes a string that includes the number of samples, the name and number of
 myMDstring<-cn_writeReadme(cnProc, "mouse", date="Oct_25_2016")
 
 }
-
