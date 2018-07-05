@@ -83,71 +83,6 @@ plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
 }
 
 
-
-if(FALSE){
-cn_stdout<-function
-### save pdfs of standard output
-(cnObj,
- ### cnRes object
- cnProc,
- ### CellNet object used to produce cnObj
- tfScores,
- ### result of running cn_nis
- fname_prefix,
- ### what to put at the front of the pdffile name
- targetType
- ### what is the target cell type, must be one of the cell types listed in CellNet object
-){
-  
-  ##<<note function to produce a 'standard' output consisting of:
-  ##<< (1) classification heatmap
-  ##<< (2) starting and target TCT GRN establishments
-  ##<< (3) Aberrant TCT GRN establishments
-  ##<< (4) all TCT GRN establishments
-  findWidth<-function(panels){
-    #  panels<-tmp[['npanels']];
-    height<-ceiling(panels/4)*3;
-    if(panels<4){
-      width<-panels*3;
-    }
-    else{
-      width<-12;
-    }
-    list(height=height, width=width)
-  }
-  
-  stQuery<-cnObj[['stQuery']];
-  cttBest<-cnProc[['grnList']];
-  dLevel<-cnObj[['dLevelQuery']];
-  
-  # Classification heatmap
-  myWidth<-nrow(stQuery)*.4;
-  myHeight<-length(cttBest)*.3;
-  
-  xtime<-format(Sys.time(), "%Y_%b_%d_%H_%M_%S");
-  fname<-paste(fname_prefix, "_", xtime, "_plots.pdf",sep='');
-  tempTitle<-paste("Classification heatmap ", fname_prefix, sep='');
-  pdf(fname, width=8.5, height=11);
-  cn_hmClass(cnObj, main=tempTitle);
-  
-  # set this up so that only the training data from the 'grn' cell type is also shown,
-  # along with the query samples
-  grnNames<-rownames(cnObj[['normScoresQuery']]);
-  for(grnName in grnNames){    
-    tSamp<-paste(grnName, "_train", sep='');
-    print(cn_barplot_grnSing(cnObj, cnProc, grnName, grnName, bOrder=NULL, norm=T));    
-  }
-  # plot transcriptional regulator scores
-  # for now, this only looks at the target cell/tissue type and is a heatmap
-##  tfS<-tfScores[which(tfScores$grn==targetType),];
-##  tfS<-tfS[,1:(ncol(tfS)-1)];
-  print(cn_plotnis(tfScores[[targetType]]));
-  dev.off();
-  fname;
-  ### return the file name of the plot pdf file.
-}
-}
-
 #' Plot GRN status
 #'
 #' wrapper to barplot secific GRN
@@ -328,83 +263,6 @@ cn_HmVars<-function
 }
 
 
-if(FALSE){
-cn_barplot_exp<-function
-### barplot gene expression
-(cnObj,
- ### result of analyzing query data with CN
- cnProc,
- ### result of creating a cellnet processor
- gName,
- ### name of gene to plot
- ctrSamps,
- ### names of samples in training data. e.g. c("hspc", "liver")
- bOrder=NULL,  
- ### order of bars
- logRatio=NULL
- ### if !null, expression expr compared to mean value of logRatio values 
- ){
-  
-  ddl<-cnProc[['dLevelTrain']];
-  qScores<-cnObj[['expQuery']];
-  stTrain<-cnProc[['stTrain']];
-  
-  x<-data.frame();
-  for(ct in ctrSamps){
-      x<-rbind(x, stTrain[which(stTrain[,ddl]==ct),]);  
-  }
-
-  expTrain<-cnProc[['expTrain']];
-  expTrain<-expTrain[,rownames(x)];
-  stTrain<-x;
-  stTrain<-stTrain[,c("sample_id", "sample_name", ddl)];
-  colnames(stTrain)[3]<-"grp_name";
-  stTrain[,3]<-paste(stTrain[,"grp_name"], "_train", sep='');
-  expX<-cbind(stTrain, expTrain[gName,]);
-  colnames(expX)[4]<-gName;
-  
-  ddq<-cnObj[['dLevelQuery']];
-  stQuery<-stQuery[,c("sample_id", "sample_name", ddq)];
-  nQs<-length(unique(stQuery[,ddq]));
-  
-  colnames(stQuery)[3]<-"grp_name";
-  expQ<-cbind(stQuery, expQuery[gName,]);
-  colnames(expQ)[4]<-gName
-  expNew<-rbind(expX, expQ);
-  cat("2\n")
-  expQ<-utils_reduceMat(expNew, gName, "grp_name");
-  newExp<-cbind(expQ, src=c( rep("train", length(ctrSamps)), rep("query",nQs)));
-  
-  
-  if(is.null(bOrder)){
-      bOrder<-as.vector(newExp$grp_name);
-  }
-  newExp$grp_name<-factor(newExp$grp_name, bOrder);
-
-  
-
-  #### 
-  
-  ##
-  # convert is.na(stdev) -> 0
-  xi<-which(is.na(newExp$stdev));
-  if(length(xi)>0){
-    newExp[xi,'stdev']<-0;
-  }
-
-  ans<-  ggplot(na.omit(newExp), aes(x=grp_name, y=mean, fill=src)) +
-    geom_bar(width=.75,position=position_dodge(), stat="identity") +
-    geom_errorbar(aes(ymin=mean-stdev, ymax=mean+stdev),width=.2,position=position_dodge()) +
-    scale_fill_brewer(palette = "Paired")  +
-    theme_bw() +
-    theme(text = element_text(size=8), axis.text.x = element_text(angle=90, vjust=1)) +
-    ggtitle(gName) + theme(axis.title.x = element_blank())+ ylab("Expression")
-  ans;
-  newExp;
-  ### single gene barplot
-}
-}
-
 #' Plot results of cn_classAssess
 #'
 #' Plot one precision recall curve per CT
@@ -457,5 +315,4 @@ plot_class_PRs<-function
   theme_bw() + xlab("Recall") + ylab("Precision") + facet_wrap( ~ ctype, ncol=4) +
   theme(axis.text = element_text(size=5)) + ggtitle("Classification performance")
 }
-
 

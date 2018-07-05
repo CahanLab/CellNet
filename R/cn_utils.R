@@ -3,6 +3,33 @@
 
 # commonly used or misc functions
 
+
+#
+#' randomize data matrix 
+#'
+#' randomize data matrix 
+#' @param expDat expDat
+#' @param num number of profiles to return
+#'
+#' @return exp matrix random
+#' @export
+#'
+randomize<-function(
+ expDat,
+ num=50){
+
+
+  randDat<-t(apply(expDat, 1, sample))  
+  randDat<-apply(randDat, 2, sample)
+
+  randDat<-randDat[,sample(1:ncol(randDat), num)]
+  colnames(randDat)<-paste0(rep("rand_", num), 1:num)
+  rownames(randDat)<-rownames(expDat)
+  randDat
+}
+
+
+
 #' 1-PCC distance
 #'
 #' 1-PCC distance

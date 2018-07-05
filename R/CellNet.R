@@ -1,66 +1,6 @@
 # CellNet
 # (C) Patrick Cahan 2012-2016
 
-
-#
-#' make a classifier, with a randomized class too
-#'
-#' rmake a classifier, with a randomized class too
-#' @param expTrain training data
-#' @param genes vector of genes to use as predictors
-#' @param groups named vector of cells to groups or classes
-#' @param nRand =50 num of randomized profiles to make
-#' @param ntrees =2000 number of trees to build
-
-#' @return RF
-#' @export
-#'
-sc_makeClassifier<-function(
-  expTrain,
-  genes,
-  groups,
-  nRand=50,
-  ntrees=2000){
-
-
-  randDat<-randomize(expTrain, num=nRand)
-  expTrain<-cbind(expTrain, randDat)
-
-  allgenes<-rownames(expTrain)
-
-  missingGenes<-setdiff(unique(genes), allgenes)
-  cat("Number of mussing genes ", length(missingGenes),"\n")
-  ggenes<-intersect(unique(genes), allgenes)
-  randomForest(t(expTrain[ggenes,]), as.factor(c(groups, rep("rand", ncol(randDat)))), ntree=2000)
-
-}
-
-#
-#' classify samples
-#'
-#' classify samples
-#' @param rfObj result of running sc_makeClassifier
-#' @param expQuery expQuery
-#' @param numRand numRand
-
-#' @return classRes matrix
-#' @export
-#'
-rf_classPredict<-function(
-  rfObj,
-  expQuery,
-  numRand=50){
-
-    randDat<-randomize(expQuery, num=numRand)
-    expQuery<-cbind(expQuery, randDat)
-
-    preds<-rownames(rfObj$importance)
-    xpreds<-t(predict(rfObj, t(expQuery[preds,]), type='prob'))
-  colnames(xpreds)<-colnames(expQuery)
-  xpreds
-}
-
-
 #' Apply CellNet to query data
 #'
 #' Classifies query data and computes GRN status
