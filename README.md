@@ -1,14 +1,17 @@
 # CellNet
 
+[Shortcut to bulk rna-seq protocol](#bulk_protocol)
 
-Shortcut to [bulk rna-seq protocol](#bulk_protocol)
+[Shortcut to single cell protocol](#sc_protocol)
 
-Shortcut to [single cell protocol](#sc_protocol)
+[Cloud-based RNA-Seq web application](https://github.com/pcahan1/CellNet_Cloud)
 
-Link to [Cloud-based RNA-Seq web application](https://github.com/pcahan1/CellNet_Cloud)
+[Microarray CellNet web application](http://cellnet.hms.harvard.edu/)
+
+[Microarray CellNet code](https://pcahan1.github.io/cellnetr/)
 
 ### Introduction
-CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. You can run it as a command line tool on the cloud through Amazon Web Services (**recommended**), or you can run it locally (**not recommended**). Here we provide a 'bare-bones' walk-thru of how to apply CellNet to your RNA-Seq data. 
+CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. You can run it as a command line tool on the cloud through Amazon Web Services (**recommended**), or you can run it locally. Below, we describe how to apply CellNet to your RNA-Seq data. 
 
 ## Ways to Run CellNet
 #### Running CellNet in the Cloud
@@ -21,7 +24,8 @@ The public CellNet Amazon Machine Image (AMI), available on Amazon Web Services 
  The CellNet AMI (_CellNet_ ami-62065e75) is available in the AWS US East 1 region (N. Virginia region). Running CellNet on AWS requires uploading your raw data (in the form of .fastq files) either directly to your running instance on AWS EC2, or to S3 and then to your instance. To learn about transferring your fastq files directly to your instance, see [Transferring files to Linux machines using SCP](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html). **Note that Amazon charges by the hour for compute resources ($1.68/hour for a c3.8xlarge EC2 instance type)**. On average, it takes up to 2 hours to run a complete CellNet analysis for 144GB of raw data (9 samples of 16GB each).
 
 #### Running CellNet Locally
-Alternatively, you can run CellNet locally. The steps to do this are covered in our protocol. 
+Alternatively, you can run CellNet locally. The steps to do this are covered in our [Nature Protocol](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5765439/).
+
 You will need to install the following command line software:
 * [Cutadapt](http://cutadapt.readthedocs.io/en/stable/guide.html) 
 * [Salmon](https://combine-lab.github.io/salmon/)
@@ -29,12 +33,8 @@ You will need to install the following command line software:
           
 If you are using Mac OS, this can be done easily with PIP and Homebrew.
 
-#### The CellNet RNA-Seq Web Application
 
-[Cloud-based RNA-Seq web application](https://github.com/pcahan1/CellNet_Cloud)
-
-
-## Running the Protocol
+## Background information
 
 #### Trained CellNet Objects (*cnProc*)
 >At the heart of CellNet is the [Random Forest Classifier](https://en.wikipedia.org/wiki/Random_forest). This is the algorithm that will classify the results of a cell fate experiment. To analyze your own expression data with CellNet, you need a trained CellNet classifier object, which we refer to as a **cnProc** (CellNet Processor). You can select and use the appropriate cnProc that we have generated from the list below. You can also make your own using the code we provide [here](http://rdcu.be/rEmP). This is useful if you want to add more cell types, or if you want to train up a cnProc for a different species. **Note: generating a human cnProc requires a lot of computing power.** In general, it should be generated using an EC2 instance - it is probably not a good idea to try performing this locally.
@@ -75,171 +75,92 @@ If you are running CellNet locally, you will need to have salmon installed on yo
 
 ** Here's the [binary Salmon-0.7.3 Mac OSX link](https://github.com/COMBINE-lab/salmon/files/581546/Salmon-0.7.3-pre_OSX_10.11.tar.gz). Salmon-0.8.2 is a stable update and will work for either MacOSX or Linux.
 
-#### <a name="bulk_protocol">A Simplified Protocol</a>
+#### <a name="bulk_protocol">Running CellNet on AWS</a>
 
-This is a general overview of the commands that can be used to pre-process (pseudoalign and quantify) and apply CellNet to your expression data. The example below works for data from mouse samples.
+The steps below demonstrate how to run RNA-Seq CellNet on AWS. You nned to log in to the [AWS console](https://console.aws.amazon.com), the click on EC2, and launch the CellNet image (ami-62065e75) on a c3.4×large or c3.8×large instance type. 
 
-Pre-processing:
+To log in to the running instance, type the following command in the shell/terminal, but _aws_private_key_ with the full path of the AWS key that you used to launch the instance. And replace _instance_public_dns_ with the public DNS of your instance that can be found in the AWS console
 
+```Bash
+ssh -i aws_private_key ec2-user@instance_public_dns
+```
+
+Once, you have logged in to the instance, you need to install the latest version of CellNet (v0.1.1).
+```
+screen
+sudo R
+library(devtools)
+install_github("pcahan1/CellNet", ref="master")
+q(save='no')
+```
+
+Now, configure the instance for pre-processing RNA-Seq data, including fetching the mouse transcriptome index:
 ```R
-install_github("pcahan1/CellNet", ref="master")    
-cn_setup()
+R
 library(CellNet)
+library(parallel)
+cn_setup()
 fetch_salmon_indices(species="mouse")
-stQuery = read.csv("sampTabFileName.csv")
-expList = cn_salmon(stQuery) ## Assumes your fastq files are in the working directory!
+```
+
+Now fetch the demonstration data, and the mouse cnProc
+```R
+download.file("https://s3.amazonaws.com/CellNet/rna_seq/mouse/examples/SRP059670/st_SRP059670_example.rda", "st_SRP059670_example.rda")
+stQuery <- utils_loadObject("st_SRP059670_example.rda")
+stQuery <- cn_s3_fetchFastq("CellNet","rna_seq/mouse/examples/SRP059670",stQuery,fname="fname", compressed="gz")
+
+download.file("https://s3.amazonaws.com/CellNet/rna_seq/mouse/cnProc_MM_RS_Oct_24_2016.rda", dest="./cnProc_MM_RS_Oct_24_2016.rda")
+cnProc<-utils_loadObject("cnProc_MM_RS_Oct_24_2016.rda")
+```
+
+Pre-process the fastq files. This runs Salmon to estimate transcript abundances:
+```R
+expList <- cn_salmon(stQuery) ## Assumes your fastq files are in the working directory
 ```
     
 Applying CellNet:
 ```R
-download.file("https://s3.amazonaws.com/CellNet/rna_seq/mouse/cnProc_MM_RS_Oct_24_2016.rda", dest="./cnProc_MM_RS_Oct_24_2016.rda")
-cnProc = utils_loadObject("cnProc_MM_RS_Oct_24_2016.rda")
-cnRes = cn_apply(expList[['normalized']], stQuery, cnProc)
+cnRes <- cn_apply(expList[['normalized']], stQuery, cnProc)
 ```
-#### Interpreting Output
-CellNet produces a number of outputs, the most important being the cnRes Object (CellNet Result). There are three figures that can be created from this:
 
-Classification Heat Map: Displays the likelihood that a sample is indistinguishable from its target cell type.
+#### Interpreting Output
+CellNet produces a number of outputs, the most commonly used is the cnRes Object (CellNet Result). There are three figures that can be created from this:
+
+Classification Heat Map: Displays classification score of each sample (column) to each of the cell and tissue types in the training data (rows):
 ```R
+pdf(file='hmclass_example.pdf', width=7, height=5)
 cn_HmClass(cnRes)
+dev.off()
 ```
+
 ![](md_img/hm.png)
+
+To fetch this and other files that you save on AWS/EC2, you can use _scp_ as shown below, replacing _aws_private_key_ and _instance_public_dns_ with your values:
+```Bash
+scp -i aws_private_key ec2-user@instance_public_dns:/media/ephemeral0/analysis/*.pdf ./
+
+```
 
 **G**ene **R**egulatory **N**etwork Status Bar Plot: A more sensitive measure of the degree to which a particular cell type's GRN has been established in your experimental data.
 ```R
+fname<-'grnstats_fibroblast_example.pdf'
 bOrder<-c("fibroblast_train", unique(as.vector(stQuery$description1)), "esc_train")
-cn_barplot_grnSing(cnRes1,cnProc,"fibroblast", c("fibroblast","esc"), bOrder, sidCol="sra_id")
+cn_barplot_grnSing(cnRes,cnProc,"fibroblast", c("fibroblast","esc"), bOrder, sidCol="sra_id")
+ggplot2::ggsave(fname, width=5.5, height=5)
+dev.off()
 ```
 <img src="md_img/grnStat.png" style="height: 400px;"/>
 
 **N**etwork **I**nfluence **S**core Box and Whisker Plot: A suggestion of transcription factors that could be better regulated, ranked by their potential impact
 ```R
 rownames(stQuery)<-as.vector(stQuery$sra_id)
-tfScores<-cn_nis_all(cnRes1, cnProc, "esc")
-plot_nis(tfScores, "esc", stQuery, "Day0", dLevel="description1", limitTo=0)
+tfScores<-cn_nis_all(cnRes1, cnProc, "esc") 
+
+fname<-'nis_esc_example_Day0.pdf'
+plot_nis(tfScores, "esc", stQuery, "Day0", dLevel="description1", limitTo=0) 
+ggplot2::ggsave(fname, width=4, height=12)
+dev.off()
 ```
 <img src="md_img/nis.png" style="height: 400px;"/>
 
-#### <a name="sc_protocol">Analyzing single cell RNA-Seq data with CellNet trained on bulk-derived data</a>
 
-It is possible to analyze single cell RNA-Seq (scRNA-Seq) data with CellNet trained on bulk-derived data, if the training data is down-sampled appropriately. Below, we illustrate how to down-sample training data, re-train a CellNet objet, and how to analyze scRNA-Seq data. However, note that the protocol below is NOT trained on single cell data, and thus will only yield generic cell- and tissue-type classifications and GRN statues. We are actively working on developing a new version of CellNet that uses scRNA-Seq training data.
-
-In this example, we use scRNA-Seq 3' count based data of bead-purified human hematopoeitic cells generated by 10x Genomics [here](https://support.10xgenomics.com/single-cell-gene-expression/datasets) from the paper [Zheng et al 2017](https://www.ncbi.nlm.nih.gov/pubmed/28091601) as query data. We have compiled 5rom the B-cell (CD19+), hematopoietic progenitors (CD34+), monocytes (CD14+), natural killer (CD56+), Helper T cells (CD4+), and cytotoxic T cells (CD8+). We have prepared this data and you can download the R file [here](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/expQuery_Zheng2017_rawcounts_Aug_31_2017.rda) and the corresponding sample annotation is [here](https://s3.amazonaws.com/cellnet-rnaseq/ref/examples/stQuery_Zheng2017_Aug_31_2017.rda).
-
-Get started, load your query data, downsample and transform it. 
-```R
-library(Rtsne)
-library(ggplot2)
-library(RColorBrewer)
-library(randomForest)
-library(CellNet)
-
-expRawQuery<-utils_loadObject("expQuery_Zheng2017_rawcounts_Aug_31_2017.rda")
-expQueryDn<-weighted_down(expRawQuery, 1e3)
-expQuery<-trans_prop(expQueryDn)
-rm(expRawQuery)
-rm(expQueryDn)
-gc()
-
-stQuery<-utils_loadObject("stQuery_Zheng2017_Aug_31_2017.rda")
-
-dim(expQuery)
-[1] 32643  6000
-
-dim(stQuery)
-[1] 6000    5
-```
-
-Load training data for CellNet and the cnProc object, which will need to be re-trained. For this example, download the [Jun 20 2017 human cnProc](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/cnProc_HS_RS_Jun_20_2017.rda) and the corresponding [raw expression data](https://s3.amazonaws.com/cellnet-rnaseq/ref/cnproc/HS/expTrain_HS_rawcounts_8_31_2017.rda). For mouse data, see the table of cnProc and raw data above.
-```R
-cnProc<-utils_loadObject("cnProc_HS_RS_Jun_20_2017.rda")
-stTrain<-cnProc$stTrain
-dim(stTrain)
-[1] 1003   23
-
-expTrainRaw<-utils_loadObject("expTrain_HS_rawcounts_8_31_2017.rda")
-
-dim(expTrainRaw)
-[1] 34934  1003
-
-expTrainDown<-weighted_down(expTrainRaw, 1e3)
-expTrain<-trans_prop(expTrainDown, 1e5)
-rm(expTrainRaw)
-rm(expTrainDown)
-gc()
-```
-
-Re-train CellNet so for scRNA-Seq query data
-```R
-system.time(cnProcSC<-cn_remake_processor(cnProc, newGenes=rownames(expQuery),expTrain=expTrain, sidCol='sample_name'))
-   user  system elapsed 
-183.185   3.505 186.811 
-```
-
-Analyze query data
-```R
-system.time(cnRes<-cn_apply(expQuery, stQuery, cnProcSC, dLevelQuery='prefix'))
-  user  system elapsed 
-29.265   5.058  34.334
-```
-
-Traditional CellNet classification heatmap
-```R
-cn_HmClass(cnRes, isBig=T)
-```
-<img src="md_img/hm_zheng.png" style="height: 400px;"/>
-
-
-Traditional CellNet GRN status barplot
-```R
-bOrder<-c(unique(as.vector(stQuery$prefix)), "b_cell_train")
-cn_barplot_grnSing(cnRes,cnProcSC,"b_cell", c("b_cell"), bOrder,sidCol="sample_id")
-```
-<img src="md_img/grn_bcell_Zheng.png" style="height: 400px;"/>
-
-You can also overlay classification (or grn status) on the tSNE results.
-
-Find variable genes, run PCA and then tSNE
-```R
-geneStats<-sc_statTab(expQuery)
-varGenes <- findVarGenes(expQuery,geneStats,zThresh=1.5, meanType="overall_mean")
-length(varGenes)
-[1] 1106
-pcRes<-prcomp(t(expQuery[varGenes,]),center=T,scale=TRUE)
-system.time(tsneRes<-to_tsne(pcRes$x[,1:20], perplexity=30, theta=.3))
-   user  system elapsed 
- 47.982   0.826  48.853 
-
-plot_tsne(stQuery, tsneRes, cName="prefix")
-```
-<img src="md_img/tsne_Zheng_prefix.png" style="height: 200px;"/>
-
-Plot CellNet classification on tSNE
-```R
-datTab<-stQuery
-datTab<-cbind(datTab, tsneRes)
-datTab<-cbind(datTab,t(cnRes$classRes))
-classNames<-rownames(cnRes$classRes)
-datTab<-as.data.frame(datTab)
-tsneMult(datTab, c("b_cell"))
-```
-<img src="md_img/bcell_class.png" style="height: 200px;"/>
-
-```R
-tsneMult(datTab, c("t_cell"))
-```
-<img src="md_img/tcell_class.png" style="height: 200px;"/>
-
-```R
-tsneMult(datTab, c("monocyte_macrophage"))
-```
-<img src="md_img/mac_class.png" style="height: 200px;"/>
-
-```R
-tsneMult(datTab, c("hspc"))
-```
-<img src="md_img/hspc_class.png" style="height: 200px;"/>
-
-
-#### CellNet for Microarray Data
-You can also use CellNet to analyze *microarray* data either locally using [this code](https://pcahan1.github.io/cellnetr/), or using the [the original web application](http://cellnet.hms.harvard.edu/).
