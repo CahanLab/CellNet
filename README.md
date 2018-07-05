@@ -19,7 +19,7 @@ The public CellNet Amazon Machine Image (AMI), available on Amazon Web Services 
 * [Amazon Machine Images](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html)
 * [Amazon's Simple Storage Service (S3)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonS3.html)
 
- The CellNet AMI (_CellNet_ ami-62065e75) is available in the AWS US East 1 region (N. Virginia region). Running CellNet on AWS requires uploading your raw data (in the form of .fastq files) either directly to your running instance on AWS EC2, or to S3 and then to your instance. To learn about transferring your fastq files directly to your instance, see [Transferring files to Linux machines using SCP](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html). **Note that Amazon charges by the hour for compute resources ($1.68/hour for a c3.8xlarge EC2 instance type)**. On average, it takes up to 2 hours to run a complete CellNet analysis for 144GB of raw data (9 samples of 16GB each).
+ The CellNet AMI (_CellNet_ ami-2ab59855) is available in the AWS US East 1 region (N. Virginia region). Running CellNet on AWS requires uploading your raw data (in the form of .fastq files) either directly to your running instance on AWS EC2, or to S3 and then to your instance. To learn about transferring your fastq files directly to your instance, see [Transferring files to Linux machines using SCP](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html). **Note that Amazon charges by the hour for compute resources ($1.68/hour for a c3.8xlarge EC2 instance type)**. On average, it takes up to 2 hours to run a complete CellNet analysis for 144GB of raw data (9 samples of 16GB each).
 
 #### Running CellNet Locally
 Alternatively, you can run CellNet locally. The steps to do this are covered in our [Nature Protocol](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5765439/).
@@ -75,7 +75,7 @@ If you are running CellNet locally, you will need to have salmon installed on yo
 
 #### <a name="bulk_protocol">Running CellNet on AWS</a>
 
-The steps below demonstrate how to run RNA-Seq CellNet on AWS. You nned to log in to the [AWS console](https://console.aws.amazon.com), the click on EC2, and launch the CellNet image (ami-62065e75) on a c3.4×large or c3.8×large instance type. 
+The steps below demonstrate how to run RNA-Seq CellNet on AWS. You need to log in to the [AWS console](https://console.aws.amazon.com), then click on EC2, and launch the CellNet_v_0.1.1 image (ami-2ab59855) on a c3.4×large or c3.8×large instance type. 
 
 To log in to the running instance, type the following command in the shell/terminal, but _aws_private_key_ with the full path of the AWS key that you used to launch the instance. And replace _instance_public_dns_ with the public DNS of your instance that can be found in the AWS console
 
@@ -157,7 +157,8 @@ dev.off()
 
 
 
-<a name="install_cellnet">Installing CellNet</a>
+#### <a name="install_cellnet">Installing CellNet</a>
+
 If, for some reason, you need to install CellNet anew, you can do so by using devtools:
 ```R
 sudo R
