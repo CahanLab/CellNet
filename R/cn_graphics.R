@@ -328,6 +328,90 @@ cn_HmVars<-function
 }
 
 
+#' heatmap of gene expression for disease modeling studies
+#' Added 6-4-18
+#' @param cnResQuery cellNet query results object
+#' @param isBig boolean
+#'
+#' @return nothing
+#'
+#' @examples
+#' cnRes_iPSC <- utils_loadObject("cn_iPSC_pooled_results_nat_prot_Jul_14_2017.R")
+#' col_annotations_iPSC <- data.frame(Disease_Status = factor(sampTab_iPSC$disease_status), Study = factor(sampTab_iPSC$study_id))
+#' set.seed(0) # reseed random number generator, makes column coloring reproducible
+#' cn_HmClass_disease(cnRes_iPSC, col_annotations_iPSC)
+#'
+#' @export
+cn_HmClass_disease<-function (cnResQuery, col_annotations, isBig = TRUE) 
+{
+   library(pheatmap)
+   library(RColorBrewer)
+   classMat <- cnResQuery$classRes
+   newSampTab <- cnResQuery$stQuery
+   colnames(classMat)<-make.unique(colnames(classMat))
+   rownames(col_annotations)<-colnames(classMat)
+   
+   study_names<-unique(newSampTab$study_id)
+   breaks<-match(study_names, newSampTab$study_id)-1
+   study_colors<-sample(rainbow(length(study_names)))
+   #study_colors<-sample(brewer.pal(length(study_names), "Set3"))
+   names(study_colors)<-study_names
+   ann_colors <- list(
+      Disease_Status = c(control="#a6cee3",disease="#e78ac3",treated="#d699ff"), 
+      Study = study_colors)
+   hm_colors <- colorRampPalette(c("black", "limegreen", "yellow"))(100)
+   if (isBig) {
+      bcol <- NA
+   }
+   bcol <- "white"
+   pheatmap(classMat,
+            annotation_col=col_annotations,
+            gaps_col = breaks,
+            col = hm_colors, 
+            annotation_colors=ann_colors,
+            breaks = seq(from = 0, to = 1, length.out = 100), 
+            border_color = bcol, 
+            cluster_rows = FALSE, 
+            cluster_cols = FALSE,
+            show_colnames = FALSE)
+}
+
+#' Order classifier performance heatmap by description1 label of validation samples
+#' Added 6-4-18
+#' @param cnProc cellNet processor object from training
+#' @param classifierPerformance cellNet classifier performance object from training
+#'
+#' @return nothing
+#'
+#' @examples
+#' ordered_class_perf_hm(cnProcFile="cnProc_HS_RS_Jun_20_2017.rda", classPerfFile="classifierPerformance_June-20-2017.rda")
+#'
+#' @export
+ordered_class_perf_hm<-function(cnProc, classifierPerformance) {
+   
+   # Order stTrain by description1, then pull out the ordered SRRs
+   stTrain<-cnProc$stTrain
+   stTrain_desc1_ordered<-stTrain[order(stTrain$description1),]
+   stTrain_srrs<-stTrain_desc1_ordered$sra_id
+   
+   # Pull out the validation SRRs
+   validation_srrs<-colnames(classifierPerformance$classRes)
+   
+   # Get the ordered indices of the validation SRRs using the ordered SRRs from stTrain
+   ordered_srr_indices<-match(stTrain_srrs, validation_srrs)
+   ordered_srr_indices<-ordered_srr_indices[!is.na(ordered_srr_indices)]
+   
+   # Make a new classifier Performance object with an ordered classRes
+   newClassPerf<-classifierPerformance
+   newClassPerf$classRes<-classifierPerformance$classRes[,ordered_srr_indices]
+   
+   # Make heatmap
+   cn_HmClass(newClassPerf, isBig = TRUE)
+   
+}
+
+
+
 if(FALSE){
 cn_barplot_exp<-function
 ### barplot gene expression
@@ -459,7 +543,39 @@ plot_class_PRs<-function
 }
 
 
+#' Order classifier performance heatmap by description1 label of validation samples
+#' 
+#' @param cnProc CellNet Processor object from training
+#' @param classifierPerformance Classifier performance object generated with cn_splitMakeAssess
+#' 
+#' @export
+cn_class_perf_hm_ordered<-function(cnProc, classifierPerformance) {
+   
+   # Order stTrain by description1, then pull out the ordered SRRs
+   stTrain<-cnProc$stTrain
+   stTrain_desc1_ordered<-stTrain[order(stTrain$description1),]
+   stTrain_srrs<-stTrain_desc1_ordered$sra_id
+   
+   # Pull out the validation SRRs
+   validation_srrs<-colnames(classifierPerformance$classRes)
+   
+   # Get the ordered indices of the validation SRRs using the ordered SRRs from stTrain
+   ordered_srr_indices<-match(stTrain_srrs, validation_srrs)
+   ordered_srr_indices<-ordered_srr_indices[!is.na(ordered_srr_indices)]
+   
+   # Make a new classifier Performance object with an ordered classRes
+   newClassPerf<-classifierPerformance
+   newClassPerf$classRes<-classifierPerformance$classRes[,ordered_srr_indices]
+   
+   # Make heatmap
+   cn_HmClass(newClassPerf, isBig = TRUE)
+   
+}
+
+
+
 ########### Plot pdfs
+#' Added 6-4-18
 
 
 #' Create pdf of classification heatmap, one column for every sample.
@@ -717,3 +833,5 @@ pdf_nis_plots <- function
    }
    dev.off()
 }
+
+
