@@ -376,7 +376,7 @@ cn_HmClass_disease<-function (cnResQuery, col_annotations, isBig = TRUE)
             show_colnames = FALSE)
 }
 
-#' Order classifier performance heatmap by description1 label of validation samples
+#' Output ordered classifier performance heatmap by description1 label of validation samples
 #' Added 6-4-18
 #' @param cnProc cellNet processor object from training
 #' @param classifierPerformance cellNet classifier performance object from training
