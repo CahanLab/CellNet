@@ -15,4 +15,3 @@ numeric read length
 \description{
 Uses awk to determine read length of first read in fastq file. Assumes all reads in file are same length.
 }
-

@@ -83,71 +83,6 @@ plot_nis<-function#### boxplot of NIS scores, requires plyr, tidyr
 }
 
 
-
-if(FALSE){
-cn_stdout<-function
-### save pdfs of standard output
-(cnObj,
- ### cnRes object
- cnProc,
- ### CellNet object used to produce cnObj
- tfScores,
- ### result of running cn_nis
- fname_prefix,
- ### what to put at the front of the pdffile name
- targetType
- ### what is the target cell type, must be one of the cell types listed in CellNet object
-){
-  
-  ##<<note function to produce a 'standard' output consisting of:
-  ##<< (1) classification heatmap
-  ##<< (2) starting and target TCT GRN establishments
-  ##<< (3) Aberrant TCT GRN establishments
-  ##<< (4) all TCT GRN establishments
-  findWidth<-function(panels){
-    #  panels<-tmp[['npanels']];
-    height<-ceiling(panels/4)*3;
-    if(panels<4){
-      width<-panels*3;
-    }
-    else{
-      width<-12;
-    }
-    list(height=height, width=width)
-  }
-  
-  stQuery<-cnObj[['stQuery']];
-  cttBest<-cnProc[['grnList']];
-  dLevel<-cnObj[['dLevelQuery']];
-  
-  # Classification heatmap
-  myWidth<-nrow(stQuery)*.4;
-  myHeight<-length(cttBest)*.3;
-  
-  xtime<-format(Sys.time(), "%Y_%b_%d_%H_%M_%S");
-  fname<-paste(fname_prefix, "_", xtime, "_plots.pdf",sep='');
-  tempTitle<-paste("Classification heatmap ", fname_prefix, sep='');
-  pdf(fname, width=8.5, height=11);
-  cn_hmClass(cnObj, main=tempTitle);
-  
-  # set this up so that only the training data from the 'grn' cell type is also shown,
-  # along with the query samples
-  grnNames<-rownames(cnObj[['normScoresQuery']]);
-  for(grnName in grnNames){    
-    tSamp<-paste(grnName, "_train", sep='');
-    print(cn_barplot_grnSing(cnObj, cnProc, grnName, grnName, bOrder=NULL, norm=T));    
-  }
-  # plot transcriptional regulator scores
-  # for now, this only looks at the target cell/tissue type and is a heatmap
-##  tfS<-tfScores[which(tfScores$grn==targetType),];
-##  tfS<-tfS[,1:(ncol(tfS)-1)];
-  print(cn_plotnis(tfScores[[targetType]]));
-  dev.off();
-  fname;
-  ### return the file name of the plot pdf file.
-}
-}
-
 #' Plot GRN status
 #'
 #' wrapper to barplot secific GRN
@@ -328,6 +263,7 @@ cn_HmVars<-function
 }
 
 
+<<<<<<< HEAD
 #' heatmap of gene expression for disease modeling studies
 #' Added 6-4-18
 #' @param cnResQuery cellNet query results object
@@ -542,6 +478,7 @@ plot_class_PRs<-function
   theme(axis.text = element_text(size=5)) + ggtitle("Classification performance")
 }
 
+<<<<<<< HEAD
 
 #' Order classifier performance heatmap by description1 label of validation samples
 #' 

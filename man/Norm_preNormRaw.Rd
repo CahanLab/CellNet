@@ -17,4 +17,3 @@ cleaned eSet obj
 \description{
 Run justRMA on samples, nor norm, just BG
 }
-

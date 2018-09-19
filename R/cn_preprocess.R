@@ -26,37 +26,38 @@ cn_setup<-function
   }
   else {
 
-   cmd<-paste0("sudo chown ec2-user /media/ephemeral0")
-  system(cmd)
-  cmd<-paste0("sudo mkdir ", wrDir)
-  system(cmd)
-  cmd<-paste0("sudo chown ec2-user ",wrDir)
-  system(cmd)
-  setwd(wrDir)
+    cmd<-paste0("sudo chown ec2-user /media/ephemeral0")
+    system(cmd)
+    cmd<-paste0("sudo mkdir ", wrDir)
+    system(cmd)
+    cmd<-paste0("sudo chown ec2-user ",wrDir)
+    system(cmd)
+    setwd(wrDir)
 
-   cmd<-paste0("mkdir /media/ephemeral0/tmp")
-  system(cmd) 
-  Sys.setenv(TMPDIR="/media/ephemeral0/tmp")
+    cmd<-paste0("sudo mkdir /media/ephemeral0/tmp")
+    system(cmd) 
+    cmd<-paste0("sudo chown ec2-user /media/ephemeral0/tmp")
+    system(cmd)
+    Sys.setenv(TMPDIR="/media/ephemeral0/tmp")
 
-  cmd<-paste0("mkdir /media/ephemeral0/analysis/tmp")
-  system(cmd) 
+    cmd<-paste0("mkdir /media/ephemeral0/analysis/tmp")
+    system(cmd) 
 
- 
     cmd<-paste0("sudo mount /dev/xvdc /media/ephemeral1")
     system(cmd)
 
     cmd<-paste0("sudo mkdir /media/ephemeral1/dat")
-   system(cmd)
-   cmd<-paste0("sudo mkdir /media/ephemeral1/dat/seq")
-   system(cmd)
-   cmd<-paste0("sudo mkdir /media/ephemeral1/dat/ref")
-   system(cmd)
+    system(cmd)
+    cmd<-paste0("sudo mkdir /media/ephemeral1/dat/seq")
+    system(cmd)
+    cmd<-paste0("sudo mkdir /media/ephemeral1/dat/ref")
+    system(cmd)
 
     cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat")
     system(cmd)
 
     cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/seq")
-   system(cmd)
+    system(cmd)
 
     cmd<-paste0("sudo chown ec2-user /media/ephemeral1/dat/ref")
     system(cmd)

@@ -21,4 +21,3 @@ iGraph object
 \description{
 convert a table to an igraph. This adds an nEnts vertex attribute to count the number of entities in the sub-net
 }
-

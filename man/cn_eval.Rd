@@ -24,4 +24,3 @@ return a data frame of the number of TP, FN, FP, and TN, and pval cutoff
 \description{
 run cn_clPerf across thresholds
 }
-

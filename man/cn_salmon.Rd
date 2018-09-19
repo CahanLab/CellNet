@@ -31,4 +31,3 @@ nothing
 \description{
 Derive gene expression estimates compatible with CellNet
 }
-

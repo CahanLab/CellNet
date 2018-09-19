@@ -25,4 +25,3 @@ Classifies query data and computes GRN status
 cnRes<-cn_apply(expQuery, stQuery, cnProc, "description1")
 
 }
-

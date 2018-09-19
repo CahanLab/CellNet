@@ -19,4 +19,3 @@ normalized grn status matrix
 \description{
 Divide the query scores by the mean values in the training data.
 }
-

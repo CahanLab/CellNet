@@ -15,4 +15,3 @@ table of probe_id, entrez id and gene symbols
 \description{
 load the specified gene annotation table
 }
-

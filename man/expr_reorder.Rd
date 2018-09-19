@@ -19,4 +19,3 @@ new sample table
 \description{
 re-order the sampTab, by dLevel, given dLevel names
 }
-

@@ -5,7 +5,7 @@
 \title{GRN status}
 \usage{
 cn_netScores(expDat, genes, tVals, ctt, classList = NULL,
-  classWeight = FALSE, exprWeight = TRUE)
+  classWeight = FALSE, exprWeight = TRUE, xmax = 1000)
 }
 \arguments{
 \item{expDat}{query expression matrix}
@@ -28,4 +28,3 @@ grn scores (not normalized)
 \description{
 Calculates the status of all GRNs in query samples as compared to training data for
 }
-

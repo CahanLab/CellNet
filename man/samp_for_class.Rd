@@ -22,4 +22,3 @@ list of stTrain stVal
 \description{
 Splits a sample table into 2 sample tables roughly by prop in which no samples with sampe exp_id are in both the test and train
 }
-

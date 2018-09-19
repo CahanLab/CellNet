@@ -22,4 +22,3 @@ nothing
 \description{
 get files needed to run Salmon and Hisat2 QC pipeline from S#
 }
-

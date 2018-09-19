@@ -19,4 +19,3 @@ list of exp matricies of both NumReads and TPM
 \description{
 load Salmon-based transcript estimates from quant.sf files
 }
-

@@ -17,4 +17,3 @@ data.frame(row.names=geneids, pval=pval, cval=cval,holm=holm);
 \description{
 test correlation between idealized expression pattern and target gene
 }
-

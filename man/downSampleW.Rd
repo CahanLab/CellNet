@@ -17,4 +17,3 @@ vector of downsampled read mapped to genes/transcripts
 \description{
 Simulate expression profile of  _total_ mapped reads
 }
-

@@ -19,4 +19,3 @@ subset of sample table
 \description{
 sample equivalent numbers of profiles per cell type
 }
-

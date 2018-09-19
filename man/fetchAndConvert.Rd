@@ -17,4 +17,3 @@ sample table with read length appended
 \description{
 fetch sras and converts them to fastqs, can take a REALLY long time and is unreliable. SRA toolkit must be installed and configured. Make sure the store the SRAs on a drive with lots of space. Must be consistent with tmpPath.
 }
-

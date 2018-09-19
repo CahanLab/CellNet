@@ -17,4 +17,3 @@ list of sample tables
 \description{
 break a sample table into _inc_ size pieces. used in processSRA.
 }
-

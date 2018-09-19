@@ -15,4 +15,3 @@ matrix of clr zscores
 \description{
 slightly modidied from JJ Faith et al 2007
 }
-

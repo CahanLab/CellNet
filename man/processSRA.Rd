@@ -44,4 +44,3 @@ This function is a wrapper to qcAndSalmon. It also summarizes transcript into ge
 processSRA(stX, inc=5)
 
 }
-

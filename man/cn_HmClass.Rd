@@ -21,4 +21,3 @@ Heatmap of the classification result.
 cn_HmClass(cnRes, isBig=TRUE)
 
 }
-

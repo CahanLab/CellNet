@@ -15,4 +15,3 @@ new string
 \description{
 strip whitespace from a string
 }
-

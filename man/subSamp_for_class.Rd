@@ -19,4 +19,3 @@ stTrain
 \description{
 that's it. helper function
 }
-

@@ -21,4 +21,3 @@ sammple table with de-compressed file names replacing old file names
 \description{
 It assumes that the files are publicly accessible. If not then you should use s3_get after you have run aws configure and enter your aws credentials
 }
-

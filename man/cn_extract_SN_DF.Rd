@@ -24,4 +24,3 @@ returns a DF of: sample_id, description, ctt, subnet_name, score
 \description{
 returns a DF of: sample_id, description, ctt, subnet_name, score
 }
-

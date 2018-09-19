@@ -17,4 +17,3 @@ what is sens at selected FPR?
 \description{
 return the sens at given FPR
 }
-

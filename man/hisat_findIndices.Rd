@@ -15,4 +15,3 @@ df of nickname -> path
 \description{
 finds hisat indecies
 }
-

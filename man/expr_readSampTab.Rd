@@ -15,4 +15,3 @@ data frame, should have sample_id, sample_name, description1, description2, exp_
 \description{
 properly read a csv file as a sampTab
 }
-

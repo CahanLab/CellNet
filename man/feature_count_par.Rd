@@ -21,4 +21,3 @@ sample table with hit rates appended
 \description{
 count the number of reads that overlap with genomic features uses samtools/htseq-count
 }
-

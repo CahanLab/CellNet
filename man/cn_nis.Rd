@@ -21,4 +21,3 @@ numeric matrix where rows are TFs in CT GRN and columns are query samples
 \description{
 Computes network influence score (NIS). See paper for details.
 }
-

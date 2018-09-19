@@ -27,4 +27,3 @@ sample tablein which qc measures have been appended
 \description{
 subsamples reads, aligns to each genome, and counts the reads mapping to features in the target genome
 }
-

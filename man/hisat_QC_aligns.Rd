@@ -26,4 +26,3 @@ sampTab with hisat QC stats added AND features counts vs target genome
 \description{
 wrapper to hisat_QC_align
 }
-

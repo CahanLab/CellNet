@@ -17,4 +17,3 @@ transformed expression matrix
 \description{
 shift the expression of each sample so that the min=minVal
 }
-

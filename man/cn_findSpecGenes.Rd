@@ -26,4 +26,3 @@ a list of something
 \description{
 find genes that are preferentially expressed in specified samples
 }
-

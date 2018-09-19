@@ -19,4 +19,3 @@ randomForest classifier
 \description{
 uses R's randomForest package
 }
-
