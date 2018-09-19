@@ -263,7 +263,6 @@ cn_HmVars<-function
 }
 
 
-<<<<<<< HEAD
 #' heatmap of gene expression for disease modeling studies
 #' Added 6-4-18
 #' @param cnResQuery cellNet query results object
@@ -478,7 +477,6 @@ plot_class_PRs<-function
   theme(axis.text = element_text(size=5)) + ggtitle("Classification performance")
 }
 
-<<<<<<< HEAD
 
 #' Order classifier performance heatmap by description1 label of validation samples
 #' 
