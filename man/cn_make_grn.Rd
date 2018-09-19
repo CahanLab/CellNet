@@ -4,10 +4,11 @@
 \alias{cn_make_grn}
 \title{Reconstruct CT-specific GRNs}
 \usage{
-cn_make_grn(sampTab, expDat, species = "Mm", tfs = NA, grnSampSize = 0,
-  normDat = FALSE, corrs = NA, zscores = NA, cval = 0.5,
-  cvalGK = 0.75, dLevel = "description1", dLevelGK = "description6",
-  zThresh = 4, holmSpec = 1e-06, prune = FALSE)
+cn_make_grn(sampTab, expDat, species = "Mm", tfs = NA,
+  grnSampSize = 0, normDat = FALSE, corrs = NA, zscores = NA,
+  cval = 0.5, cvalGK = 0.75, dLevel = "description1",
+  dLevelGK = "description6", zThresh = 4, holmSpec = 1e-06,
+  prune = FALSE)
 }
 \arguments{
 \item{expDat}{properly normalized expression matrix}

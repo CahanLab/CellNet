@@ -4,8 +4,8 @@
 \alias{qcAndSalmon}
 \title{Runs the qc and salmon pipeline used by processSRA}
 \usage{
-qcAndSalmon(sampTab, studyID, bucket = "cellnet-rnaseq", finalLength = 40,
-  subProp = 0.001, target = "mouse",
+qcAndSalmon(sampTab, studyID, bucket = "cellnet-rnaseq",
+  finalLength = 40, subProp = 0.001, target = "mouse",
   gtfFile = "/media/ephemeral1/dat/ref/Mus_musculus.GRCm38.83.gtf",
   salmonIndex = "/media/ephemeral1/dat/ref/MM_GRCh38.SalmonIndex.030816")
 }
