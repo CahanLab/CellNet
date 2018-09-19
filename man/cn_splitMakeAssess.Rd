@@ -4,8 +4,9 @@
 \alias{cn_splitMakeAssess}
 \title{make classifiers and assess}
 \usage{
-cn_splitMakeAssess(stDat, expDat, grns, prop = 0.5, dLevel = "description1",
-  dLevelStudy = "exp_id", dLevelSID = "sample_id")
+cn_splitMakeAssess(stDat, expDat, grns, prop = 0.5,
+  dLevel = "description1", dLevelStudy = "exp_id",
+  dLevelSID = "sample_id")
 }
 \arguments{
 \item{stDat}{sample table}
@@ -32,4 +33,3 @@ split the data by prop, make classifiers, assess them on held out data
 assessmentResults<-cn_splitMakeAssess(stTrain, expTrain, ctGRNs, prop=.5, dLevel="description1")
 
 }
-

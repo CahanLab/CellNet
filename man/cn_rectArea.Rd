@@ -19,4 +19,3 @@ area
 \description{
 compute area of rect given by
 }
-

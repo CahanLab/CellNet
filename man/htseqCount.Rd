@@ -19,4 +19,3 @@ data.frame of feature, proportion of reads mapping to this feature
 \description{
 compiles read count hits
 }
-

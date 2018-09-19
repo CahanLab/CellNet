@@ -17,4 +17,3 @@ list of graphs
 \description{
 make induced subgraphs from gene lists and iGraph object
 }
-

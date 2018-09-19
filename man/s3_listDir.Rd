@@ -17,4 +17,3 @@ vector of directories
 \description{
 List directories in a bucket
 }
-

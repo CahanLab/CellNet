@@ -21,4 +21,3 @@ list of grnTable and corresponding graph
 \description{
 get raw GRN from zscores, and corr
 }
-

@@ -4,8 +4,9 @@
 \alias{cn_specGenesAll}
 \title{finds general and context dependent specifc genes}
 \usage{
-cn_specGenesAll(expDat, sampTab, holm = 1e-10, cval = 0.5, cvalGK = 0.75,
-  dLevel = "description1", dLevelGK = "description2")
+cn_specGenesAll(expDat, sampTab, holm = 1e-10, cval = 0.5,
+  cvalGK = 0.75, dLevel = "description1", dLevelGK = "description2",
+  prune = FALSE)
 }
 \arguments{
 \item{expDat}{expression matrix}
@@ -28,4 +29,3 @@ list of $matcher${cell_type}->{germ_layer}$context$general${cell_type}->gene vec
 \description{
 finds general and context dependent specifc genes
 }
-

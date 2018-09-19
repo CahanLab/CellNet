@@ -21,4 +21,3 @@ data.frame(target=targets, reg=regulators, zscore=zscoresX, corr=correlations);
 \description{
 extracts the TRs, zscores, and corr values passing thresh
 }
-

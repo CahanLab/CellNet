@@ -4,7 +4,8 @@
 \alias{fastq_trim}
 \title{Trim reads to specified length}
 \usage{
-fastq_trim(sampTab, fnameCol = "fname", finalLength = 40, outDir = "./")
+fastq_trim(sampTab, fnameCol = "fname", finalLength = 40,
+  outDir = "./")
 }
 \arguments{
 \item{sampTab}{sample table}
@@ -21,4 +22,3 @@ sampTab with filenames of trimmed fastqs appended
 \description{
 Use cutadapt to trim reads from both ends to finalLength
 }
-

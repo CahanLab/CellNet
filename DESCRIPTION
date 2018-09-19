@@ -22,4 +22,4 @@ BiocViews:
 	org.Hs.eg.db,
 	org.Mm.eg.db,
 	preprocessCore
-RoxygenNote: 5.0.1.9000
+RoxygenNote: 6.1.0

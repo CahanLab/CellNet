@@ -35,4 +35,3 @@ vector of output names
 \description{
 Uses salmon
 }
-

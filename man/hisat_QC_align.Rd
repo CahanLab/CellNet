@@ -24,4 +24,3 @@ sampTab with hisat QC stats added AND features counts vs target genome
 \description{
 aligns fastq to genomes indexed and pointed to by indexDF, counts features aligning to target
 }
-

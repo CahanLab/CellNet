@@ -17,4 +17,3 @@ nothing
 \description{
 Deletes files with specified suffix in specified directory. Used in fetchAndConvert
 }
-

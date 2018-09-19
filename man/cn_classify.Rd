@@ -19,4 +19,3 @@ classification matrix nrow=length(classList) ncol=ncol(expDat)
 \description{
 run binary classifiers on input expression matrix
 }
-

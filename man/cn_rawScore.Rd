@@ -4,7 +4,7 @@
 \alias{cn_rawScore}
 \title{computes the raw score for a gene as xmax-abs(zscore).}
 \usage{
-cn_rawScore(vect, mmean, ssd)
+cn_rawScore(vect, mmean, ssd, xmax = 1000)
 }
 \arguments{
 \item{vect}{a vector of gene expression values for multiple samples}
@@ -19,4 +19,3 @@ transformed (but not normalized) GRN score
 \description{
 better values are higher
 }
-

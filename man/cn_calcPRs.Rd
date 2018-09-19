@@ -4,8 +4,9 @@
 \alias{cn_calcPRs}
 \title{assess performance of GRN predictions based on zscores}
 \usage{
-cn_calcPRs(zscores, tfs, goldStandard, universe = NULL, tRange = seq(3, 6,
-  by = 0.25), random = FALSE, randomIter = 10, funType = "intersect")
+cn_calcPRs(zscores, tfs, goldStandard, universe = NULL, tRange = seq(3,
+  6, by = 0.25), random = FALSE, randomIter = 10,
+  funType = "intersect")
 }
 \arguments{
 \item{zscores}{matrix of zscores}
@@ -34,4 +35,3 @@ Recall (Sensitivity): fraction of gold standard regulatory relationships detecte
 grnPR<-cn_calcPRs(zscs, "Sox2", aGoldStandard[["Sox2"]], allGenes, tRange=seq(0,8, by=.5), random=TRUE, randomIter=3);
 
 }
-

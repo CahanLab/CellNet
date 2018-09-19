@@ -4,7 +4,8 @@
 \alias{cn_s3_fetchFastq}
 \title{Fetch fastq files from S3}
 \usage{
-cn_s3_fetchFastq(bucket, path, sampTab, fnameCol = "fname", compressed = NA)
+cn_s3_fetchFastq(bucket, path, sampTab, fnameCol = "fname",
+  compressed = NA)
 }
 \arguments{
 \item{bucket}{name of bucket}
@@ -21,4 +22,3 @@ sammple table with de-compressed file names replacing old file names
 \description{
 It assumes that the files are publicly accessible. If not then you should use s3_get after you have run aws configure and enter your aws credentials
 }
-

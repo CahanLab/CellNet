@@ -32,4 +32,3 @@ wrapper to barplot secific GRN
 cn_barplot_grnSing(cnRes, cnProc, "hspc", c("esc", "hspc"), bOrder=c("esc_train", "day0", "day5", "day10", "day20", "hspcxs_train"))
 
 }
-

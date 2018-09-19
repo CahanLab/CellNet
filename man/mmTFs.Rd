@@ -17,4 +17,3 @@ mmTFs
 A vector of gene symbols representing transcription factors, defined as genes annotated with GO BP as 'regulation of transcription' and 'DNA binding'
 }
 \keyword{datasets}
-

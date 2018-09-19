@@ -24,4 +24,3 @@ list of data frames with threshold, sens, precision
 \description{
 Assess classifiers based on validation data
 }
-

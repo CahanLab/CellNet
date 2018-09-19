@@ -4,7 +4,8 @@
 \alias{ig_tabToIgraph}
 \title{convert a table to an igraph}
 \usage{
-ig_tabToIgraph(grnTab, simplify = FALSE, directed = FALSE, weights = TRUE)
+ig_tabToIgraph(grnTab, simplify = FALSE, directed = FALSE,
+  weights = TRUE)
 }
 \arguments{
 \item{grnTab}{table of TF, TF, maybe zscores, maybe correlations}
@@ -21,4 +22,3 @@ iGraph object
 \description{
 convert a table to an igraph. This adds an nEnts vertex attribute to count the number of entities in the sub-net
 }
-

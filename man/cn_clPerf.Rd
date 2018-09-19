@@ -26,4 +26,3 @@ vector of TP FN FP TN
 \description{
 determine performance of classification at given threshold
 }
-

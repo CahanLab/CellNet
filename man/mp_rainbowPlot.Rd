@@ -25,4 +25,3 @@ make a rainbow colored dot plot
 mp_rainbowPlot(expDat,sampTab, "Actb", "description1")
 
 }
-

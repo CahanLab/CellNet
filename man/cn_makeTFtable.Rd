@@ -12,4 +12,3 @@ cn_makeTFtable(tfScores)
 \description{
 convert a tf nis list to a DF
 }
-

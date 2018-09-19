@@ -15,4 +15,3 @@ nothing
 \description{
 Creates a dir /media/ephemeral0/analysis, changes ownership ti ec2-user, sets cwd to this dir, sets up dir in /media/ephemeral1 for reference data
 }
-

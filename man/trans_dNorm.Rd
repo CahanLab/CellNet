@@ -17,4 +17,3 @@ transformed data matrix
 \description{
 express as a fraction of the column total
 }
-

@@ -17,4 +17,3 @@ output str
 \description{
 make a logging string
 }
-

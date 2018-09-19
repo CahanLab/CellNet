@@ -4,7 +4,8 @@
 \alias{qc_analysis}
 \title{Run qc pipeline}
 \usage{
-qc_analysis(sampTab, sname = "sra_id", subProp = 0.001, target = "mouse",
+qc_analysis(sampTab, sname = "sra_id", subProp = 0.001,
+  target = "mouse",
   gtfFile = "/media/ephemeral1/dat/ref/Mus_musculus.GRCm38.83.gtf",
   cname = "trimNames")
 }
@@ -27,4 +28,3 @@ sample tablein which qc measures have been appended
 \description{
 subsamples reads, aligns to each genome, and counts the reads mapping to features in the target genome
 }
-

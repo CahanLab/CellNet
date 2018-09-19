@@ -19,4 +19,3 @@ filename
 \description{
 and it compresses them, too
 }
-
