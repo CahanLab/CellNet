@@ -7,7 +7,7 @@ Depends:
 	R (>= 3.2.2)
 biocViews:
 Imports:
-    ggplot2,
+   ggplot2,
 	igraph,
 	pheatmap,
 	plyr,
@@ -18,9 +18,4 @@ License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
 URL: http://pcahan1.github.io/CellNet/
-BiocViews:
-	GO.db,
-	org.Hs.eg.db,
-	org.Mm.eg.db,
-	preprocessCore
 RoxygenNote: 6.1.0
