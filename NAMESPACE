@@ -35,15 +35,12 @@ export(findVarGenes)
 export(find_tfs)
 export(mp_rainbowPlot)
 export(multiplot)
-<<<<<<< HEAD
-=======
 export(ordered_class_perf_hm)
 export(pdf_classification_hm)
 export(pdf_grn_status)
 export(pdf_grn_status_by_CT)
 export(pdf_grn_status_by_dlevel)
 export(pdf_nis_plots)
->>>>>>> develop
 export(plot_class_PRs)
 export(plot_nis)
 export(plot_tsne)
