@@ -583,6 +583,36 @@ pdf_grn_status <- function
    
 }
 
+#' Create multiplot - adapted from Bioconductor package "scater"
+#' 
+#' @import grid
+#' 
+#' @example multiplot(plotlist = grn_plot_list, layout=plot_layout)
+#' 
+multiplot <- function (plotlist = NULL, layout = NULL, cols = 1) 
+{
+   library(grid)
+   plots <- plotlist
+   numPlots = length(plots)
+   if (is.null(layout)) {
+      layout <- matrix(seq(1, cols * ceiling(numPlots/cols)), 
+                       ncol = cols, nrow = ceiling(numPlots/cols))
+   }
+   if (numPlots == 1) {
+      print(plots[[1]])
+   }
+   else {
+      grid.newpage()
+      pushViewport(viewport(layout = grid.layout(nrow(layout), 
+                                                 ncol(layout))))
+      for (i in 1:numPlots) {
+         matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+         print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row, 
+                                         layout.pos.col = matchidx$col))
+      }
+   }
+}
+
 #' Create pdf of GRN status plots, one plot with all dlevel groups for every C/T type
 #' 
 #' @param cnResQuery CellNet query results object
@@ -592,7 +622,6 @@ pdf_grn_status <- function
 #' 
 #' @example plot_grn_status_by_CT(cnResQuery, cnProc, "Study_1", dlevel="description1")
 #' 
-#' @import scater
 #' 
 #' @export
 pdf_grn_status_by_CT <- function

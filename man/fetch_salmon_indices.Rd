@@ -5,7 +5,8 @@
 \title{fetch files needed to run salmon}
 \usage{
 fetch_salmon_indices(destination = "/media/ephemeral1/dat/ref",
-  species = "mouse", bucket = "cellnet-rnaseq", dir = "ref", iFile = NA)
+  species = "mouse", bucket = "cellnet-rnaseq", dir = "ref",
+  iFile = NA)
 }
 \arguments{
 \item{destination}{where to out the indices}
