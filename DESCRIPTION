@@ -16,7 +16,8 @@ Imports:
    randomForest,
    tidyr,
    parallel,
-   gridExtra
+   gridExtra,
+   scater
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
