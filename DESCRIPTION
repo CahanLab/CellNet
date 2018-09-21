@@ -6,7 +6,7 @@ Description: CellNet is a network biology-based computational platform that more
 Depends:
 	R (>= 3.2.2)
 use_bioc: true
-biocViews: GO.db, org.Hs.eg.db, org.Mm.eg.db, preprocessCore
+biocViews: GO.db, org.Hs.eg.db, org.Mm.eg.db, preprocessCore, scater
 Remotes: bioc::release/scater
 Imports:
    ggplot2,
@@ -15,7 +15,8 @@ Imports:
    plyr,
    randomForest,
    tidyr,
-   parallel
+   parallel,
+   gridExtra
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
