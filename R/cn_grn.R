@@ -103,7 +103,7 @@ cn_make_grn<-function
     grnSampSize<-min(table(sampTab[,dLevel]))
   }
 
-  stGRN<-sample_profiles_grn(sampTab, minNum=grnSampSize)
+  stGRN<-sample_profiles_grn(sampTab, minNum=grnSampSize, dLevel=dLevel)
   cat("Number of samples per CT: ",mean(table(stGRN[,dLevel])),"\n")
   expGRN<-expDat[,rownames(stGRN)]
   if(normDat){
