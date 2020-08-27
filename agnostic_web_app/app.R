@@ -277,7 +277,7 @@ server <- function(input, output, session) {
       
       output$NIS <- renderPlot({
          multiplot(plotlist=plot_list, cols=1)
-      }, height=000)
+      }, height=6000)
    }
    
    
@@ -500,11 +500,10 @@ server <- function(input, output, session) {
       #####
       # NIS
       queryNIS(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab(), tissueType())
-      
+     
+      updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
+                        value = 100, total = 100) 
    })
-   
-   updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
-                     value = 100, total = 100)
    
 }
 shinyApp(ui = ui, server = server)
