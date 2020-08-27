@@ -84,23 +84,29 @@ ui <- fluidPage(
                   #shinyjs for hidden, shinyWidgets for progressBar
                   hidden(div(id="progressDiv", progressBar(id = "progress", value = 0, total = 100, status = "info", 
                                                            display_pct = TRUE, striped = TRUE, title = "Progress..."))),
-               
-                  br(),
-                  plotOutput("classHm", height="300px"),
-                  br(),
-                  textOutput("engineeredDescrip"),
-                  br(),
-                  plotOutput("engineeredRef", height="300px"),
-                  br(),
-                  plotOutput("GRNstatus", height="4000px"),
-                  br(),
-                  plotOutput("NIS", height="4000px"),
-                  br(),
-                  hidden(div(id="validat_plots", h4("Newly trained classifier performance"))),
-                  textOutput("iGenes"),
-                  plotOutput("newTrainHm"),
-                  br(),
-                  plotOutput("newTrainPR")
+                  tabsetPanel(type = "tabs",
+                              tabPanel("Classification",
+                                       br(),
+                                       plotOutput("classHm", height="300px"),
+                                       br(),
+                                       textOutput("engineeredDescrip"),
+                                       br(),
+                                       plotOutput("engineeredRef", height="300px"),
+                                       br()),
+                              tabPanel("GRN Status", 
+                                       br(),
+                                       plotOutput("GRNstatus", height="4000px")),
+                              tabPanel("Network Scores", 
+                                       br(),
+                                       plotOutput("NIS", height="6000px")),
+                              hidden(div(id="validat_plots", 
+                                     tabPanel("New Training Validation",
+                                              h4("Newly trained classifier performance"),
+                                              textOutput("iGenes"),
+                                              plotOutput("newTrainHm"),
+                                              br(),
+                                              plotOutput("newTrainPR"))))
+                  )
          )
    )
 )
@@ -271,7 +277,7 @@ server <- function(input, output, session) {
       
       output$NIS <- renderPlot({
          multiplot(plotlist=plot_list, cols=1)
-      }, height=4000)
+      }, height=000)
    }
    
    
@@ -495,11 +501,10 @@ server <- function(input, output, session) {
       # NIS
       queryNIS(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab(), tissueType())
       
-
-      updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
-                        value = 100, total = 100)
-
    })
+   
+   updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
+                     value = 100, total = 100)
    
 }
 shinyApp(ui = ui, server = server)
