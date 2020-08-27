@@ -2,7 +2,7 @@
 suppressPackageStartupMessages({
    library(shiny)
    library(shinythemes)
-   #library(shinycssloaders)
+   library(shinycssloaders)
    library(shinyWidgets)
    library(shinyjs)
    library(CellNet)
@@ -75,8 +75,8 @@ ui <- fluidPage(
                                accept = ".csv", multiple=FALSE),
                      selectInput(inputId="species", label="Species", choices = c("Human", "Mouse")),
                      uiOutput("tissueType"),
-                     actionButton(inputId = "submit", label= "Submit")
-                  ),
+                     actionButton(inputId = "submit", label= "Submit"),
+                  width=3),
       
       mainPanel(
                   h3("CellNet Results"),
@@ -87,18 +87,24 @@ ui <- fluidPage(
                   tabsetPanel(type = "tabs",
                               tabPanel("Classification",
                                        br(),
-                                       plotOutput("classHm", height="300px"),
-                                       br(),
-                                       textOutput("engineeredDescrip"),
-                                       br(),
-                                       plotOutput("engineeredRef", height="300px"),
-                                       br()),
+                                       hidden(div(id="classDiv",
+                                                  shinycssloaders::withSpinner(plotOutput("classHm", height="300px"), type=7, color = "#9A50BD"),
+                                                   br(),
+                                                   textOutput("engineeredDescrip"),
+                                                   br(),
+                                                  shinycssloaders::withSpinner(plotOutput("engineeredRef", height="300px"), type=7, color = "#9A50BD"),
+                                                   br()))
+                                       ),
                               tabPanel("GRN Status", 
                                        br(),
-                                       plotOutput("GRNstatus", height="4000px")),
+                                       hidden(div(id="grnStatDiv",
+                                                  shinycssloaders::withSpinner(plotOutput("GRNstatus", height="4000px"), type=7, color = "#9A50BD")))
+                                       ),
                               tabPanel("Network Scores", 
                                        br(),
-                                       plotOutput("NIS", height="6000px")),
+                                       hidden(div(id="nisDiv",
+                                                  shinycssloaders::withSpinner(plotOutput("NIS", height="6000px"), type=7, color = "#9A50BD")))
+                                       ),
                               hidden(div(id="validat_plots", 
                                      tabPanel("New Training Validation",
                                               h4("Newly trained classifier performance"),
@@ -278,6 +284,9 @@ server <- function(input, output, session) {
       output$NIS <- renderPlot({
          multiplot(plotlist=plot_list, cols=1)
       }, height=6000)
+      
+      updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
+                        value = 100, total = 100) 
    }
    
    
@@ -382,7 +391,7 @@ server <- function(input, output, session) {
          expTrain <- utils_loadObject("Hs_expTrain_Jun-20-2017.rda")
          stTrain <- utils_loadObject("Hs_stTrain_Jun-20-2017.rda")
          broadReturn <- trainClassifier(expTrain, stTrain, querySampTab(), queryExpDat(), iGenes)
-         show("validat_plots")
+         shinyjs::show("validat_plots")
          updateProgressBar(session = session, id = "progress", 
                            title = "Done retraining! Starting classification...",
                            value = 40, total = 100)
@@ -394,6 +403,7 @@ server <- function(input, output, session) {
       tissueTypeRefDat <- utils_loadObject(paste0(tissueType(), "_engineeredRef_expDat_all.rda"))
       tissueTypeRefSt <- utils_loadObject(paste0(tissueType(), "_engineeredRef_sampTab_all.rda"))
       
+      shinyjs::show("classDiv")
       
       ### Plot classification heatmap for user-inputted study
       output$classHm <- renderPlot({
@@ -492,6 +502,8 @@ server <- function(input, output, session) {
       
       #####
       # GRN Status
+      shinyjs::show("grnStatDiv")
+      
       queryExpDat_ranked <- logRank(queryExpDat(), base = 0)
       
       queryGRN(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab())
@@ -499,10 +511,10 @@ server <- function(input, output, session) {
       
       #####
       # NIS
+      shinyjs::show("nisDiv")
+      
       queryNIS(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab(), tissueType())
      
-      updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
-                        value = 100, total = 100) 
    })
    
 }
