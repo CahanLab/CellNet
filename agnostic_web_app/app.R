@@ -7,11 +7,12 @@ suppressPackageStartupMessages({
    library(shinyjs)
    library(CellNet)
    library(ggplot2)
-   library(scater)
+   library(gridExtra)
    library(cancerCellNet)
    library(RColorBrewer)
    library(pheatmap)
    library(igraph)
+   library(plotly)
    source("plotting.R")
 })
 
@@ -30,7 +31,7 @@ ui <- fluidPage(
    p("CellNet is a network-biology-based, computational platform that assesses the fidelity of 
      cellular engineering and generates hypotheses for improving cell derivations. 
      CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), 
-     which we performed using publicly available RNA-Seq data of 16 mouse and 16 human cell and tissue types.
+     which we performed using publicly available RNA-Seq data of 16 human cell and tissue types.
      Below, we describe how to apply CellNet to your RNA-Seq data."),
    p("See more at ", tags$a("https://github.com/pcahan1/CellNet")),
    hr(),
@@ -38,10 +39,10 @@ ui <- fluidPage(
    h2("How to use this application"),
    h3("Inputs and outputs"),
    h4("Inputs: "),
-   p("1) ", strong("Study name"), ": whatever you'd like to name your study"),
+   p("1) ", strong("Study name"), ": desired study name"),
    p("2) ", strong("Sample metadata table"), "with the following columns at minimum: sample_name, description1"),
    p("3) ", strong("non-normalized"), "counts, TPM, or FPKM expression matrix with gene", strong("symbols"), "as row names and sample names as column names. 
-     Sample names in counts matrix must match sample names in sample metadata table (but column order does not matter)."),
+     Column names in counts matrix must match sample_name column in sample metadata table."),
 
    h4("Outputs: "),
    p("1) ", strong("Classification heatmap"),": Columns represent query samples, and rows represent tissue types of the training data. 
@@ -65,18 +66,13 @@ ui <- fluidPage(
    
    
    sidebarLayout(
-      sidebarPanel(
-                     h4("Uploading your data"),
-                     textInput(inputId="studyName", 
-                               label="Study name"),
-                     fileInput(inputId = "sampTabUploadCSV", label= "Upload .csv sample metadata table", 
-                               accept = ".csv", multiple=FALSE),
-                     fileInput(inputId = "expMatUpload", label = "Upload .csv counts matrix", 
-                               accept = ".csv", multiple=FALSE),
-                     selectInput(inputId="species", label="Species", choices = c("Human", "Mouse")),
-                     uiOutput("tissueType"),
-                     actionButton(inputId = "submit", label= "Submit"),
-                  width=3),
+      sidebarPanel(h4("Uploading your inputs"),
+                   selectInput(inputId="actionChoice", label="What do you want to do?", 
+                               choices = c("CellNet analysis", "Browse reference data"),
+                               selected = "CellNet"),
+                   uiOutput(outputId = "appOptions"),
+                   actionButton(inputId = "submit", label= "Submit"),
+                   width=3),
       
       mainPanel(
                   h3("CellNet Results"),
@@ -88,22 +84,46 @@ ui <- fluidPage(
                               tabPanel("Classification",
                                        br(),
                                        hidden(div(id="classDiv",
-                                                  shinycssloaders::withSpinner(plotOutput("classHm", height="300px"), type=7, color = "#9A50BD"),
-                                                   br(),
-                                                   textOutput("engineeredDescrip"),
-                                                   br(),
-                                                  shinycssloaders::withSpinner(plotOutput("engineeredRef", height="300px"), type=7, color = "#9A50BD"),
-                                                   br()))
+                                                  shinycssloaders::withSpinner(
+                                                     plotlyOutput(outputId="classHm", width="900px", height="500px"), 
+                                                     type=7, color = "#9A50BD"),
+                                                  br(),
+                                                  textOutput("engineeredDescrip"),
+                                                  br()
+                                                  )
+                                              ),
+                                        hidden(div(id="engineeredRefClassDiv",
+                                                  shinycssloaders::withSpinner(
+                                                     plotlyOutput("engineeredRef", width="900px", height="1200px"), 
+                                                     type=7, color = "#9A50BD"),
+                                                  br()
+                                                  )
+                                               )
+                                                   
                                        ),
                               tabPanel("GRN Status", 
                                        br(),
+                                       # hidden(div(id="grnStatDiv",
+                                       #            shinycssloaders::withSpinner(plotOutput("GRNstatus", height="4000px"), type=7, color = "#9A50BD")))
+                                       # ),
                                        hidden(div(id="grnStatDiv",
-                                                  shinycssloaders::withSpinner(plotOutput("GRNstatus", height="4000px"), type=7, color = "#9A50BD")))
+                                                  shinycssloaders::withSpinner(
+                                                     plotlyOutput(outputId = "GRNstatus", height="3000px", width="900px"),
+                                                     type=7, color = "#9A50BD")
+                                                  ))
                                        ),
                               tabPanel("Network Scores", 
                                        br(),
                                        hidden(div(id="nisDiv",
-                                                  shinycssloaders::withSpinner(plotOutput("NIS", height="6000px"), type=7, color = "#9A50BD")))
+                                                  shinycssloaders::withSpinner(
+                                                     plotlyOutput(outputId="NIS", height="4000px", width="900px"),
+                                                     type=7, color = "#9A50BD")
+                                                 )
+                                             ),
+                                       hidden(div(id="nisDiv2",
+                                                  textOutput("noNIS")
+                                                  )
+                                              )
                                        ),
                               hidden(div(id="validat_plots", 
                                      tabPanel("New Training Validation",
@@ -112,7 +132,8 @@ ui <- fluidPage(
                                               plotOutput("newTrainHm"),
                                               br(),
                                               plotOutput("newTrainPR"))))
-                  )
+                  ),
+                  width=9
          )
    )
 )
@@ -192,7 +213,7 @@ server <- function(input, output, session) {
       return(broad_return)
    }
    
-   queryClassifier <- function(broadReturn, studyName="Test", querySampTab, queryExpDat, groupBy="description3") {
+   queryClassifier <- function(broadReturn, studyName="Test", querySampTab, queryExpDat, groupBy="description1") {
       cnProc_broad <- broadReturn$cnProc
       
       # Query the classifier:
@@ -200,55 +221,91 @@ server <- function(input, output, session) {
       
       # Adjust labels
       grp_names <- c(as.character(querySampTab[,groupBy]), rep("random", 3))
-      names(grp_names) <- c(as.character(querySampTab$sra_id), "rand_1", "rand_2", "rand_3")
+      names(grp_names) <- c(as.character(querySampTab$sample_name), "rand_1", "rand_2", "rand_3")
       #names(grp_names) <- c(as.character(querySampTab$sample_name), "rand_1", "rand_2", "rand_3")
       # Re-order classMatrixQuery to match order of rows in querySampTab
       classMatrixQuery <- classMatrixQuery[,names(grp_names)]
       
-      
-      acn_queryClassHm(classMatrixQuery, main = paste0("Classification Heatmap, ", studyName),
-                       grps = grp_names, is.Big = TRUE,
-                       fontsize_row=9, fontsize_col = 10)
+      # acn_queryClassHm(classMatrixQuery, main = paste0("Classification Heatmap, ", studyName),
+      #                  grps = grp_names, is.Big = TRUE,
+      #                  fontsize_row=9, fontsize_col = 10)
+      heatmapPlotly(classMatrixQuery, querySampTab)
    }
    
-   queryGRN <- function(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab) {
-      updateProgressBar(session = session, id = "progress", title="Now analyzing GRN status...",
-                        value = 70, total = 100)
+   queryClassifierRef <- function(broadReturn, studyName="Ref", querySampTab, queryExpDat, groupBy="citation") {
+      cnProc_broad <- broadReturn$cnProc
+      
+      # Query the classifier:
+      classMatrixQuery <- broadClass_predict(cnProc = cnProc_broad, expDat = queryExpDat, nrand = 5)
+      
+      # Adjust labels
+      grp_names <- c(as.character(querySampTab[,groupBy]), rep("random", 5))
+      names(grp_names) <- c(as.character(querySampTab$sample_name), 
+                            "rand_1", "rand_2", "rand_3", "rand_4", "rand_5")
+      
+      # Re-order classMatrixQuery to match order of rows in querySampTab
+      classMatrixQuery <- classMatrixQuery[,names(grp_names)]
+      
+      # acn_queryClassHm(classMatrixQuery, main = paste0("Classification Heatmap, ", studyName),
+      #                  grps = grp_names, is.Big = TRUE,
+      #                  fontsize_row=9, fontsize_col = 10)
+      heatmapPlotlyRef(classMatrixQuery, querySampTab)
+   }
+   
+   queryGRN <- function(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab, ncols=2) {
+      updateProgressBar(session = session, id = "progress", title="Now analyzing GRN status...may take a minute",
+                        value = 65, total = 100)
       
       system.time(GRN_statusQuery <- ccn_queryGRNstatus(expQuery = queryExpDat_ranked, grn_return = grnAll, 
                                                         trainNorm = trainNormParam, classifier_return = broadReturn, prune = TRUE))
       
       cell_types <- rownames(GRN_statusQuery)
-      GRN_statusQuery <- GRN_statusQuery[,querySampTab$sra_id]
+      GRN_statusQuery <- GRN_statusQuery[,querySampTab$sample_name]
       
       plot_list <- list()
       i <- 1
       for(type in cell_types) {
-         plot_df <-  data.frame("SampleNames" = paste(colnames(GRN_statusQuery), querySampTab$description3),
-                                "GRN_Status" = as.vector(GRN_statusQuery[type, ]))
+         plot_df <-  data.frame(#"SampleNames" = paste(colnames(GRN_statusQuery), querySampTab[,"description1"]),
+                                "SampleNames" = colnames(GRN_statusQuery),
+                                "GRN_Status" = as.vector(GRN_statusQuery[type, ]),
+                                "Description" = querySampTab[,"description1"]
+                                )
          plot_df$SampleNames <- factor(plot_df$SampleNames, levels=plot_df$SampleNames)
-         type_plot <- ggplot(plot_df) + geom_bar(stat="identity", data = plot_df, 
+         type_plot <- ggplot(plot_df, aes(text=Description)) + geom_bar(stat="identity", data = plot_df, 
                                                  aes(x=SampleNames, y=GRN_Status), width = 0.7) +
-            ggtitle(paste0(type, " Network GRN Status")) + 
+            #ggtitle(paste0(type, " Network GRN Status")) + 
             xlab("Samples") + ylab("GRN Status") + theme_bw() +
             theme(text = element_text(size=10), 
                   legend.position="none",
                   axis.text.x = element_text(angle = 90, vjust=0.5, hjust=1)) +
             geom_hline(yintercept=1, linetype="dashed", color = "steelblue")
          
-         plot_list[[i]] <- type_plot
+         plot_list[[i]] <- ggplotly(type_plot, tooltip="all") %>% layout(annotations = list(
+            text = paste0(type, " Network GRN Status"),
+            xref = "paper",
+            yref = "paper",
+            yanchor = "bottom",
+            xanchor = "left",
+            x = 0,
+            y = 1,
+            showarrow = FALSE
+         ),
+         xaxis = list(automargin=TRUE, tickangle=75)
+         )
          i <- i+1
       }
       
-      output$GRNstatus <- renderPlot({
-         multiplot(plotlist=plot_list, cols=2)
-      }, height=4000)
+      output$GRNstatus <- renderPlotly({
+         subplot(plot_list, nrows=ceiling(length(plot_list)/ncols), titleX=TRUE, titleY=TRUE,
+                 margin=c(0.05,0.05,0,floor(mean(nchar(colnames(GRN_statusQuery))))/190)
+                 )
+      })
       
 
    }
    
-   queryNIS <- function(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab, tissueType) {
-      updateProgressBar(session = session, id = "progress", title="Now analyzing transcriptional regulators...",
+   queryNIS <- function(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab, tissueType, tissueTypeTopTFs) {
+      updateProgressBar(session = session, id = "progress", title="Now analyzing transcriptional regulators...may take several minutes",
                         value = 85, total = 100)
       system.time(TF_scores <- ccn_tfScores(expQuery = queryExpDat_ranked, grnAll = grnAll, trainNorm = trainNormParam,
                                             classifier_return = broadReturn, subnetName = tissueType,
@@ -256,34 +313,44 @@ server <- function(input, output, session) {
       updateProgressBar(session = session, id = "progress", title="Finishing up...",
                         value = 97, total = 100)
       
-      sample_names <- querySampTab$sra_id
-      #sample_names <- querySampTab$sample_name
+      # sample_names <- querySampTab$sra_id
+      sample_names <- querySampTab$sample_name
       
       plot_list <- list()
+      title_list <- list()
       i <- 1
       for(sample in sample_names) {
-         descript <- querySampTab$description3[which(querySampTab$sra_id == sample)]
+         descript <- querySampTab$description1[which(querySampTab$sample_name == sample)]
          #descript <- querySampTab$description3[which(querySampTab$sample_name == sample)]
-         plot_df <- data.frame("TFs" = rownames(TF_scores),
-                               "Scores" = as.vector(TF_scores[,sample]))
+         plot_df <- data.frame("TFs" = tissueTypeTopTFs,
+                               "Scores" = as.vector(TF_scores[tissueTypeTopTFs,sample]))
          sample_TFplot <- ggplot(plot_df, aes(x = TFs , y = Scores)) + geom_bar(stat="identity") + #aes(fill = medVal)) +
             theme_bw() + #scale_fill_gradient2(low = "purple", 
             # mid = "white", 
             # high = "orange") + 
-            ggtitle(paste0(sample, ", ", descript, ", ", tissueType, " transcription factor scores")) +
+            #ggtitle(paste0(sample, ", ", descript, ", ", tissueType, " transcription factor scores")) +
             ylab("Network influence score") + xlab("Transcriptional regulator") + 
             theme(legend.position = "none", axis.text = element_text(size = 8)) +
             theme(text = element_text(size=10), 
                   legend.position="none",
                   axis.text.x = element_text(angle = 45, vjust=0.5))
          #coord_flip()
-         plot_list[[i]] <- sample_TFplot
+         plot_list[[i]] <- ggplotly(sample_TFplot) %>% layout(annotations = list(
+            text = paste0(sample, ", ", descript, ", ", tissueType, " transcription factor scores"),
+            xref = "paper",
+            yref = "paper",
+            yanchor = "bottom",
+            xanchor = "left",
+            x = 0,
+            y = 1,
+            showarrow = FALSE
+         ))
          i <- i+1
       }
       
-      output$NIS <- renderPlot({
-         multiplot(plotlist=plot_list, cols=1)
-      }, height=6000)
+      output$NIS <- renderPlotly({
+         subplot(plot_list, nrows=length(plot_list), titleX=TRUE, titleY=TRUE)
+      })
       
       updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
                         value = 100, total = 100) 
@@ -300,7 +367,30 @@ server <- function(input, output, session) {
    ########################################################################################
    ########################################################################################
    ##### PROCESS INPUTS #####
+   actionChoice <- eventReactive(input$actionChoice, {
+      return(input$actionChoice)
+   })
+
    
+   output$appOptions <- renderUI({
+      if (actionChoice() == "Browse reference data") {
+         tagList(
+            selectInput(inputId="species", label="Species", choices = c("Human")),#, "Mouse")),
+            uiOutput("tissueTypeRef")
+         )
+      } else {
+         tagList(
+            textInput(inputId="studyName", label="Study name"),
+            fileInput(inputId = "sampTabUploadCSV", label= "Upload .csv sample metadata table", 
+                      accept = ".csv", multiple=FALSE),
+            fileInput(inputId = "expMatUpload", label = "Upload .csv counts matrix", 
+                      accept = ".csv", multiple=FALSE),
+            selectInput(inputId="species", label="Species", choices = c("Human")), #, "Mouse")),
+            uiOutput("tissueType")
+         )
+      }
+   })
+ 
    queryStudyName <- eventReactive(input$studyName, { 
       return(input$studyName)
    })
@@ -308,11 +398,10 @@ server <- function(input, output, session) {
    # Read in file input for sample metadata table
    querySampTab <- eventReactive(input$sampTabUploadCSV, { 
       st <- read.csv(input$sampTabUploadCSV$datapath, stringsAsFactors = FALSE, header=TRUE)
-      rownames(st) <- st$sra_id
+      rownames(st) <- st$sample_name
       #rownames(st) <- st$sample_name
       return(st)
    })
-   
    
    # Read in file input for expression matrix
    queryExpDat <- eventReactive(input$expMatUpload, { 
@@ -325,25 +414,48 @@ server <- function(input, output, session) {
       input$species
    })
    
-   
    output$tissueType <- renderUI({
       if (species() == "Human") {
          selectInput(inputId = "tissueType", label = "Target Cell/Tissue Type",
-                  choices = c("lung","neuron","intestine_colon","kidney","heart","liver",
-                              "skeletal_muscle","esc","endothelial_cell","hspc","b_cell",
-                              "monocyte_macrophage","t_cell","fibroblast"))
+                  choices = c("lung","neuron","intestine_colon",#"kidney",
+                              "heart","liver","skeletal_muscle",#"esc","endothelial_cell",
+                              "hspc","none_of_the_above"#,"b_cell","monocyte_macrophage","t_cell","fibroblast"
+                              ))
          
-      } else if (species() == "Mouse") {
-         selectInput(inputId = "tissueType", label = "Target Cell/Tissue Type",
-                     choices = c("t_cell","lung","nk_cell","hspc","heart",
-                                 "macrophage","skeletal_muscle","neuron","wat",
-                                 "kidney","intestine_colon","dendritic_cell",
-                                 "b_cell","fibroblast","esc","liver"))
-      }   
+      } 
+      # else if (species() == "Mouse") {
+      #    selectInput(inputId = "tissueType", label = "Target Cell/Tissue Type",
+      #                choices = c("t_cell","lung","nk_cell","hspc","heart",
+      #                            "macrophage","skeletal_muscle","neuron","wat",
+      #                            "kidney","intestine_colon","dendritic_cell",
+      #                            "b_cell","fibroblast","esc","liver"))
+      # }   
    })
    
    tissueType <- eventReactive(input$tissueType, { 
       return(input$tissueType)
+   })
+   
+   output$tissueTypeRef <- renderUI({
+      if (species() == "Human") {
+         selectInput(inputId = "tissueTypeRef", label = "Target Cell/Tissue Type",
+                     choices = c("lung","neuron","intestine_colon",#"kidney",
+                                 "heart","liver","skeletal_muscle",#"esc","endothelial_cell",
+                                 "hspc"#,"b_cell","monocyte_macrophage","t_cell","fibroblast"
+                     ))
+         
+      } 
+      # else if (species() == "Mouse") {
+      #    selectInput(inputId = "tissueType", label = "Target Cell/Tissue Type",
+      #                choices = c("t_cell","lung","nk_cell","hspc","heart",
+      #                            "macrophage","skeletal_muscle","neuron","wat",
+      #                            "kidney","intestine_colon","dendritic_cell",
+      #                            "b_cell","fibroblast","esc","liver"))
+      # }   
+   })
+   
+   tissueTypeRef <- eventReactive(input$tissueTypeRef, { 
+      return(input$tissueTypeRef)
    })
    
    ########################################################################################
@@ -358,163 +470,243 @@ server <- function(input, output, session) {
    
    # Upon clicking submit:
    observeEvent(input$submit, {
-      if (is.null(querySampTab()) || is.null(queryExpDat())) {
-         shinyalert("Error!", "Please submit query sample table and expression matrix.", type = "error")
-         return(NULL)
-      }
-      
       shinyjs::show("progressDiv") #shinyjs
       
-      queryExpDat <- apply(queryExpDat(), 2, downSampleW, 1e5)
-      queryExpDat <- log(1 + queryExpDat())
-      
-      updateProgressBar(session = session, id = "progress", title = "Loaded in query data...",
-                        value = 10, total = 100)
-      
-      # Load in TISSUE-SPECIFIC broadReturn and iGenes
-      ##### Fix naming scheme for classifiers and iGenes
-      broadReturn <- utils_loadObject(paste0(tissueType(), "_broadClassifier100.rda"))
-      iGenes <- utils_loadObject(paste0(tissueType(), "_studies_iGenes.rda"))
-      ######
-      
-      # Check if retraining is necessary
-      if (all(broadReturn$cnProc$cgenes %in% rownames(queryExpDat()))) {
-         ## If no need to retrain:
-         updateProgressBar(session = session, id = "progress", 
-                           title = "No need to retrain! Starting classification...",
-                           value = 40, total = 100)
-      } else {
-         ## If need to retrain:
-         updateProgressBar(session = session, id = "progress", 
-                           title = "Retraining classifier based on intersecting genes...This may take several minutes",
-                           value = 20, total = 100)
-         expTrain <- utils_loadObject("Hs_expTrain_Jun-20-2017.rda")
-         stTrain <- utils_loadObject("Hs_stTrain_Jun-20-2017.rda")
-         broadReturn <- trainClassifier(expTrain, stTrain, querySampTab(), queryExpDat(), iGenes)
-         shinyjs::show("validat_plots")
-         updateProgressBar(session = session, id = "progress", 
-                           title = "Done retraining! Starting classification...",
-                           value = 40, total = 100)
-      }
+      # For CellNet analysis of user data
+      if (actionChoice() == "CellNet analysis") {
+         if (is.null(querySampTab()) || is.null(queryExpDat())) {
+            shinyalert("Error!", "Please submit query sample table and expression matrix.", type = "error")
+            return(NULL)
+         }
          
-      
-      #Load tissueType-specific engineered reference data
-      
-      tissueTypeRefDat <- utils_loadObject(paste0(tissueType(), "_engineeredRef_expDat_all.rda"))
-      tissueTypeRefSt <- utils_loadObject(paste0(tissueType(), "_engineeredRef_sampTab_all.rda"))
-      
-      shinyjs::show("classDiv")
-      
-      ### Plot classification heatmap for user-inputted study
-      output$classHm <- renderPlot({
-         queryClassifier(broadReturn, queryStudyName(), querySampTab(), queryExpDat(), groupBy="description3")
-      }, height=300)
-      
-      
-      ### Plot classification heatmap for engineered reference studies
-      output$engineeredDescrip <- renderText({
-         "How does your protocol compare to publicly available data from related studies? \n \n"   
-      })
-      
-      output$engineeredRef <- renderPlot({
-         queryClassifier(broadReturn, studyName=paste0(input$tissueType, " engineered reference studies"), 
-                         tissueTypeRefSt, tissueTypeRefDat, groupBy="study_id")
-      }, height=300)
-      
-      updateProgressBar(session = session, id = "progress", title="Now starting GRN analysis...",
-                        value = 55, total = 100)
-      
-      
-      ###### GRN Analysis ######
-      
-      # Load in TISSUE-SPECIFIC grnAll and trainNormParam
-      grnAll <- utils_loadObject(paste0(tissueType(), "_grnAll.rda"))
-      trainNormParam <- utils_loadObject(paste0(tissueType(), "_trainNormParam.rda"))
-      
-      ### Check if subsetting grnAll and trainNormParam is necessary:
-      updateProgressBar(session = session, id = "progress", title="Updating GRNs based on available genes...",
-                        value = 60, total = 100)
-      
-      
-      vertex_names <- V(grnAll$overallGRN$graph)$name
-      
-      if (!all(vertex_names %in% iGenes)) {
-         allTargets <- grnAll$overallGRN$grnTable$TG
-         newGRNTable <- grnAll$overallGRN$grnTable[which(allTargets %in% iGenes),]
-         newTFsAll <- newGRNTable$TF
-         newGRNTable <- newGRNTable[which(newTFsAll %in% iGenes),]
-         grnAll$overallGRN$grnTable <- newGRNTable
-
-         # Subset overallGRN graph based on iGenes
+         queryExpDat <- apply(queryExpDat(), 2, downSampleW, 1e5)
+         queryExpDat <- log(1 + queryExpDat())
+         
+         updateProgressBar(session = session, id = "progress", title = "Loaded in query data...",
+                           value = 10, total = 100)
+         
+         # Load in TISSUE-SPECIFIC broadReturn and iGenes
+         ##### Fix naming scheme for classifiers and iGenes
+         broadReturn <- utils_loadObject(paste0(tissueType(), "_broadClassifier100.rda"))
+         iGenes <- utils_loadObject(paste0(tissueType(), "_studies_iGenes.rda"))
+         ######
+         
+         # Check if retraining is necessary
+         if (all(broadReturn$cnProc$cgenes %in% rownames(queryExpDat()))) {
+            ## If no need to retrain:
+            updateProgressBar(session = session, id = "progress", 
+                              title = "No need to retrain! Starting classification...",
+                              value = 40, total = 100)
+         } else {
+            ## If need to retrain:
+            updateProgressBar(session = session, id = "progress", 
+                              title = "Retraining classifier based on intersecting genes...This may take several minutes",
+                              value = 20, total = 100)
+            expTrain <- utils_loadObject("Hs_expTrain_Jun-20-2017.rda")
+            stTrain <- utils_loadObject("Hs_stTrain_Jun-20-2017.rda")
+            broadReturn <- trainClassifier(expTrain, stTrain, querySampTab(), queryExpDat(), iGenes)
+            shinyjs::show("validat_plots")
+            updateProgressBar(session = session, id = "progress", 
+                              title = "Done retraining! Starting classification...",
+                              value = 40, total = 100)
+         }
+         
+         
+         #Load tissueType-specific engineered reference data
+         if(tissueType() != "none_of_the_above") {
+            tissueTypeRefDat <- utils_loadObject(paste0(tissueType(), "_engineeredRef_normalized_expDat_all.rda"))
+            tissueTypeRefSt <- utils_loadObject(paste0(tissueType(), "_engineeredRef_sampTab_all.rda"))
+            rownames(tissueTypeRefSt) <- tissueTypeRefSt$sra_id
+            tissueTypeRefDat <- tissueTypeRefDat[,rownames(tissueTypeRefSt)]
+            
+            tissueTypeTopTFs <- utils_loadObject(paste0(tissueType(), "_top_TF_display_order.rda"))
+         }
+         
+         shinyjs::show("classDiv")
+         
+         ### Plot classification heatmap for user-inputted study
+         output$classHm <- renderPlotly({
+            queryClassifier(broadReturn, queryStudyName(), querySampTab(), queryExpDat(), groupBy="description1")
+         })
+         
+         
+         ### Plot classification heatmap for engineered reference studies
+         if(tissueType() != "none_of_the_above") {
+            shinyjs::show("engineeredRefClassDiv")
+            
+            output$engineeredDescrip <- renderText({
+               "How does your protocol compare to publicly available data from related studies? \n \n"   
+            })
+            
+            output$engineeredRef <- renderPlotly({
+               queryClassifierRef(broadReturn, studyName=paste0(input$tissueType, " engineered reference studies"), 
+                                  tissueTypeRefSt, tissueTypeRefDat, groupBy="citation")
+            })
+         } else {
+            output$engineeredDescrip <- renderText({
+               "Comparison to engineered reference samples unavailable without target cell/tissue type selected."   
+            })
+         }
+         
+         updateProgressBar(session = session, id = "progress", title="Now starting GRN analysis...",
+                           value = 55, total = 100)
+         
+         
+         ###### GRN Analysis ######
+         
+         # Load in TISSUE-SPECIFIC grnAll and trainNormParam
+         grnAll <- utils_loadObject(paste0(tissueType(), "_grnAll.rda"))
+         trainNormParam <- utils_loadObject(paste0(tissueType(), "_trainNormParam.rda"))
+         
+         ### Check if subsetting grnAll and trainNormParam is necessary:
+         updateProgressBar(session = session, id = "progress", title="Updating GRNs based on available genes...",
+                           value = 60, total = 100)
+         
+         
          vertex_names <- V(grnAll$overallGRN$graph)$name
-         graph_iGenes <- which(vertex_names %in% iGenes)
-         newGraph <- induced_subgraph(graph=grnAll$overallGRN$graph, vids=graph_iGenes, impl="copy_and_delete")
-         grnAll$overallGRN$graph <- newGraph
-
-         # Subset specGenes based on iGenes and tissue type
-         tissueTypes <- names(grnAll$specGenes$context$general)
-         newGeneral <- grnAll$specGenes$context$general
-         for (tissue in tissueTypes) {
-            tissueSpecGenes <- newGeneral[[tissue]]
-            tissueSpecGenes <- tissueSpecGenes[which(names(tissueSpecGenes) %in% iGenes)]
-            newGeneral[[tissue]] <- tissueSpecGenes
-         }
-         grnAll$specGenes$context$general <- newGeneral
-
-         # Subset ctGRN geneLists, graphLists, and tfTargets  based on iGenes and tissue type
-         grnAll$ctGRNs$geneLists <- newGeneral
-
-         newGraphLists <- grnAll$ctGRNs$graphLists
-         for (tissue in tissueTypes) {
-            tissueGRN <- newGraphLists[[tissue]]
-            iVertices <- vertex_attr(tissueGRN, name="name")
-            iVertices <- iVertices[which(iVertices %in% iGenes)]
-            tissueGRN <- induced_subgraph(graph=tissueGRN, vids=iVertices, impl="copy_and_delete")
-            newGraphLists[[tissue]] <- tissueGRN
-         }
-         grnAll$ctGRNs$graphLists <- newGraphLists
-
-         newTFTargets <- grnAll$ctGRNs$tfTargets
-         for (tissue in tissueTypes) {
-            tissueTFTargets <- newTFTargets[[tissue]]
-            tissueTFTargets <- tissueTFTargets[which(names(tissueTFTargets) %in% iGenes)]
-            for (TF in names(tissueTFTargets)) {
-               newTargets <- tissueTFTargets[[TF]]
-               newTargets <- newTargets[which(newTargets %in% iGenes)]
-               tissueTFTargets[[TF]] <- newTargets
+         
+         if (!all(vertex_names %in% iGenes)) {
+            allTargets <- grnAll$overallGRN$grnTable$TG
+            newGRNTable <- grnAll$overallGRN$grnTable[which(allTargets %in% iGenes),]
+            newTFsAll <- newGRNTable$TF
+            newGRNTable <- newGRNTable[which(newTFsAll %in% iGenes),]
+            grnAll$overallGRN$grnTable <- newGRNTable
+            
+            # Subset overallGRN graph based on iGenes
+            vertex_names <- V(grnAll$overallGRN$graph)$name
+            graph_iGenes <- which(vertex_names %in% iGenes)
+            newGraph <- induced_subgraph(graph=grnAll$overallGRN$graph, vids=graph_iGenes, impl="copy_and_delete")
+            grnAll$overallGRN$graph <- newGraph
+            
+            # Subset specGenes based on iGenes and tissue type
+            tissueTypes <- names(grnAll$specGenes$context$general)
+            newGeneral <- grnAll$specGenes$context$general
+            for (tissue in tissueTypes) {
+               tissueSpecGenes <- newGeneral[[tissue]]
+               tissueSpecGenes <- tissueSpecGenes[which(names(tissueSpecGenes) %in% iGenes)]
+               newGeneral[[tissue]] <- tissueSpecGenes
             }
-            newTFTargets[[tissue]] <- tissueTFTargets
+            grnAll$specGenes$context$general <- newGeneral
+            
+            # Subset ctGRN geneLists, graphLists, and tfTargets  based on iGenes and tissue type
+            grnAll$ctGRNs$geneLists <- newGeneral
+            
+            newGraphLists <- grnAll$ctGRNs$graphLists
+            for (tissue in tissueTypes) {
+               tissueGRN <- newGraphLists[[tissue]]
+               iVertices <- vertex_attr(tissueGRN, name="name")
+               iVertices <- iVertices[which(iVertices %in% iGenes)]
+               tissueGRN <- induced_subgraph(graph=tissueGRN, vids=iVertices, impl="copy_and_delete")
+               newGraphLists[[tissue]] <- tissueGRN
+            }
+            grnAll$ctGRNs$graphLists <- newGraphLists
+            
+            newTFTargets <- grnAll$ctGRNs$tfTargets
+            for (tissue in tissueTypes) {
+               tissueTFTargets <- newTFTargets[[tissue]]
+               tissueTFTargets <- tissueTFTargets[which(names(tissueTFTargets) %in% iGenes)]
+               for (TF in names(tissueTFTargets)) {
+                  newTargets <- tissueTFTargets[[TF]]
+                  newTargets <- newTargets[which(newTargets %in% iGenes)]
+                  tissueTFTargets[[TF]] <- newTargets
+               }
+               newTFTargets[[tissue]] <- tissueTFTargets
+            }
+            grnAll$ctGRNs$tfTargets <- newTFTargets
+            
+            # Subset trainNormParam
+            newTVals <- trainNormParam$tVals
+            for (tissue in tissueTypes) {
+               newIndices <- which(names(newTVals[[tissue]][["mean"]]) %in% iGenes)
+               newTVals[[tissue]][["mean"]] <- newTVals[[tissue]][["mean"]][newIndices]
+               newTVals[[tissue]][["sd"]] <- newTVals[[tissue]][["sd"]][newIndices]
+            }
+            trainNormParam$tVals <- newTVals
          }
-         grnAll$ctGRNs$tfTargets <- newTFTargets
-
-         # Subset trainNormParam
-         newTVals <- trainNormParam$tVals
-         for (tissue in tissueTypes) {
-            newIndices <- which(names(newTVals[[tissue]][["mean"]]) %in% iGenes)
-            newTVals[[tissue]][["mean"]] <- newTVals[[tissue]][["mean"]][newIndices]
-            newTVals[[tissue]][["sd"]] <- newTVals[[tissue]][["sd"]][newIndices]
+         
+         updateProgressBar(session = session, id = "progress", title="Done updating GRNs!",
+                           value = 65, total = 100)
+         
+         #####
+         # GRN Status
+         shinyjs::show("grnStatDiv")
+         
+         queryExpDat_ranked <- logRank(queryExpDat(), base = 0)
+         
+         queryGRN(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab())
+         
+         
+         #####
+         # NIS
+         
+         if(tissueType() != "none_of_the_above") {
+            shinyjs::show("nisDiv")
+            queryNIS(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab(), tissueType(), tissueTypeTopTFs)   
+         } else {
+            shinyjs::show("nisDiv2")
+            output$noNIS <- renderText({
+               "Network scores unavailable without target cell/tissue type selected."
+            })
+            
+            updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
+                              value = 100, total = 100)
          }
-         trainNormParam$tVals <- newTVals
+         
+      } else if (actionChoice() == "Browse reference data") { # For just browsing!
+         # Load in TISSUE-SPECIFIC broadReturn and iGenes
+         ##### Fix naming scheme for classifiers and iGenes
+         broadReturn <- utils_loadObject(paste0(tissueTypeRef(), "_broadClassifier100.rda"))
+         iGenes <- utils_loadObject(paste0(tissueTypeRef(), "_studies_iGenes.rda"))
+         
+         tissueTypeRefDat <- utils_loadObject(paste0(tissueTypeRef(), "_engineeredRef_normalized_expDat_all.rda"))
+         tissueTypeRefSt <- utils_loadObject(paste0(tissueTypeRef(), "_engineeredRef_sampTab_all.rda"))
+         rownames(tissueTypeRefSt) <- tissueTypeRefSt$sra_id
+         tissueTypeRefDat <- tissueTypeRefDat[,rownames(tissueTypeRefSt)]
+         
+         tissueTypeTopTFs <- utils_loadObject(paste0(tissueTypeRef(), "_top_TF_display_order.rda"))
+         
+         updateProgressBar(session = session, id = "progress", title = "Loaded in reference data...",
+                           value = 15, total = 100)
+         
+         shinyjs::show("engineeredRefClassDiv")
+         
+         output$engineeredDescrip <- renderText({
+            paste0("Reference datasets for engineered ", tissueTypeRef(), " studies")   
+         })
+         
+         output$engineeredRef <- renderPlotly({
+            queryClassifierRef(broadReturn, studyName=paste0(tissueTypeRef(), " engineered reference studies"), 
+                               tissueTypeRefSt, tissueTypeRefDat, groupBy="citation")
+         })
+         
+         updateProgressBar(session = session, id = "progress", title="Finished classification, now starting GRN analysis...",
+                           value = 30, total = 100)
+         
+         ###### GRN Analysis ######
+         # Load in TISSUE-SPECIFIC grnAll and trainNormParam
+         grnAll <- utils_loadObject(paste0(tissueTypeRef(), "_grnAll.rda"))
+         trainNormParam <- utils_loadObject(paste0(tissueTypeRef(), "_trainNormParam.rda"))
+         
+         # GRN Status
+         shinyjs::show("grnStatDiv")
+         
+         refDat_ranked <- logRank(tissueTypeRefDat, base = 0)
+         
+         queryGRN(grnAll, trainNormParam, broadReturn, refDat_ranked, tissueTypeRefSt, ncols=1)
+         
+         # NIS
+         shinyjs::show("nisDiv2")
+         output$noNIS <- renderText({
+            "Network scores unavailable in browse mode."
+         })
+         
+         updateProgressBar(session = session, id = "progress", title="Analysis Complete!",
+                           value = 100, total = 100)
+      } else {
+         
       }
       
-      updateProgressBar(session = session, id = "progress", title="Done updating GRNs!",
-                        value = 65, total = 100)
       
-      #####
-      # GRN Status
-      shinyjs::show("grnStatDiv")
-      
-      queryExpDat_ranked <- logRank(queryExpDat(), base = 0)
-      
-      queryGRN(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab())
-      
-      
-      #####
-      # NIS
-      shinyjs::show("nisDiv")
-      
-      queryNIS(grnAll, trainNormParam, broadReturn, queryExpDat_ranked, querySampTab(), tissueType())
-     
    })
    
 }
