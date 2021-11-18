@@ -14,7 +14,7 @@ CellNet is a network-biology-based, computational platform that assesses the fid
 ## Ways to Run CellNet
 
 #### Web application
-The web application takes as input an expression matrix (counts, TPM, or FPKM), and sample meta-data. The applciation performs CellNet analysis. Additionally, this tool includes analysis of many state-of-the-art differentiation protocols, so that you can benchmark your results against those commonly used methods:
+The web application takes as input an expression matrix (counts, TPM, or FPKM), and sample meta-data. The application performs CellNet analysis. Additionally, this tool includes analysis of many state-of-the-art differentiation protocols, so that you can benchmark your results against those commonly used methods:
 
 [CellNet web app](https://cahanlab.org/agnosticCellNet_web/)
 
