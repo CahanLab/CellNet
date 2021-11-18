@@ -9,14 +9,14 @@
 [Microarray CellNet code](https://pcahan1.github.io/cellnetr/)
 
 ### Introduction
-CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. You can run it as a command line tool on the cloud through Amazon Web Services (**recommended**), or you can run it locally. Below, we describe how to apply CellNet to your RNA-Seq data. 
+CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. The easiest way to perform CellNet analysis is to use our web app. You can also run it as a command line tool on the cloud through Amazon Web Services, or you can run it locally. Below, we describe how to apply CellNet to your RNA-Seq data. 
 
 ## Ways to Run CellNet
 
 #### Web application
 The web application takes as input an expression matrix (counts, TPM, or FPKM), and sample meta-data. The application performs CellNet analysis. Additionally, this tool includes analysis of many state-of-the-art differentiation protocols, so that you can benchmark your results against those commonly used methods:
 
-[CellNet web app](https://cahanlab.org/agnosticCellNet_web/)
+[CellNet web app](https://cahanlab.org/resources/agnosticCellNet_web/)
 
 #### Running CellNet in the Cloud 
 The public CellNet Amazon Machine Image (AMI), available on Amazon Web Services (AWS), has all of the prerequisite software and libraries pre-installed. Because of this and the scalable computing capacity of AWS, **we highly recommend that you use AWS to run CellNet for RNA-Seq data** instead of running it locally. If you are unfamiliar with AWS or cloud computing in general, we recommend the following links for further information:
