@@ -171,7 +171,7 @@ system.time(TF_scores <- ccn_tfScores(expQuery = queryExpDat_ranked, grnAll = gr
 save(TF_scores, file="my_study_TF_scores.rda")
 
 # Choose top scoring 25 TFs for plotting
-TFsums <- abs(rowSums(TF_scores))
+TFsums <- rowSums(abs(TF_scores))
 ordered_TFsums <- TFsums[order(TFsums, decreasing = TRUE)]
 if(length(TFsums) > 25) {
     top_display_TFs <- names(ordered_TFsums)[1:25]    

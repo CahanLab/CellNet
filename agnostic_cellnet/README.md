@@ -88,7 +88,8 @@ ccn_hmClass(classMatrix, grps=grps, fontsize_row=10)
 dev.off()
 ```
 
-<img src="example_plots/classifier_validation_heatmap.pdf" style="height: 400px;"/>
+![Validation heatmap](example_plots/classifier_validation_heatmap.pdf)
+
 
 Plot validation precision-recall curves:
 ```R
@@ -99,7 +100,7 @@ plot_class_PRs(assessmentDat)
 dev.off()
 ```
 
-<img src="example_plots/classifier_precision_recall.pdf" style="height: 400px;"/>
+![PR plots](example_plots/classifier_precision_recall.pdf)
 
 
 #### Gene pair validation
@@ -253,7 +254,7 @@ save(TF_scores, file="my_study_TF_scores.rda")
 
 Choose top scoring 25 TFs for plotting:
 ```R
-TFsums <- abs(rowSums(TF_scores))
+TFsums <- rowSums(abs(TF_scores))
 ordered_TFsums <- TFsums[order(TFsums, decreasing = TRUE)]
 if(length(TFsums) > 25) {
     top_display_TFs <- names(ordered_TFsums)[1:25]    
