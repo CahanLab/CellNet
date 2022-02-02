@@ -404,6 +404,7 @@ q(save="no")
 ```
 
 To download the object, there are 2 options:
+
 A. In a separate terminal tab on your local computer, scp the file from the instance to your local directory:
 ```
 $ scp -i replace_with_key_name.pem ec2-user@<REPLACE-WITH-PUBLIC-DNS>.amazonaws.com:/media/ephemeral1/analysis/Hs_grnAll_todays_date.rda .
@@ -425,7 +426,8 @@ $ aws s3 cp Hs_grnAll_todays_date.rda s3://cahanlab/my.folder/my-subfolder/
 $ aws s3 cp Hs_trainingNormalization_todays_date.rda s3://cahanlab/my.folder/my-subfolder/
 ```
 
-`exit` screen, then `exit` your instance.
+
+After you are finished downloading the final objects, `exit` screen, then `exit` your instance.
 
 TERMINATE YOUR INSTANCE ON THE AWS EC2 GUI. HOURLY RATES FOR LARGE INSTANCES ARE EXPENSIVE.
 
