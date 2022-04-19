@@ -49,8 +49,15 @@ set.seed(99) # Setting a seed for the random number generator allows us to repro
 stList <- splitCommon_proportion(sampTab = stTrain, proportion = 0.66, dLevel = "description1") # Use 2/3 of training data for training and 1/3 for validation
 stTrainSubset <- stList$trainingSet
 expTrainSubset <- expTrain[,rownames(stTrainSubset)]
+
+#See number of samples of each unique type in description1 in training subset
+table(stTrainSubset$description1)
+
 stValSubset <- stList$validationSet
 expValSubset <- expTrain[rownames(stValSubset)]
+#See number of samples of each unique type in description1 in validation subset
+table(stValSubset$description1)
+
 ```
 
 Train the random forest classifier, takes 3-10 minutes depending on memory availability:
@@ -59,14 +66,14 @@ system.time(my_classifier <- broadClass_train(stTrain = stTrainSubset,
                                 expTrain = expTrainSubset, 
                                 colName_cat = "description1", 
                                 colName_samp = "sra_id", 
-                                nRand = 70,
+                                nRand = 70, # Must be less than the smallest number in table(stTrainSubset$description1)
                                 nTopGenes = 100, 
                                 nTopGenePairs = 100, 
                                 nTrees = 2000, 
                                 stratify=TRUE, 
-                                sampsize=25, 
+                                sampsize=25, # Must be less than the smallest number in table(stTrainSubset$description1)
                                 quickPairs=TRUE)) # Increasing the number of top genes and top gene pairs increases the resolution of the classifier but increases the computing time
-save(my_classifier file="cellnet_classifier_100topGenes_100genePairs.rda")
+save(my_classifier, file="cellnet_classifier_100topGenes_100genePairs.rda")
 ```
 
 #### Classifier Validation
@@ -77,7 +84,7 @@ stValSubsetOrdered <- stValSubset[order(stValSubset$description1), ] #order samp
 expValSubset <- expValSubset[rownames(stValSubsetOrdered)]
 cnProc <- my_classifier$cnProc #select the cnProc from the earlier class training
 
-classMatrix <- broadClass_predict(cnProc, expValSubset, nrand = 60)
+classMatrix <- broadClass_predict(cnProc, expValSubset, nrand = 60) #nrand must be less than the smallest number in table(stValSubset$description1)
 stValRand <- addRandToSampTab(classMatrix, stValSubsetOrdered, desc="description1", id="sra_id")
 
 grps <- as.vector(stValRand$description1)
