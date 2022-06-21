@@ -1,37 +1,74 @@
 # Training and Running Platform-Agnostic CellNet
 
+### Table of contents
+
+[Introduction](#introduction)
+
+[Data](#data)
+
+[Installation](#installation)
+
+[Training](#training)
+
+[Query](#query)
+
 ---
 
-## Introduction
-This is a walk-through tutorial on 1) how to train a platform-agnostic CellNet classifier using an already preprocessed (i.e. converted from fastqs to an expression matrix) bulk training dataset and 2) how to apply the classifier to an already preprocessed bulk query study. All the code below is also available in a single R file, `agnosticCellNet_example.R`.
+### Introduction <a name="introduction"></a>
+This is a walk-through tutorial on 1) how to train a PACNet classifier using a preprocessed training expression matrix and 2) how to apply the classifier to a preprocessed query study. All the code below is also available in a single R file, `agnosticCellNet_example.R`.
 
 ---
 
-#### Prerequisite installations
-First, install and/or load required R packages. (Uncomment lines for packages that are not yet installed.)
+### Data <a name="data"></a>
+
+Training Data
+
+| Species | Metadata table | Expression matrix | Grn Object | Training Parameters |
+|---------|----------------|-------------------|------------|---------------------|
+| Human   | [Hs_stTrain_Jun-20-2017.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/HS/Hs_stTrain_Jun-20-2017.rda) | [Hs_expTrain_Jun-20-2017.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/HS/Hs_expTrain_Jun-20-2017.rda) | [Hs_grnAll_curatedTFs_Apr-22-2020.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/HS/Hs_grnAll_curatedTFs_Apr-22-2020.rda) | [Hs_trainingNormalization_Apr-22-2020.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/HS/Hs_trainingNormalization_Apr-22-2020.rda) |
+| Mouse   | [Mm_stTrain_Oct-24-2016.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/MM/Mm_stTrain_Oct-24-2016.rda) | [Mm_expTrain_Oct-24-2016.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/MM/Mm_expTrain_Oct-24-2016.rda) | [Mm_grnAll_curatedTFs_Apr-22-2020.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/MM/Mm_grnAll_curatedTFs_Apr-22-2020.rda) | [Mm_trainingNormalization_Apr-22-2020.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/MM/Mm_trainingNormalization_Apr-22-2020.rda) |
+
+
+Human Engineered Reference Panels
+
+| Cell type | Metadata table | Expression matrix | Trained Classifier | Grn Object Subset | Training Parameter Subset |
+|-----------|----------------|-------------------|--------------------|-------------------|---------------------------|
+| Heart | [heart_engineeredRef_sampTab_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/heart_engineeredRef_sampTab_all.rda) | [heart_engineeredRef_normalized_expDat_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/heart_engineeredRef_normalized_expDat_all.rda) | [heart_broadClassifier100.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/heart_broadClassifier100.rda) | [heart_grnAll.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/heart_grnAll.rda) | [heart_trainNormParam.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/heart_trainNormParam.rda) |
+| HSPC | [hspc_engineeredRef_sampTab_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/hspc_engineeredRef_sampTab_all.rda) | [hspc_engineeredRef_normalized_expDat_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/hspc_engineeredRef_normalized_expDat_all.rda) | [hspc_broadClassifier100.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/hspc_broadClassifier100.rda) | [hspc_grnAll.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/hspc_grnAll.rda) | [hspc_trainNormParam.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/hspc_trainNormParam.rda) |
+| Intestine/colon | [intestine_colon_engineeredRef_sampTab_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/intestine_colon_engineeredRef_sampTab_all.rda) | [intestine_colon_engineeredRef_normalized_expDat_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/intestine_colon_engineeredRef_normalized_expDat_all.rda) | [intestine_colon_broadClassifier100.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/intestine_colon_broadClassifier100.rda) | [intestine_colon_grnAll.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/intestine_colon_grnAll.rda) | [intestine_colon_trainNormParam.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/intestine_colon_trainNormParam.rda) |
+| Liver | [liver_engineeredRef_sampTab_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/liver_engineeredRef_sampTab_all.rda) | [liver_engineeredRef_normalized_expDat_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/liver_engineeredRef_normalized_expDat_all.rda) | [broadClassifier100.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/liver_broadClassifier100.rda) | [liver_grnAll.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/liver_grnAll.rda) | [liver_trainNormParam.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/liver_trainNormParam.rda) |
+| Lung | [lung_engineeredRef_sampTab_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/lung_engineeredRef_sampTab_all.rda) | [lung_engineeredRef_normalized_expDat_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/lung_engineeredRef_normalized_expDat_all.rda) | [lung_broadClassifier100.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/lung_broadClassifier100.rda) | [lung_grnAll.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/lung_grnAll.rda) | [lung_trainNormParam.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/lung_trainNormParam.rda) |
+| Neuron | [neuron_engineeredRef_sampTab_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/neuron_engineeredRef_sampTab_all.rda) | [neuron_engineeredRef_normalized_expDat_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/neuron_engineeredRef_normalized_expDat_all.rda) | [neuron_broadClassifier100.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/neuron_broadClassifier100.rda) | [neuron_grnAll.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/neuron_grnAll.rda) | [neuron_trainNormParam.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/neuron_trainNormParam.rda) |
+| Skeletal muscle | [skeletal_muscle_engineeredRef_sampTab_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/skeletal_muscle_engineeredRef_sampTab_all.rda) | [skeletal_muscle_engineeredRef_normalized_expDat_all.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/skeletal_muscle_engineeredRef_normalized_expDat_all.rda) | [skeletal_muscle_broadClassifier100.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/skeletal_muscle_broadClassifier100.rda) | [skeletal_muscle_grnAll.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/skeletal_muscle_grnAll.rda) | [skeletal_muscle_trainNormParam.rda](https://s3.console.aws.amazon.com/s3/object/cnobjects?region=us-east-1&prefix=webApps/agnosticCellNet_web/skeletal_muscle_trainNormParam.rda) |
+
+---
+
+### Installation <a name="installation"></a>
 ```R
-# install.packages("devtools")
+install.packages("devtools")
 library(devtools)
-# install_github("pcahan1/CellNet", ref="master")
-# install_github("pcahan1/cancerCellNet@v0.1.1", ref="master")
+install_github("pcahan1/CellNet", ref="master")
+install_github("pcahan1/cancerCellNet@v0.1.1", ref="master")
+```
+Other required packages: plyr, ggplot2, RColorBrewer, pheatmap, plotly
+
+#### Prerequisites 
+Load required R packages.
+```R
 library(CellNet)
 library(cancerCellNet)
-# install.packages("plyr")
-# install.packages("ggplot2")
-# install.packages("RColorBrewer")
-# install.packages("pheatmap")
 library(plyr)
 library(ggplot2)
 library(RColorBrewer)
 library(pheatmap)
-
-source("plotting.R")
+library(plotly)
+source("pacnet_utils.R")
 ```
 
-### Training
+### Training <a name="training"></a>
 
 #### Confirm correct format of training data expression matrix and training sample metadata table
-Expression matrix should have gene symbols as row names and sample names as column names. Sample metadata table should have sample names as row names and sample features as column names. Column names of expression matrix must match row names of metadata table. (See the [example_data folder](example_data/) for a small example of an expression matrix and metadata table. Load .rda files in R with `load("my_example_file.rda")` ).
+Expression matrix should have gene symbols as row names and sample names as column names. Sample metadata table should have sample names as row names and sample features as column names. Column names of expression matrix must match row names of metadata table. (See the [example_data folder](example_data/) for a small example of an expression matrix and metadata table.
 
 For classifier training to be robust, there should be at least 60 independent replicates per training type.
 
@@ -39,8 +76,24 @@ For classifier training to be robust, there should be at least 60 independent re
 
 Load training data:
 ```R
-expTrain <- utils_loadObject("Hs_expTrain_Jun-20-2017.rda")
+expTrain <- utils_loadObject("Hs_expTrain_Jun-20-2017.rda") 
 stTrain <- utils_loadObject("Hs_stTrain_Jun-20-2017.rda")
+```
+
+Load engineered reference data and query data. We need to load these at this point to identify genes found in across all datasets.
+```R
+liverRefExpDat <- utils_loadObject("liver_engineeredRef_normalized_expDat_all.rda")
+liverRefSampTab <- utils_loadObject("liver_engineeredRef_sampTab_all.rda")
+queryExpDat <- read.csv("example_counts_matrix.csv", row.names=1)
+querySampTab <- read.csv("example_sample_metadata_table.csv", row.names=1)
+```
+
+Identify intersecting genes:
+```R
+iGenes <- intersect(rownames(expTrain), rownames(liverRefExpDat))
+iGenes <- intersect(iGenes, rownames(queryExpDat))
+
+expTrain <- expTrain[iGenes,]
 ```
 
 Split the training data into a training subset and a validation subset:
@@ -96,7 +149,7 @@ ccn_hmClass(classMatrix, grps=grps, fontsize_row=10)
 dev.off()
 ```
 
-![Validation heatmap](example_plots/classifier_validation_heatmap.pdf)
+![Example validation heatmap](example_plots/classifier_validation_heatmap.pdf)
 
 
 Plot validation precision-recall curves:
@@ -108,7 +161,7 @@ plot_class_PRs(assessmentDat)
 dev.off()
 ```
 
-![PR plots](example_plots/classifier_precision_recall.pdf)
+![Example PR plots](example_plots/classifier_precision_recall.pdf)
 
 
 #### Gene pair validation
@@ -160,20 +213,36 @@ save(xpairs_list, file="Hs_xpairs_list.rda")
 
 ---
 
-### Querying the classifier
+### Querying the classifier <a name="query"></a>
 
-#### Check format of query expression matrix and query sample table
-Similarly to training data, expression matrix should have gene symbols as row names and sample names as column names. Sample metadata table should have sample names as row names and sample features as column names. Column names of expression matrix must match row names of metadata table.
+#### Classify engineered reference panel samples
+
+```R
+classMatrixLiverRef <- broadClass_predict(cnProc = cnProc, expDat = liverRefExpDat, nrand = 10) 
+grp_names1 <- c(as.character(liverRefSampTab$description1), rep("random", 10))
+names(grp_names1) <- c(as.character(rownames(liverRefSampTab)), paste0("rand_", c(1:10)))
+
+# Re-order classMatrixQuery to match order of rows in querySampTab
+classMatrixLiverRef <- classMatrixLiverRef[,names(grp_names1)]
+```
+
+Plot classification heatmap:
+```R
+pdf("heatmapLiverRef.pdf", height=12, width=9)
+# This function can be found in pacnet_utils.R
+heatmapRef(classMatrixLiverRef, liverRefSampTab)
+dev.off()
+
+# Alternatively, for an interactive plotly version:
+heatmapPlotlyRef(classMatrixLiverRef, liverRefSampTab)
+
+```
+
+![Example engineered reference panel plotly heatmap](example_plots/heatmapLiverRef.pdf)
 
 #### Classify query samples
 
-Load query data:
-```R
-queryExpDat <- utils_loadObject("example_queryExpMat_counts.rda")
-querySampTab <- utils_loadObject("example_sampTab.rda")
-```
-
-If query expression matrix is in the form of counts, perform log transform:
+Perform log transform:
 ```R
 queryExpDat <- log(1+queryExpDat)
 ```
@@ -182,7 +251,7 @@ Classify query samples:
 ```R
 classMatrixQuery <- broadClass_predict(cnProc = cnProc, expDat = queryExpDat, nrand = 3) 
 grp_names <- c(as.character(querySampTab$description1), rep("random", 3))
-names(grp_names) <- c(as.character(rownames(querySampTab)), "rand_1", "rand_2", "rand_3")
+names(grp_names) <- c(as.character(rownames(querySampTab)), paste0("rand_", c(1:10)))
 
 # Re-order classMatrixQuery to match order of rows in querySampTab
 classMatrixQuery <- classMatrixQuery[,names(grp_names)]
@@ -194,7 +263,7 @@ Plot classification heatmap:
 ```R
 pdf(file="query_classification_heatmap.pdf"), height=4)
 
-# This function can be found in plotting.R
+# This function can be found in pacnet_utils.R
 acn_queryClassHm(classMatrixQuery, main = paste0("Classification Heatmap, ", study_name), 
             grps = grp_names, 
             fontsize_row=10, fontsize_col = 10, isBig = FALSE)
@@ -203,10 +272,15 @@ dev.off()
 
 #### Compute GRN Status
 
-Load `grnAll` and `trainNormParam` objects. If there is no relevant grnAll object available for your purposes, you will need to train a new one on AWS. See the [Appendix](#Appendix) for more. 
+Subset `grnAll` and `trainNormParam` objects based on intersecting genes.
 ```R
-grnAll <- utils_loadObject("Hs_grnAll_curatedTFs_Apr-22-2020.rda")
-trainNormParam <- utils_loadObject("Hs_trainingNormalization_Apr-22-2020.rda")
+grnAll <- utils_loadObject("liver_grnAll.rda")
+trainNormParam <- utils_loadObject("liver_trainNormParam.rda")
+
+
+# These two functions can be found in pacnet_utils.R
+grnAll <- subsetGRNall(grnAll, iGenes)
+trainNormParam <- subsetTrainNormParam(trainNormParam, grnAll, iGenes)
 ```
 
 Compute GRN statuses and save:
@@ -299,146 +373,6 @@ dev.off()
 
 [Example NIS plots](example_plots/example_NIS.pdf)
 
-
 Fin.
 
 ---
----
-
-## Appendix
-
-### Reconstructing GRNs on AWS
-
-GRN reconstruction requires a lot of RAM and thus makes more sense on an AWS instance. Once set up in the instance, GRN construction will take 15-60 min depending on size of expression matrix.
-
-#### Starting an AWS instance
-
-Start an EC2 c5.18xlarge instance with the following AMI:
-Name: bigmomma_R3.5.2
-AMI ID: ami-01473625b196bb951
-
-Make sure you have 2 instance stores in addition to the root volume in the "Add Storage" tab. These allow you to mount the ephemeral0 and ephemeral1 drives. 
-
-Select the "launch-wizard-1" security group.
-
-Wait for 2/2 checks to be finished on the AWS GUI.
-
-#### Upload necessary files to your instance
-
-```
-scp -i replace_with_key_name.pem Hs_stTrain_Jun-20-2017.rda ec2-user@<REPLACE-WITH-PUBLIC-DNS>.amazonaws.com:~
-scp -i replace_with_key_name.pem Hs_expTrain_Jun-20-2017.rda ec2-user@<REPLACE-WITH-PUBLIC-DNS>.amazonaws.com:~
-scp -i replace_with_key_name.pem cellnet_classifier_100topGenes_100genePairs.rda ec2-user@<REPLACE-WITH-PUBLIC-DNS>.amazonaws.com:~
-scp -i replace_with_key_name.pem Hs_xpairs_list.rda ec2-user@<REPLACE-WITH-PUBLIC-DNS>.amazonaws.com:~
-```
-
-#### Begin 
-
-ssh into your instance:
-`ssh -i key_name.pem ec2-user@<REPLACE-WITH-PUBLIC-DNS>.amazonaws.com`
-
-`screen` to preserve your session if disconnected.
-
-Mount the storage drives and move .rda files:
-```
-$ sudo mkfs /dev/xvdb
-$ sudo mount /dev/xvdb /media/ephemeral1
-$ cd /media/ephemeral1
-$ sudo mkdir analysis
-$ sudo chown ec2-user analysis
-$ cd analysis
-$ mv ~/*.rda .
-```
-
-Start an R session:
-`R`
-
-Load dependencies:
-```R
-# library(devtools)
-# install_github("pcahan1/cancerCellNet@v0.1.1", ref="master")
-library(CellNet)
-library(cancerCellNet)
-library(igraph)
-```
-
-Load training data:
-```R
-expTrain <- utils_loadObject("Hs_expTrain_Jun-20-2017.rda")
-expTrain_transformed <- trans_prop(weighted_down(expTrain, 5e5, dThresh=0.25), 1e5)
-
-stTrain <- utils_loadObject("Hs_stTrain_Jun-20-2017.rda")
-
-my_classifier <- utils_loadObject("cellnet_classifier_100topGenes_100genePairs.rda")
-cnProc <- my_classifier$cnProc
-
-xpairs_list <- utils_loadObject("Hs_xpairs_list.rda")
-```
-
-Construct GRNs (will take 15-60 min. Since you are in `screen`, you can leave your instance and come back anytime):
-```R
-system.time(grnAll <- ccn_makeGRN(expTrain_transformed, stTrain, "description1",
-                                  zThresh = 4, dLevelGK = NULL, prune = TRUE,
-                                  holm = 1e-4, cval=0.3)
-            )
-```
-
-Save the grnAll object:
-```R
-save(grnAll, file="Hs_grnAll_todays_date.rda")
-```
-
-Train normalization parameters:
-```R
-expTrain_ranked <- logRank(expTrain2, base = 0)
-# Extract the importance of genes based on the classifier
-geneImportance <- processImportance(classifier = cnProc$classifier,
-                                      xpairs = xpairs_list, prune = TRUE)
-subNets <- grnAll$ctGRNs$geneLists
-   
-
-system.time(trainNormParam <- ccn_trainNorm(expTrain_ranked, stTrain,
-                                            subNets=subNets,
-                                            classList = geneImportance,
-                                            dLevel = "description1", sidCol = "sra_id",
-                                            classWeight = TRUE, exprWeight = FALSE,
-                                            meanNorm = TRUE)
-```
-
-Save and exit:
-```R
-save(trainNormParam, file="Hs_trainingNormalization_todays_date.rda")
-q(save="no")
-```
-
-To download the object, there are 2 options:
-
-A. In a separate terminal tab on your local computer, scp the file from the instance to your local directory:
-```
-$ scp -i replace_with_key_name.pem ec2-user@<REPLACE-WITH-PUBLIC-DNS>.amazonaws.com:/media/ephemeral1/analysis/Hs_grnAll_todays_date.rda .
-$ scp -i replace_with_key_name.pem ec2-user@<REPLACE-WITH-PUBLIC-DNS>.amazonaws.com:/media/ephemeral1/analysis/Hs_trainingNormalization_todays_date.rda .
-```
-
-OR
-
-B. Use the AWS CLI to copy the object to S3, then download using the S3 GUI.
-On your instance:
-```
-$ aws configure
-AWS Access Key ID [None]: REPLACE_WITH_MY_ACCESS_KEY_ID
-AWS Secret Access Key [None]: replace_with_my_secret_access_key
-Default region name [None]: us-east-1e
-Default output format [None]: 
-
-$ aws s3 cp Hs_grnAll_todays_date.rda s3://cahanlab/my.folder/my-subfolder/
-$ aws s3 cp Hs_trainingNormalization_todays_date.rda s3://cahanlab/my.folder/my-subfolder/
-```
-
-
-After you are finished downloading the final objects, `exit` screen, then `exit` your instance.
-
-TERMINATE YOUR INSTANCE ON THE AWS EC2 GUI. HOURLY RATES FOR LARGE INSTANCES ARE EXPENSIVE.
-
-
-
-

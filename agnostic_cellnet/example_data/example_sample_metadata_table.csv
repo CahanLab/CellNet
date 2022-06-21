@@ -1,0 +1,11 @@
+sample_name,alt_sample_name,pe_se,study_id,description1,description2,description3
+SRR6898209,GSM3067802,PAIRED,SRP136469,primary fetal liver,hFLCs-1,primary fetal liver
+SRR6898210,GSM3067803,PAIRED,SRP136469,primary fetal liver,hFLCs-2,primary fetal liver
+SRR8094748,GSM3442821,PAIRED,SRP136469,primary adult liver,AL1,primary adult liver
+SRR8094749,GSM3442822,PAIRED,SRP136469,primary adult liver,AL2,primary adult liver
+SRR8094750,GSM3442823,PAIRED,SRP136469,primary adult liver,AL3,primary adult liver
+SRR8094751,GSM3442824,PAIRED,SRP136469,primary adult human hepatocytes,F-PHHs,primary adult human hepatocytes
+SRR6898193,GSM3067786,PAIRED,SRP136469,primary adult human hepatocytes,F-PHHs,primary adult human hepatocytes
+SRR6898194,GSM3067787,PAIRED,SRP136469,primary adult human hepatocytes,F-PHHs,primary adult human hepatocytes
+SRR6898195,GSM3067788,PAIRED,SRP136469,primary adult human hepatocytes,F-PHHs,primary adult human hepatocytes
+SRR6898211,GSM3067804,PAIRED,SRP136469,primary adult human hepatocytes,F-PHHs,primary adult human hepatocytes

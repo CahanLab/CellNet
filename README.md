@@ -1,5 +1,9 @@
 # CellNet
 
+[Shortcut to Platform-Agnostic CellNet (PACNet) Web Application](http://cahanlab.org/resources/agnosticCellNet_web/)
+
+[Shortcut to tutorial for running PACNet locally](https://github.com/pcahan1/CellNet/tree/master/agnostic_cellnet)
+
 [Shortcut to bulk rna-seq protocol](#bulk_protocol)
 
 [Cloud-based RNA-Seq web application](https://github.com/pcahan1/CellNet_Cloud)
@@ -8,8 +12,14 @@
 
 [Microarray CellNet code](https://pcahan1.github.io/cellnetr/)
 
+
+
 ### Introduction
 CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. The easiest way to perform CellNet analysis is to use our web app. You can also run it as a command line tool on the cloud through Amazon Web Services, or you can run it locally. Below, we describe how to apply CellNet to your RNA-Seq data. 
+
+For more, see our relevant publications:
+[RNASeq CellNet Protocol](https://www.nature.com/articles/nprot.2017.022)
+[Original CellNet Publication](https://www.sciencedirect.com/science/article/pii/S0092867414009349)
 
 ## Ways to Run CellNet
 
