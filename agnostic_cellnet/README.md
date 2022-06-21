@@ -256,12 +256,12 @@ names(grp_names) <- c(as.character(rownames(querySampTab)), paste0("rand_", c(1:
 # Re-order classMatrixQuery to match order of rows in querySampTab
 classMatrixQuery <- classMatrixQuery[,names(grp_names)]
 
-save(classMatrixQuery, file="example_classificationMatrix.rda"))
+save(classMatrixQuery, file="example_classificationMatrix.rda")
 ```
 
 Plot classification heatmap:
 ```R
-pdf(file="query_classification_heatmap.pdf"), height=4)
+pdf(file="query_classification_heatmap.pdf", height=4)
 
 # This function can be found in pacnet_utils.R
 acn_queryClassHm(classMatrixQuery, main = paste0("Classification Heatmap, ", study_name), 
@@ -334,7 +334,7 @@ system.time(TF_scores <- ccn_tfScores(expQuery = queryExpDat_ranked, grnAll = gr
 save(TF_scores, file="my_study_TF_scores.rda")
 ```
 
-Choose top scoring 25 TFs for plotting:
+Choose top-scoring 25 TFs for plotting:
 ```R
 TFsums <- rowSums(abs(TF_scores))
 ordered_TFsums <- TFsums[order(TFsums, decreasing = TRUE)]
