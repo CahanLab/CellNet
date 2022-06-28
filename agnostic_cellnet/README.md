@@ -75,7 +75,7 @@ source("pacnet_utils.R")
 ### Training <a name="training"></a>
 
 #### Confirm correct format of training data expression matrix and training sample metadata table
-Expression matrix should have gene symbols as row names and sample names as column names. Sample metadata table should have sample names as row names and sample features as column names. Column names of expression matrix must match row names of metadata table. (See the [example_data folder](example_data/) for a small example of an expression matrix and metadata table.
+Expression matrix should have gene symbols as row names and sample names as column names. Sample metadata table should have sample names as row names and sample features as column names. Column names of expression matrix must match row names of metadata table. (See the [example_data folder](example_data/) for a small example of an expression matrix and metadata table.)
 
 For classifier training to be robust, there should be at least 60 independent replicates per training type.
 
@@ -156,8 +156,9 @@ ccn_hmClass(classMatrix, grps=grps, fontsize_row=10)
 dev.off()
 ```
 
-![Example validation heatmap](example_plots/classifier_validation_heatmap.pdf)
+<img src="example_plots/classifier_validation_heatmap.png">
 
+<br>
 
 Plot validation precision-recall curves:
 ```R
@@ -168,7 +169,9 @@ plot_class_PRs(assessmentDat)
 dev.off()
 ```
 
-![Example PR plots](example_plots/classifier_precision_recall.pdf)
+<img src="example_plots/classifier_precision_recall.png">
+
+<br>
 
 
 #### Gene pair validation
@@ -245,7 +248,9 @@ heatmapPlotlyRef(classMatrixLiverRef, liverRefSampTab)
 
 ```
 
-![Example engineered reference panel plotly heatmap](example_plots/heatmapLiverRef.pdf)
+<img src="example_plots/heatmapLiverRef.png">
+
+<br>
 
 #### Classify query samples
 
