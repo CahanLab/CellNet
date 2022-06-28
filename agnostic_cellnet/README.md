@@ -15,7 +15,13 @@
 ---
 
 ### Introduction <a name="introduction"></a>
-This is a walk-through tutorial on 1) how to train a PACNet classifier using a preprocessed training expression matrix and 2) how to apply the classifier to a preprocessed query study. All the code below is also available in a single R file, `agnosticCellNet_example.R`.
+Platform-Agnostic CellNet (PACNet) is our newest version of CellNet that is agnostic to transcriptome profiling method, computational preprocessing method, and gene availability arising from preprocessing method, thus allowing cross-study comparisons of cell fate engineering protocol performance.  
+
+We also provide reference panels of human engineered cell types from state-of-the-field protocols for HSPC, heart, intestine/colon, liver, lung, neuron, and skeletal_muscle samples against which you can compare your own samples. Engineered reference panels for other human cell types and all mouse cell types are not yet available. However, we provide the resources and instructions for training and running both human and mouse PACNet here.  
+
+This is a walk-through tutorial on 1) how to train a PACNet classifier using a preprocessed training expression matrix and 2) how to apply the classifier to a preprocessed query study (and reference engineered panel, if applicable). All the code below is also available in a single R file, `agnosticCellNet_example.R`.  
+
+For more information on CellNet, please visit https://github.com/pcahan1/CellNet.  
 
 ---
 
@@ -28,6 +34,7 @@ Training Data
 | Human   | [Hs_stTrain_Jun-20-2017.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/HS/Hs_stTrain_Jun-20-2017.rda) | [Hs_expTrain_Jun-20-2017.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/HS/Hs_expTrain_Jun-20-2017.rda) | [Hs_grnAll_curatedTFs_Apr-22-2020.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/HS/Hs_grnAll_curatedTFs_Apr-22-2020.rda) | [Hs_trainingNormalization_Apr-22-2020.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/HS/Hs_trainingNormalization_Apr-22-2020.rda) |
 | Mouse   | [Mm_stTrain_Oct-24-2016.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/MM/Mm_stTrain_Oct-24-2016.rda) | [Mm_expTrain_Oct-24-2016.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/MM/Mm_expTrain_Oct-24-2016.rda) | [Mm_grnAll_curatedTFs_Apr-22-2020.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/MM/Mm_grnAll_curatedTFs_Apr-22-2020.rda) | [Mm_trainingNormalization_Apr-22-2020.rda](https://s3.console.aws.amazon.com/s3/object/cellnet-rnaseq?region=us-east-1&prefix=ref/cnproc/MM/Mm_trainingNormalization_Apr-22-2020.rda) |
 
+<br>
 
 Human Engineered Reference Panels
 
