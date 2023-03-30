@@ -339,11 +339,13 @@ dev.off()
 
 Compute and save TF scores:
 ```R
-target_cell_type <- "my_cell_type" # CHANGE FOR SPECIFIC CONTEXT
-system.time(TF_scores <- ccn_tfScores(expQuery = queryExpDat_ranked, grnAll = grnAll, trainNorm = trainNormParam,
-                          classifier_return = broad_return, subnetName = target_cell_type,
-                          exprWeight = FALSE, normTFscore = TRUE))
-save(TF_scores, file="my_study_TF_scores.rda")
+network_cell_type <- "esc"
+target_cell_type <- "esc" # CHANGE FOR SPECIFIC CONTEXT
+system.time(TF_scores <- pacnet_nis(expDat=queryExpDat_ranked, stQuery=querySampTab, iGenes=iGenes, 
+                                    grnAll=grnAll, trainNormParam=trainNormParam, 
+                                    subnet=network_cell_type, ctt=target_cell_type, colname_sid="sra_id", relaWeight=0))
+save(TF_scores, file=paste0("my_study_", network_cell_type, "_subnet", target_cell_type, "_target_TF_scores.rda"))
+
 ```
 
 Choose top-scoring 25 TFs for plotting:
@@ -382,6 +384,8 @@ for(sample in sample_names) {
 }
 dev.off()
 ```
+
+Negative TF scores indicate that a given TF should be upregulated to achieve an identity more similar to the target cell type. Positive TF scores indicate that a given TF should be downregulated to achieve an identity more similar to the target cell type.
 
 [Example NIS plots](example_plots/example_NIS.pdf)
 
