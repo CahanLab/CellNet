@@ -12,18 +12,21 @@ library(ggplot2)
 library(RColorBrewer)
 library(pheatmap)
 library(plotly)
+library(igraph)
 source("pacnet_utils.R")
 
 # Load training data:
-expTrain <- utils_loadObject("Hs_expTrain_Jun-20-2017.rda") 
+expTrain <- utils_loadObject("Hs_expTrain_Jun-20-2017.rda")
 stTrain <- utils_loadObject("Hs_stTrain_Jun-20-2017.rda")
 
 # Load engineered reference data and query data. 
 # We need to load these at this point to identify genes found in across all datasets.
 liverRefExpDat <- utils_loadObject("liver_engineeredRef_normalized_expDat_all.rda")
 liverRefSampTab <- utils_loadObject("liver_engineeredRef_sampTab_all.rda")
-queryExpDat <- read.csv("example_counts_matrix.csv", row.names=1)
-querySampTab <- read.csv("example_sample_metadata_table.csv", row.names=1)
+queryExpDat <- read.csv("example_data/example_counts_matrix.csv", row.names=1)
+querySampTab <- read.csv("example_data/example_sample_metadata_table.csv")
+rownames(querySampTab) <- querySampTab$sample_name
+study_name <- "liver_example"
 
 # Identify intersecting genes
 iGenes <- intersect(rownames(expTrain), rownames(liverRefExpDat))
@@ -41,7 +44,7 @@ expTrainSubset <- expTrain[,rownames(stTrainSubset)]
 table(stTrainSubset$description1)
 
 stValSubset <- stList$validationSet
-expValSubset <- expTrain[rownames(stValSubset)]
+expValSubset <- expTrain[,rownames(stValSubset)]
 # See number of samples of each unique type in description1 in validation subset
 table(stValSubset$description1)
 
@@ -50,35 +53,35 @@ system.time(my_classifier <- broadClass_train(stTrain = stTrainSubset,
                                               expTrain = expTrainSubset, 
                                               colName_cat = "description1", 
                                               colName_samp = "sra_id", 
-                                              nRand = 70, # Must be less than the smallest number in table(stTrainSubset$description1)
+                                              nRand = 70,
                                               nTopGenes = 100, 
                                               nTopGenePairs = 100, 
                                               nTrees = 2000, 
                                               stratify=TRUE, 
-                                              sampsize=25, # Must be less than the smallest number in table(stTrainSubset$description1)
+                                              sampsize=25, # Must be less than the smallest n in table(stTrainSubset$description1)
                                               quickPairs=TRUE)) # Increasing the number of top genes and top gene pairs increases the resolution of the classifier but increases the computing time
-save(my_classifier, file="cellnet_classifier_100topGenes_100genePairs.rda")
+save(my_classifier, file="example_outputs/cellnet_classifier_100topGenes_100genePairs.rda")
 
 # Classifier Validation
 
 stValSubsetOrdered <- stValSubset[order(stValSubset$description1), ] #order samples by classification name
-expValSubset <- expValSubset[rownames(stValSubsetOrdered)]
+expValSubset <- expValSubset[,rownames(stValSubsetOrdered)]
 cnProc <- my_classifier$cnProc #select the cnProc from the earlier class training
 
-classMatrix <- broadClass_predict(cnProc, expValSubset, nrand = 60) #nrand must be less than the smallest number in table(stValSubset$description1)
+classMatrix <- broadClass_predict(cnProc, expValSubset, nrand = 60) 
 stValRand <- addRandToSampTab(classMatrix, stValSubsetOrdered, desc="description1", id="sra_id")
 
 grps <- as.vector(stValRand$description1)
 names(grps)<-rownames(stValRand)
 
-# Create pdf of validation heatmap
-pdf(file="classification_validation_hm.pdf", height=6, width=10)
+# Create validation heatmap
+png(file="classification_validation_hm.png", height=6, width=10, units="in", res=300)
 ccn_hmClass(classMatrix, grps=grps, fontsize_row=10)
 dev.off()
 
 # Plot validation precision-recall curves:
 assessmentDat <- ccn_classAssess(classMatrix, stValRand, classLevels="description1", dLevelSID="sra_id")
-pdf(file="classifier_assessment_PR.pdf", height=8, width=10)
+png(file="example_outputs/classifier_assessment_PR.png", height=8, width=10, units="in", res=300)
 plot_class_PRs(assessmentDat)
 dev.off()
 
@@ -96,7 +99,7 @@ val_grps <- stValSubset[,"description1"]
 val_grps <- c(val_grps, colnames(avgGenePair_train))
 names(val_grps) <- c(rownames(stValSubset), colnames(avgGenePair_train))
 
-pdf(file="validation_gene-pair_comparison.pdf", width=10, height=80)
+png(file="example_outputs/validation_gene-pair_comparison.png", width=10, height=80, units="in", res=300)
 plotGeneComparison(geneCompareMatrix, grps = val_grps, fontsize_row = 6)
 dev.off()
 
@@ -120,7 +123,7 @@ names(xpairs_list) <- xpair_names
 for (type in names(xpairs_list)) {
    names(xpairs_list[[type]]) <- xpairs_list[[type]]
 }
-save(xpairs_list, file="Hs_xpairs_list.rda")
+save(xpairs_list, file="example_outputs/Hs_xpairs_list.rda")
 
 ################################################
 # Querying the classifier
@@ -132,7 +135,7 @@ names(grp_names1) <- c(as.character(rownames(liverRefSampTab)), paste0("rand_", 
 # Re-order classMatrixQuery to match order of rows in querySampTab
 classMatrixLiverRef <- classMatrixLiverRef[,names(grp_names1)]
 
-pdf("heatmapLiverRef.pdf", height=12, width=9)
+png(file="example_outputs/heatmapLiverRef.png", height=12, width=9, units="in", res=300)
 heatmapRef(classMatrixLiverRef, liverRefSampTab) # This function can be found in pacnet_utils.R
 dev.off()
 
@@ -143,15 +146,16 @@ heatmapPlotlyRef(classMatrixLiverRef, liverRefSampTab)
 # Classify query samples
 # Perform log transform:
 queryExpDat <- log(1+queryExpDat)
+
 classMatrixQuery <- broadClass_predict(cnProc = cnProc, expDat = queryExpDat, nrand = 3) 
 grp_names <- c(as.character(querySampTab$description1), rep("random", 3))
-names(grp_names) <- c(as.character(rownames(querySampTab)), paste0("rand_", c(1:10)))
+names(grp_names) <- c(as.character(rownames(querySampTab)), paste0("rand_", c(1:3)))
 # Re-order classMatrixQuery to match order of rows in querySampTab
 classMatrixQuery <- classMatrixQuery[,names(grp_names)]
-save(classMatrixQuery, file="example_classificationMatrix.rda")
+save(classMatrixQuery, file="example_outputs/example_classificationMatrix.rda")
 
 #Plot classification heatmap:
-pdf(file="query_classification_heatmap.pdf", height=4)
+png(file="example_outputs/query_classification_heatmap.png", height=4, width=8, units="in", res=300)
 # This function can be found in pacnet_utils.R
 acn_queryClassHm(classMatrixQuery, main = paste0("Classification Heatmap, ", study_name), 
                  grps = grp_names, 
@@ -169,16 +173,18 @@ trainNormParam <- subsetTrainNormParam(trainNormParam, grnAll, iGenes)
 
 #Compute GRN statuses and save:
 queryExpDat_ranked <- logRank(queryExpDat, base = 0)
+queryExpDat_ranked <- as.data.frame(queryExpDat_ranked)
 system.time(GRN_statusQuery <- ccn_queryGRNstatus(expQuery = queryExpDat_ranked, grn_return = grnAll, 
                                                   trainNorm = trainNormParam, classifier_return = my_classifier, prune = TRUE))
-save(GRN_statusQuery, file="my_study_GRN_status.rda")
+save(GRN_statusQuery, file="example_outputs/my_study_GRN_status.rda")
 
 # Plot GRN status bar plots:
 cell_types <- rownames(GRN_statusQuery)
-GRN_statusQuery <- GRN_statusQuery[,rownames(querySampTab)]
+# GRN_statusQuery <- GRN_statusQuery[,rownames(querySampTab)]
+GRN_statusQuery <- GRN_statusQuery[,querySampTab$sample_name]
 pdf_width <- ceiling(ncol(queryExpDat)/3) + 1
-pdf(file="my_study_GRN_status_plots.pdf", height=8, width=pdf_width)
 
+pdf(file="example_outputs/my_study_GRN_status_plots.pdf", height=8, width=pdf_width)
 plot_list <- list()
 i <- 1
 for(type in cell_types) {
@@ -200,10 +206,12 @@ dev.off()
 
 # Compute Network Influence Score (NIS) for transcriptional regulators
 target_cell_type <- "liver" # CHANGE FOR SPECIFIC CONTEXT
-system.time(TF_scores <- ccn_tfScores(expQuery = queryExpDat_ranked, grnAll = grnAll, trainNorm = trainNormParam,
-                                      classifier_return = broad_return, subnetName = target_cell_type,
-                                      exprWeight = FALSE, normTFscore = TRUE))
-save(TF_scores, file="my_study_TF_scores.rda")
+system.time(TF_scores <- pacnet_nis(expDat = queryExpDat_ranked, stQuery=querySampTab, iGenes=iGenes,
+                                    grnAll = grnAll, trainNorm = trainNormParam,
+                                    subnet = target_cell_type, ctt=target_cell_type,
+                                    colname_sid="sample_name", relaWeight=0))
+
+save(TF_scores, file="example_outputs/my_study_TF_scores.rda")
 
 # Choose top-scoring 25 TFs for plotting:
 TFsums <- rowSums(abs(TF_scores))
@@ -218,12 +226,13 @@ TF_scores <- TF_scores[top_display_TFs,]
 #Plot TF scores:
 sample_names <- rownames(querySampTab)
 
-pdf(file="my_study_TF_scores_my_cell_type.pdf", height=6, width=8)
+pdf(file="example_outputs/my_study_TF_scores_my_cell_type.pdf", height=6, width=8)
 for(sample in sample_names) {
    descript <- querySampTab$description1[which(rownames(querySampTab) == sample)]
    plot_df <- data.frame("TFs" = rownames(TF_scores),
                          "Scores" = as.vector(TF_scores[,sample]))
-   sample_TFplot <- ggplot(plot_df, aes(x = TFs , y = Scores)) + geom_bar(stat="identity") + #aes(fill = medVal)) +
+   sample_TFplot <- ggplot(plot_df, aes(x = reorder(TFs,Scores,mean) , y = Scores)) + 
+     geom_bar(stat="identity") + #aes(fill = medVal)) +
       theme_bw() + 
       ggtitle(paste0(sample, ", ", descript, ", ", target_cell_type, " transcription factor scores")) +
       ylab("Network influence score") + xlab("Transcriptional regulator") + 

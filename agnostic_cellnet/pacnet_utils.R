@@ -335,7 +335,7 @@ pacnet_nis <- function(expDat, stQuery, iGenes, grnAll, trainNormParam, subnet, 
   }
   
   rownames(zzzMat)<-netGenes
-  colnames(zzzMat)<-rownames(stQuery)
+  colnames(zzzMat)<-stQuery[,colname_sid]
   
   for(sid in sids) {
     print(paste0("TF scoring for ", sid));
