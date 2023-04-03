@@ -197,6 +197,8 @@ plotGeneComparison(geneCompareMatrix, grps = val_grps, fontsize_row = 6)
 dev.off()
 ```
 
+[Example xpairs plot](example_outputs/validation_gene-pair_comparison.png)
+
 
 Create and save xpairs_list object for grn reconstruction and training normalization parameters:
 ```R
