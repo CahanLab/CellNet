@@ -1,21 +1,21 @@
 # CellNet
 
-[Shortcut to Platform-Agnostic CellNet (PACNet) Web Application](http://cahanlab.org/resources/agnosticCellNet_web/)
+This is repository is no longer being updated. To run the most current version of CellNet, please see the [Platform-Agnostic CellNet (PACNet) repository](https://github.com/pcahan1/PACNet).
 
-[Shortcut to Platform-Agnostic CellNet (PACNet) Repository](https://github.com/pcahan1/PACNet)
+You can also run [PACNet as a web application](http://cahanlab.org/resources/agnosticCellNet_web/), which takes as input an expression matrix (counts, TPM, or FPKM) and sample meta-data. The application performs CellNet analysis. Additionally, this tool includes analysis of many state-of-the-art differentiation protocols so that you can benchmark your results against those commonly used methods.
+
+
+### Introduction
+CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. The easiest way to perform CellNet analysis is to use our web app. You can also run it as a command line tool on the cloud through Amazon Web Services, or you can run it locally. Below, we describe how to apply CellNet to your RNA-Seq data. 
 
 [Shortcut to bulk rna-seq protocol](#bulk_protocol)
 
-[Cloud-based RNA-Seq web application](https://github.com/pcahan1/CellNet_Cloud)
+[Cloud-based RNA-Seq analysis web application](https://github.com/pcahan1/CellNet_Cloud)
 
 [Microarray CellNet web application](http://cellnet.hms.harvard.edu/)
 
 [Microarray CellNet code](https://pcahan1.github.io/cellnetr/)
 
-
-
-### Introduction
-CellNet is a network-biology-based, computational platform that assesses the fidelity of cellular engineering and generates hypotheses for improving cell derivations. CellNet is based on the reconstruction of cell type-specific gene regulatory networks (GRNs), which we performed using publicly available **RNA-Seq** data of 16 mouse and 16 human cell and tissue types. For now, there are two ways to run CellNet for RNA-Seq data. The easiest way to perform CellNet analysis is to use our web app. You can also run it as a command line tool on the cloud through Amazon Web Services, or you can run it locally. Below, we describe how to apply CellNet to your RNA-Seq data. 
 
 For more, see our relevant publications:  
 
@@ -24,11 +24,6 @@ For more, see our relevant publications:
 [Original CellNet Publication](https://www.sciencedirect.com/science/article/pii/S0092867414009349)  
 
 ## Ways to Run CellNet
-
-#### Web application
-The web application takes as input an expression matrix (counts, TPM, or FPKM), and sample meta-data. The application performs CellNet analysis. Additionally, this tool includes analysis of many state-of-the-art differentiation protocols, so that you can benchmark your results against those commonly used methods:
-
-[CellNet web app](https://cahanlab.org/resources/agnosticCellNet_web/)
 
 #### Running CellNet in the Cloud 
 The public CellNet Amazon Machine Image (AMI), available on Amazon Web Services (AWS), has all of the prerequisite software and libraries pre-installed. Because of this and the scalable computing capacity of AWS, **we highly recommend that you use AWS to run CellNet for RNA-Seq data** instead of running it locally. If you are unfamiliar with AWS or cloud computing in general, we recommend the following links for further information:
