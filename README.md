@@ -2,7 +2,7 @@
 
 [Shortcut to Platform-Agnostic CellNet (PACNet) Web Application](http://cahanlab.org/resources/agnosticCellNet_web/)
 
-[Shortcut to tutorial for running PACNet locally](https://github.com/pcahan1/CellNet/tree/master/agnostic_cellnet)
+[Shortcut to Platform-Agnostic CellNet (PACNet) Repository](https://github.com/pcahan1/PACNet)
 
 [Shortcut to bulk rna-seq protocol](#bulk_protocol)
 
